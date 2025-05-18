@@ -11,6 +11,32 @@ from mcp_word_server.utils.document_utils import get_document_properties, extrac
 from mcp_word_server.core.styles import ensure_heading_style, ensure_table_style
 
 
+"""Add Changes """
+# Nueva función para obtener los directorios permitidos
+def get_allowed_directories() -> List[str]:
+    """Get the list of allowed directories from environment variables."""
+    # Obtener de variable de entorno, con valor predeterminado si no existe
+    allowed_dirs_str = os.environ.get("MCP_ALLOWED_DIRECTORIES", "./documents")
+    # Dividir por comas si hay múltiples directorios
+    allowed_dirs = [dir.strip() for dir in allowed_dirs_str.split(",")]
+    # Asegurar que las rutas estén normalizadas
+    return [os.path.abspath(dir) for dir in allowed_dirs]
+"""Add Changes """
+# Nueva función para verificar si una ruta está en directorios permitidos
+def is_path_in_allowed_directories(file_path: str) -> tuple[bool, Optional[str]]:
+    """Check if the given file path is within allowed directories."""
+    allowed_dirs = get_allowed_directories()
+    abs_path = os.path.abspath(file_path)
+    
+    # Verificar si el archivo está en alguno de los directorios permitidos
+    for allowed_dir in allowed_dirs:
+        if os.path.commonpath([allowed_dir, abs_path]) == allowed_dir:
+            return True, None
+    
+    return False, f"Path '{file_path}' is not in allowed directories: {', '.join(allowed_dirs)}"
+
+"""Add Changes """
+# Función modificada para crear documentos
 async def create_document(filename: str, title: Optional[str] = None, author: Optional[str] = None) -> str:
     """Create a new Word document with optional metadata.
     
@@ -20,6 +46,19 @@ async def create_document(filename: str, title: Optional[str] = None, author: Op
         author: Optional author for the document metadata
     """
     filename = ensure_docx_extension(filename)
+    
+    # Verificar si el directorio está permitido
+    is_allowed, error_message = is_path_in_allowed_directories(filename)
+    if not is_allowed:
+        return f"Cannot create document: {error_message}"
+    
+    # Asegurar que el directorio existe
+    directory = os.path.dirname(filename)
+    if directory and not os.path.exists(directory):
+        try:
+            os.makedirs(directory, exist_ok=True)
+        except Exception as e:
+            return f"Cannot create directory '{directory}': {str(e)}"
     
     # Check if file is writeable
     is_writeable, error_message = check_file_writeable(filename)
@@ -45,6 +84,43 @@ async def create_document(filename: str, title: Optional[str] = None, author: Op
         return f"Document {filename} created successfully"
     except Exception as e:
         return f"Failed to create document: {str(e)}"
+
+
+#! Function removed 
+#async def create_document(filename: str, title: Optional[str] = None, author: Optional[str] = None) -> str:
+    """Create a new Word document with optional metadata.
+    
+    Args:
+        filename: Name of the document to create (with or without .docx extension)
+        title: Optional title for the document metadata
+        author: Optional author for the document metadata
+    """
+    """ filename = ensure_docx_extension(filename)
+    
+    # Check if file is writeable
+    is_writeable, error_message = check_file_writeable(filename)
+    if not is_writeable:
+        return f"Cannot create document: {error_message}"
+    
+    try:
+        doc = Document()
+        
+        # Set properties if provided
+        if title:
+            doc.core_properties.title = title
+        if author:
+            doc.core_properties.author = author
+        
+        # Ensure necessary styles exist
+        ensure_heading_style(doc)
+        ensure_table_style(doc)
+        
+        # Save the document
+        doc.save(filename)
+        
+        return f"Document {filename} created successfully"
+    except Exception as e:
+        return f"Failed to create document: {str(e)}" """
 
 
 async def get_document_info(filename: str) -> str:
