@@ -60,6 +60,8 @@ def register_tools():
     mcp.tool()(extended_document_tools.convert_to_pdf)
 
 
+register_tools()  # <-- Esto debe ejecutarse al importar el módulo
+
 def run_server():
     """Run the Word Document MCP Server."""
     # Register all tools
