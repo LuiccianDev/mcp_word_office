@@ -1,8 +1,11 @@
 [project]
 name = "mcp-office-word"
 version = "0.1.0"
-description = "Add your description here"
+description = "MCP server for manipulating Microsoft Word documents"
 readme = "README.md"
+authors = [
+    {name = "LuiccianDev"}
+]
 requires-python = ">=3.13"
 dependencies = [
     "docx2pdf>=0.1.8",
@@ -10,3 +13,6 @@ dependencies = [
     "msoffcrypto-tool>=5.4.2",
     "python-docx>=1.1.2",
 ]
+
+[project.scripts]
+mcp_server_word = "mcp_server.main:run_server"
