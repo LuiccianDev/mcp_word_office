@@ -74,9 +74,9 @@ async def protect_document(filename: str, password: str) -> str:
                     outfile.write(original_data)
                 return f"Failed to encrypt document {filename}: {str(e)}. Original file restored."
             else:
-                 return f"Failed to encrypt document {filename}: {str(e)}. Could not restore original file."
+                return f"Failed to encrypt document {filename}: {str(e)}. Could not restore original file."
         except Exception as restore_e:
-             return f"Failed to encrypt document {filename}: {str(e)}. Also failed to restore original file: {str(restore_e)}"
+            return f"Failed to encrypt document {filename}: {str(e)}. Also failed to restore original file: {str(restore_e)}"
 
 
 async def add_restricted_editing(filename: str, password: str, editable_sections: List[str]) -> str:
@@ -259,9 +259,9 @@ async def unprotect_document(filename: str, password: str) -> str:
         return f"Document {filename} decrypted successfully."
 
     except msoffcrypto.exceptions.InvalidKeyError:
-         return f"Failed to decrypt document {filename}: Incorrect password."
+            return f"Failed to decrypt document {filename}: Incorrect password."
     except msoffcrypto.exceptions.InvalidFormatError:
-         return f"Failed to decrypt document {filename}: File is not encrypted or is not a supported Office format."
+            return f"Failed to decrypt document {filename}: File is not encrypted or is not a supported Office format."
     except Exception as e:
         # Attempt to restore encrypted file content on failure
         try:
@@ -270,6 +270,6 @@ async def unprotect_document(filename: str, password: str) -> str:
                     outfile.write(encrypted_data)
                 return f"Failed to decrypt document {filename}: {str(e)}. Encrypted file restored."
             else:
-                 return f"Failed to decrypt document {filename}: {str(e)}. Could not restore encrypted file."
+                    return f"Failed to decrypt document {filename}: {str(e)}. Could not restore encrypted file."
         except Exception as restore_e:
-             return f"Failed to decrypt document {filename}: {str(e)}. Also failed to restore encrypted file: {str(restore_e)}"
+                return f"Failed to decrypt document {filename}: {str(e)}. Also failed to restore encrypted file: {str(restore_e)}"

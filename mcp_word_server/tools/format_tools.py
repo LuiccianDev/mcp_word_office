@@ -18,9 +18,9 @@ from mcp_word_server.core.tables import apply_table_style
 
 
 async def format_text(filename: str, paragraph_index: int, start_pos: int, end_pos: int, 
-                     bold: Optional[bool] = None, italic: Optional[bool] = None, 
-                     underline: Optional[bool] = None, color: Optional[str] = None,
-                     font_size: Optional[int] = None, font_name: Optional[str] = None) -> str:
+                    bold: Optional[bool] = None, italic: Optional[bool] = None, 
+                    underline: Optional[bool] = None, color: Optional[str] = None,
+                    font_size: Optional[int] = None, font_name: Optional[str] = None) -> str:
     """Format a specific range of text within a paragraph.
     
     Args:
