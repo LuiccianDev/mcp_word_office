@@ -9,9 +9,9 @@ from typing import Dict, List, Any, Pattern, Optional
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.text.paragraph import Paragraph
-from .document_utils import validate_document_path
+from mcp_word_server.utils.file_utils import validate_docx_file
 
-@validate_document_path('doc_path')
+@validate_docx_file('doc_path')
 def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
     """Get text from a specific paragraph in a Word document.
 
@@ -46,7 +46,7 @@ def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
 
 
 
-@validate_document_path('doc_path')
+@validate_docx_file('doc_path')
 def find_text(
     doc_path: str, 
     text_to_find: str, 
