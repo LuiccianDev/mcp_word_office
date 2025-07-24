@@ -4,59 +4,14 @@ Document utility functions for Word Document Server.
 This module provides utility functions for working with Word documents,
 including extracting properties, text, and structure from .docx files.
 """
-import os
-import functools
-from typing import Dict, List, Any, Callable, TypeVar, cast
+from typing import Dict, List, Any
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.oxml.coreprops import CT_CoreProperties
 from docx.section import Section
+from mcp_word_server.utils.file_utils import validate_docx_file
 
-
-# Type variable for generic function type
-F = TypeVar('F', bound=Callable[..., Any])
-
-
-def validate_documentpath(param_name: str) -> Callable[[F], F]:
-    """
-    Decorador parametrizable para validar que el archivo existe
-    en el path especificado en el argumento `param_name`.
-
-    Args:
-        param_name: nombre del parámetro que contiene el path.
-
-    Returns:
-        Función decoradora.
-    """
-    def decorator(func: F) -> F:
-        @functools.wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            # Obtener el valor del parámetro desde kwargs
-            path_value = kwargs.get(param_name)
-
-            # Si no está en kwargs, buscar en args por nombre de parámetro
-            if path_value is None and args:
-                sig = inspect.signature(func)
-                param_list = list(sig.parameters.keys())
-                if param_name in param_list:
-                    index = param_list.index(param_name)
-                    if index < len(args):
-                        path_value = args[index]
-
-            # Si aún no hay valor, se ejecuta igual sin validar
-            if path_value is None:
-                return func(*args, **kwargs)
-
-            # Validar que exista el archivo
-            if not os.path.exists(path_value):
-                return {"error": f"El archivo '{path_value}' no existe."}
-
-            return func(*args, **kwargs)
-        return cast(F, wrapper)
-    return decorator
-
-
-@validate_document_path('doc_path')
+@validate_docx_file('doc_path')
 def get_document_properties(doc_path: str) -> Dict[str, Any]:
     """Get properties of a Word document.
     
@@ -95,7 +50,7 @@ def get_document_properties(doc_path: str) -> Dict[str, Any]:
         return {"error": f"Failed to get document properties: {str(e)}"}
 
 
-@validate_document_path('doc_path')
+@validate_docx_file('doc_path')
 def extract_document_text(doc_path: str) -> str:
     """Extract all text from a Word document.
     
@@ -128,7 +83,7 @@ def extract_document_text(doc_path: str) -> str:
         return f"Failed to extract text: {str(e)}"
 
 
-@validate_document_path('doc_path')
+@validate_docx_file('doc_path')
 def get_document_structure(doc_path: str) -> Dict[str, Any]:
     """Get the structure of a Word document.
     
