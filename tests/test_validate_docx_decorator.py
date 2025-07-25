@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 # Import the decorator and related functions
-from mcp_word_server.utils.file_utils import validate_docx_file
+from mcp_word_server.validation.document_validators import validate_docx_file
 
 # Test data directory path
 TEST_DATA_DIR = Path(__file__).parent.parent / "test_data"
