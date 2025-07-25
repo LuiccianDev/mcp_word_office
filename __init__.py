@@ -1,2 +1,2 @@
 # Word Document MCP Server
-from mcp_word_server.main import run_server as main
+from mcp_word_server.main import create_server as main
