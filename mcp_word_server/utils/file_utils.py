@@ -1,85 +1,190 @@
-"""
-File utility functions for Word Document Server.
+"""File utility functions for the Word Document Server.
+
+This module provides helper functions for file system operations such as
+checking permissions, copying files, and ensuring correct file extensions.
 """
 import os
-from typing import Tuple, Optional
 import shutil
+from pathlib import Path
+from typing import Tuple, Optional, Union
+import asyncio
+import functools
+import inspect
+from typing import Callable, TypeVar, Any, cast, Dict, Optional
 
+from docx import Document
+from docx.opc.exceptions import PackageNotFoundError
 
-def check_file_writeable(filepath: str) -> Tuple[bool, str]:
+F = TypeVar("F", bound=Callable[..., Any])
+
+# Decorator function to validate a .docx file path
+def validate_docx_file(param_name: str) -> Callable[[F], F]:
+    """A universal decorator to validate a .docx file path.
+
+    This decorator ensures that the function argument specified by `param_name`
+    is a valid, existing .docx file. It works for both sync and async functions.
+
+    Validation Steps:
+      - Argument exists in the function call.
+      - The path points to an existing file.
+      - The file has a .docx extension.
+      - The file is a valid (non-corrupt) Word document.
     """
-    Check if a file can be written to.
-    
-    Args:
-        filepath: Path to the file
-        
-    Returns:
-        Tuple of (is_writeable, error_message)
-    """
-    # If file doesn't exist, check if directory is writeable
-    if not os.path.exists(filepath):
-        directory = os.path.dirname(filepath)
-        # If no directory is specified (empty string), use current directory
-        if directory == '':
-            directory = '.'
-        if not os.path.exists(directory):
-            return False, f"Directory {directory} does not exist"
-        if not os.access(directory, os.W_OK):
-            return False, f"Directory {directory} is not writeable"
-        return True, ""
-    
-    # If file exists, check if it's writeable
-    if not os.access(filepath, os.W_OK):
-        return False, f"File {filepath} is not writeable (permission denied)"
-    
-    # Try to open the file for writing to see if it's locked
-    try:
-        with open(filepath, 'a'):
-            pass
-        return True, ""
-    except IOError as e:
-        return False, f"File {filepath} is not writeable: {str(e)}"
-    except Exception as e:
-        return False, f"Unknown error checking file permissions: {str(e)}"
+    def decorator(func: F) -> F:
+        if asyncio.iscoroutinefunction(func):
+            @functools.wraps(func)
+            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                path_value = _get_argument_value(func, param_name, args, kwargs)
+                if path_value is None:
+                    return {"error": f"Parameter '{param_name}' not found."}
+                
+                if error := _validate_docx_path(path_value):
+                    return error
+                
+                return await func(*args, **kwargs)
+            return cast(F, async_wrapper)
+        else:
+            @functools.wraps(func)
+            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+                path_value = _get_argument_value(func, param_name, args, kwargs)
+                if path_value is None:
+                    return {"error": f"Parameter '{param_name}' not found."}
+                
+                if error := _validate_docx_path(path_value):
+                    return error
+                
+                return func(*args, **kwargs)
+            return cast(F, sync_wrapper)
 
+    return decorator
+
+def check_file_writeable(param_name: str) -> Callable[[F], F]:
+    """Decorador que verifica si el archivo indicado es escribible."""
+    def decorator(func: F) -> F:
+        if inspect.iscoroutinefunction(func):
+            @functools.wraps(func)
+            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                value = _get_argument_value(func, param_name, args, kwargs)
+                if value is None:
+                    return {"error": f"Missing parameter '{param_name}'."}
+
+                ok, error_msg = _check_file_writeable(value)
+                if not ok:
+                    return {"error": f"Cannot write to file: {error_msg}"}
+
+                return await func(*args, **kwargs)
+
+            return cast(F, async_wrapper)
+
+        else:
+            @functools.wraps(func)
+            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+                value = _get_argument_value(func, param_name, args, kwargs)
+                if value is None:
+                    return {"error": f"Missing parameter '{param_name}'."}
+
+                ok, error_msg = _check_file_writeable(value)
+                if not ok:
+                    return {"error": f"Cannot write to file: {error_msg}"}
+
+                return func(*args, **kwargs)
+
+            return cast(F, sync_wrapper)
+
+    return decorator
 
 def create_document_copy(source_path: str, dest_path: Optional[str] = None) -> Tuple[bool, str, Optional[str]]:
-    """
-    Create a copy of a document.
-    
+    """Create a copy of a document.
+
+    If `dest_path` is not provided, a new filename is generated by appending
+    '_copy' to the original filename.
+
     Args:
-        source_path: Path to the source document
-        dest_path: Optional path for the new document. If not provided, will use source_path + '_copy.docx'
-        
+        source_path: The path to the source document.
+        dest_path: Optional path for the new document.
+
     Returns:
-        Tuple of (success, message, new_filepath)
+        A tuple containing a boolean for success, a status message, and the
+        path to the new file if successful.
     """
     if not os.path.exists(source_path):
-        return False, f"Source document {source_path} does not exist", None
-    
+        return False, f"Source document '{source_path}' does not exist.", None
+
     if not dest_path:
-        # Generate a new filename if not provided
         base, ext = os.path.splitext(source_path)
         dest_path = f"{base}_copy{ext}"
+
+    try:
+        shutil.copy2(source_path, dest_path)
+        return True, f"Document successfully copied to '{dest_path}'.", dest_path
+    except (shutil.Error, IOError) as e:
+        return False, f"Failed to copy document: {e}", None
+
+# helper function to check if a file is writeable
+def _check_file_writeable(path_value: Union[str, Path]) -> Tuple[bool, str]:
+    """Checks if a file is writeable."""
+    try:
+        path = Path(path_value).resolve()
+        if not path.exists():
+            return False, f"File '{path}' does not exist."
+        if not os.access(path, os.W_OK):
+            return False, f"File '{path}' is not writeable."
+        return True, ""
+    except Exception as e:
+        return False, str(e)
+
+# helper function to extract an argument's value from args or kwargs
+def _get_argument_value(func: Callable, name: str, args: tuple, kwargs: dict) -> Optional[Any]:
+    """Extracts an argument's value from args or kwargs."""
+    if name in kwargs:
+        return kwargs[name]
     
     try:
-        # Simple file copy
-        shutil.copy2(source_path, dest_path)
-        return True, f"Document copied to {dest_path}", dest_path
-    except Exception as e:
-        return False, f"Failed to copy document: {str(e)}", None
-
-
-def ensure_docx_extension(filename: str) -> str:
-    """
-    Ensure filename has .docx extension.
+        sig = inspect.signature(func)
+        param_names = list(sig.parameters.keys())
+        if name in param_names:
+            index = param_names.index(name)
+            if index < len(args):
+                return args[index]
+    except (ValueError, IndexError):
+        return None
+    return None
     
+# helper function to validate a .docx file path of validate_docx_file decorator
+def _validate_docx_path(path_str: str) -> Optional[Dict[str, str]]:
+    """Performs validation checks on a given .docx file path."""
+
+    path = Path(path_str).resolve()
+
+    if not path.exists():
+        return {"error": f"File '{path}' does not exist."}
+
+    if path.suffix.lower() != ".docx":
+        return {"error": f"File '{path}' is not a .docx document."}
+
+    try:
+        # Check if the file is a valid Word document by trying to open it.
+        Document(str(path))
+    except PackageNotFoundError:
+        return {"error": f"File '{path}' is not a valid Word document (.docx)."}
+    except Exception as e:
+        return {"error": f"Could not open document: {e}"}
+    
+    return None
+
+#! Observe that this function is not used in the code, it is left for future use
+def ensure_docx_extension(filename: str) -> str:
+    """Ensures a filename has a .docx extension.
+
+    If the filename does not already end with '.docx', the extension is appended.
+    This is case-sensitive.
+
     Args:
-        filename: The filename to check
-        
+        filename: The filename to check and modify if necessary.
+
     Returns:
-        Filename with .docx extension
+        The filename with the .docx extension.
     """
-    if not filename.endswith('.docx'):
+    if not filename.lower().endswith('.docx'):
         return filename + '.docx'
     return filename
