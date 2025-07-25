@@ -15,12 +15,7 @@ from mcp_word_server.tools import (
     extended_document_tools
 )
 
-
-
-# Initialize FastMCP server
-mcp = FastMCP("word-document-server")
-
-def register_tools():
+def register_tools(mcp: FastMCP):
     """Register all tools with the MCP server."""
     # Document tools (create, copy, info, etc.)
     mcp.tool()(document_tools.create_document)
@@ -59,17 +54,12 @@ def register_tools():
     mcp.tool()(extended_document_tools.find_text_in_document)
     mcp.tool()(extended_document_tools.convert_to_pdf)
 
-
-register_tools()  # <-- Esto debe ejecutarse al importar el módulo
-
-def run_server():
+def create_server() -> FastMCP:
     """Run the Word Document MCP Server."""
+    # Initialize FastMCP server
+    mcp = FastMCP("word-document-server")
     # Register all tools
-    register_tools()
+    register_tools(mcp)
     
-    # Run the server
-    mcp.run(transport='stdio')
     return mcp
 
-if __name__ == "__main__":
-    run_server()
