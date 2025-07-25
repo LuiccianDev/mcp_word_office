@@ -1,3 +1,11 @@
+""" 
+Register all tools with the MCP server.
+ """
+
+# modulos de terceros
+from mcp.server.fastmcp import FastMCP
+
+# modulos propios
 from mcp_word_server.tools import (
     document_tools,
     content_tools,
