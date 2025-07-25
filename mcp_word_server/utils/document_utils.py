@@ -15,19 +15,19 @@ import os
 import shutil
 from typing import Optional, Tuple
 
-@validate_docx_file('doc_path')
-def get_document_properties(doc_path: str) -> Dict[str, Any]:
+@validate_docx_file('filename')
+def get_document_properties(filename: str) -> Dict[str, Any]:
     """Get properties of a Word document.
     
     Args:
-        doc_path: Path to the Word document.
+        filename: Path to the Word document.
         
     Returns:
         Dict containing document properties including title, author, subject, etc.
         On error, returns a dict with an 'error' key.
     """
     try:
-        doc: DocumentType = Document(doc_path)
+        doc: DocumentType = Document(filename)
         core_props: CT_CoreProperties = doc.core_properties
         sections: List[Section] = doc.sections
         
@@ -54,19 +54,19 @@ def get_document_properties(doc_path: str) -> Dict[str, Any]:
         return {"error": f"Failed to get document properties: {str(e)}"}
 
 
-@validate_docx_file('doc_path')
-def extract_document_text(doc_path: str) -> str:
+@validate_docx_file('filename')
+def extract_document_text(filename: str) -> str:
     """Extract all text from a Word document.
     
     Args:
-        doc_path: Path to the Word document.
+        filename: Path to the Word document.
         
     Returns:
         String containing all text content from the document.
         On error, returns an error message string.
     """
     try:
-        doc: DocumentType = Document(doc_path)
+        doc: DocumentType = Document(filename)
         text_parts: List[str] = []
         
         # Extract text from paragraphs
@@ -87,19 +87,19 @@ def extract_document_text(doc_path: str) -> str:
         return f"Failed to extract text: {str(e)}"
 
 
-@validate_docx_file('doc_path')
-def get_document_structure(doc_path: str) -> Dict[str, Any]:
+@validate_docx_file('filename')
+def get_document_structure(filename: str) -> Dict[str, Any]:
     """Get the structure of a Word document.
     
     Args:
-        doc_path: Path to the Word document.
+        filename: Path to the Word document.
         
     Returns:
         Dict containing document structure including paragraphs and tables.
         On error, returns a dict with an 'error' key.
     """
     try:
-        doc: DocumentType = Document(doc_path)
+        doc: DocumentType = Document(filename)
         structure: Dict[str, List[Dict[str, Any]]] = {
             "paragraphs": [],
             "tables": []
