@@ -17,4 +17,4 @@ dependencies = [
 ]
 
 [project.scripts]
-mcp_server_word = "mcp_server.main:run_server"
+mcp_server_word = "mcp_server.main:create_server"
