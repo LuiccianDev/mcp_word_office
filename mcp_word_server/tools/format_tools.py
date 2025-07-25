@@ -11,7 +11,7 @@ from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_COLOR_INDEX
 from docx.enum.style import WD_STYLE_TYPE
 
-from mcp_word_server.utils.file_utils import check_file_writeable, ensure_docx_extension
+from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension
 from mcp_word_server.utils.document_utils import find_and_replace_text
 from mcp_word_server.core.styles import create_style
 from mcp_word_server.core.tables import apply_table_style

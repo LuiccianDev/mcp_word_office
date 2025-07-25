@@ -10,7 +10,7 @@ from docx import Document
 from docx.shared import Inches, Pt
 from docx.document import Document as DocumentType
 
-from mcp_word_server.utils.file_utils import validate_docx_file, check_file_writeable
+from mcp_word_server.validation.document_validators import validate_docx_file, check_file_writeable
 from mcp_word_server.utils.document_utils import find_and_replace_text
 from mcp_word_server.core.styles import ensure_heading_style, ensure_table_style
 

@@ -6,7 +6,7 @@ import json
 from typing import Dict, List, Optional, Any
 from docx import Document
 
-from mcp_word_server.utils.file_utils import check_file_writeable, ensure_docx_extension, create_document_copy
+from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension, create_document_copy
 from mcp_word_server.utils.document_utils import get_document_properties, extract_document_text, get_document_structure
 from mcp_word_server.core.styles import ensure_heading_style, ensure_table_style
 

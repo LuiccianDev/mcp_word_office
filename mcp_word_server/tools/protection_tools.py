@@ -12,7 +12,7 @@ from typing import List, Optional, Dict, Any
 from docx import Document
 import msoffcrypto 
 
-from mcp_word_server.utils.file_utils import check_file_writeable, ensure_docx_extension
+from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension
 
 
 

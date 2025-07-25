@@ -10,7 +10,7 @@ from docx import Document
 from docx.shared import Pt
 from docx.enum.style import WD_STYLE_TYPE
 
-from mcp_word_server.utils.file_utils import check_file_writeable, ensure_docx_extension
+from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension
 from mcp_word_server.core.footnotes import (
     find_footnote_references,
     get_format_symbols,
