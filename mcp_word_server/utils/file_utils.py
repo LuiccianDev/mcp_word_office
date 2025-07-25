@@ -25,10 +25,10 @@ def validate_docx_file(param_name: str) -> Callable[[F], F]:
     is a valid, existing .docx file. It works for both sync and async functions.
 
     Validation Steps:
-      - Argument exists in the function call.
-      - The path points to an existing file.
-      - The file has a .docx extension.
-      - The file is a valid (non-corrupt) Word document.
+        - Argument exists in the function call.
+        - The path points to an existing file.
+        - The file has a .docx extension.
+        - The file is a valid (non-corrupt) Word document.
     """
     def decorator(func: F) -> F:
         if asyncio.iscoroutinefunction(func):
