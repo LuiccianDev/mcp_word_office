@@ -5,11 +5,11 @@ This module provides advanced functions for interacting with Word documents,
 including searching for text and retrieving specific content elements.
 """
 import re
-from typing import Dict, List, Any, Pattern, Optional
+from typing import Dict, List, Any, Pattern
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.text.paragraph import Paragraph
-from mcp_word_server.utils.file_utils import validate_docx_file
+from mcp_word_server.validation.document_validators import validate_docx_file
 
 @validate_docx_file('doc_path')
 def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
@@ -28,7 +28,7 @@ def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
         if not 0 <= paragraph_index < len(doc.paragraphs):
             return {
                 "error": f"Invalid paragraph index: {paragraph_index}. "
-                         f"Document has {len(doc.paragraphs)} paragraphs."
+                        f"Document has {len(doc.paragraphs)} paragraphs."
             }
 
         paragraph: Paragraph = doc.paragraphs[paragraph_index]
