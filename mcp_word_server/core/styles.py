@@ -1,134 +1,198 @@
 """
-Style-related functions for Word Document Server.
+Style-related functionality for Word Document Server.
+
+This module provides utilities for managing and applying styles in Word documents,
+including creating custom styles, ensuring default styles exist, and applying
+consistent formatting.
 """
-from docx.shared import Pt
+# Standard library imports
+from dataclasses import dataclass
+from typing import Dict, Optional, Type, TypeVar, Any, Union, List
+from enum import Enum
+
+# Third-party imports
+from docx import Document
 from docx.enum.style import WD_STYLE_TYPE
+from docx.shared import RGBColor, Pt, Length
+# Eliminada la dependencia de Pydantic
 
+# Type variable for style type
+T = TypeVar('T', bound='StyleBase')
 
-def ensure_heading_style(doc):
-    """
-    Ensure Heading styles exist in the document.
-    
-    Args:
-        doc: Document object
-    """
-    for i in range(1, 10):  # Create Heading 1 through Heading 9
-        style_name = f'Heading {i}'
+# Constants for default values
+DEFAULT_HEADING_1_SIZE = Pt(16)
+DEFAULT_HEADING_2_SIZE = Pt(14)
+DEFAULT_HEADING_SIZE = Pt(12)
+DEFAULT_FONT_NAME = 'Calibri'
+DEFAULT_FONT_SIZE = Pt(11)
+DEFAULT_COLOR = RGBColor(0, 0, 0)  # Black
+
+class StyleType(str, Enum):
+    """Supported style types for document elements."""
+    PARAGRAPH = 'paragraph'
+    CHARACTER = 'character'
+    TABLE = 'table'
+    NUMBERING = 'numbering'
+
+def _parse_color(value: Any) -> RGBColor:
+    """Parse color value to RGBColor."""
+    if value is None:
+        return DEFAULT_COLOR
+    if isinstance(value, RGBColor):
+        return value
+    if isinstance(value, str):
+        color_map = {
+            'red': RGBColor(255, 0, 0),
+            'blue': RGBColor(0, 0, 255),
+            'green': RGBColor(0, 128, 0),
+            'yellow': RGBColor(255, 255, 0),
+            'black': RGBColor(0, 0, 0),
+            'gray': RGBColor(128, 128, 128),
+            'white': RGBColor(255, 255, 255),
+            'purple': RGBColor(128, 0, 128),
+            'orange': RGBColor(255, 165, 0)
+        }
+        color_lower = value.lower()
+        if color_lower in color_map:
+            return color_map[color_lower]
         try:
-            # Try to access the style to see if it exists
-            style = doc.styles[style_name]
-        except KeyError:
-            # Create the style if it doesn't exist
+            return RGBColor.from_string(value)
+        except (ValueError, AttributeError):
+            pass
+    return DEFAULT_COLOR
+
+class FontProperties:
+    """Model for font-related style properties."""
+    def __init__(
+        self,
+        name: str = DEFAULT_FONT_NAME,
+        size: Optional[Union[int, Length]] = DEFAULT_FONT_SIZE,
+        bold: bool = False,
+        italic: bool = False,
+        color: Optional[Union[str, RGBColor]] = None
+    ):
+        self.name = name
+        self.size = size
+        self.bold = bold
+        self.italic = italic
+        self.color = _parse_color(color)
+
+class ParagraphProperties:
+    """Model for paragraph-related style properties."""
+    def __init__(
+        self,
+        alignment: Optional[int] = None,
+        spacing: Optional[float] = None,
+        space_before: Optional[Length] = None,
+        space_after: Optional[Length] = None
+    ):
+        self.alignment = alignment
+        self.spacing = spacing
+        self.space_before = space_before
+        self.space_after = space_after
+
+def ensure_heading_style(doc: Document) -> None:
+    """
+    Ensure default heading styles exist in the document.
+
+    Args:
+        doc: The document to ensure styles for.
+    """
+    for level in range(1, 10):
+        style_name = f'Heading {level}'
+        if style_name not in doc.styles:
             try:
                 style = doc.styles.add_style(style_name, WD_STYLE_TYPE.PARAGRAPH)
-                if i == 1:
-                    style.font.size = Pt(16)
-                    style.font.bold = True
-                elif i == 2:
-                    style.font.size = Pt(14)
-                    style.font.bold = True
+                font = style.font
+                font.name = 'Calibri'
+                font.bold = True
+                
+                # Set appropriate font size based on heading level
+                if level == 1:
+                    font.size = DEFAULT_HEADING_1_SIZE
+                elif level == 2:
+                    font.size = DEFAULT_HEADING_2_SIZE
                 else:
-                    style.font.size = Pt(12)
-                    style.font.bold = True
-            except Exception:
-                # If style creation fails, we'll just use default formatting
-                pass
+                    font.size = DEFAULT_HEADING_SIZE
+            except Exception as e:
+                # Log error but continue with other styles
+                print(f"Warning: Failed to create {style_name} style: {e}")
 
-
-def ensure_table_style(doc):
+def ensure_table_style(doc: Document) -> None:
     """
-    Ensure Table Grid style exists in the document.
-    
+    Ensure default table style exists in the document.
+
     Args:
-        doc: Document object
+        doc: The document to ensure the table style for.
     """
-    try:
-        # Try to access the style to see if it exists
-        style = doc.styles['Table Grid']
-    except KeyError:
-        # If style doesn't exist, we'll handle it at usage time
-        pass
+    style_name = 'Table Grid'
+    if style_name not in doc.styles:
+        try:
+            doc.styles.add_style(style_name, WD_STYLE_TYPE.TABLE)
+        except Exception as e:
+            print(f"Warning: Failed to create {style_name} style: {e}")
 
-
-def create_style(doc, style_name, style_type, base_style=None, font_properties=None, paragraph_properties=None):
+def create_style(
+    doc: Document,
+    style_name: str,
+    style_type: WD_STYLE_TYPE = WD_STYLE_TYPE.PARAGRAPH,
+    base_style: Optional[str] = None,
+    font_props: Optional[Dict[str, Any]] = None,
+    paragraph_props: Optional[Dict[str, Any]] = None
+) -> Any:
     """
-    Create a new style in the document.
-    
+    Create or update a style in the document.
+
     Args:
-        doc: Document object
-        style_name: Name for the new style
-        style_type: Type of style (WD_STYLE_TYPE)
-        base_style: Optional base style to inherit from
-        font_properties: Dictionary of font properties (bold, italic, size, name, color)
-        paragraph_properties: Dictionary of paragraph properties (alignment, spacing)
-        
+        doc: The document to add the style to.
+        style_name: Name of the style to create or update.
+        style_type: Type of style to create.
+        base_style: Optional name of the base style to inherit from.
+        font_props: Dictionary of font properties.
+        paragraph_props: Dictionary of paragraph properties.
+
     Returns:
-        The created style
+        The created or existing style.
     """
-    from docx.shared import Pt
-    
     try:
-        # Check if style already exists
-        style = doc.styles.get_by_id(style_name, WD_STYLE_TYPE.PARAGRAPH)
-        return style
-    except:
+        # Try to get existing style
+        return doc.styles.get_by_id(style_name, style_type)
+    except KeyError:
         # Create new style
-        new_style = doc.styles.add_style(style_name, style_type)
+        style = doc.styles.add_style(style_name, style_type)
         
         # Set base style if specified
-        if base_style:
-            new_style.base_style = doc.styles[base_style]
+        if base_style and base_style in doc.styles:
+            style.base_style = doc.styles[base_style]
         
-        # Set font properties
-        if font_properties:
-            font = new_style.font
-            if 'bold' in font_properties:
-                font.bold = font_properties['bold']
-            if 'italic' in font_properties:
-                font.italic = font_properties['italic']
-            if 'size' in font_properties:
-                font.size = Pt(font_properties['size'])
-            if 'name' in font_properties:
-                font.name = font_properties['name']
-            if 'color' in font_properties:
-                from docx.shared import RGBColor
-                
-                # Define common RGB colors
-                color_map = {
-                    'red': RGBColor(255, 0, 0),
-                    'blue': RGBColor(0, 0, 255),
-                    'green': RGBColor(0, 128, 0),
-                    'yellow': RGBColor(255, 255, 0),
-                    'black': RGBColor(0, 0, 0),
-                    'gray': RGBColor(128, 128, 128),
-                    'white': RGBColor(255, 255, 255),
-                    'purple': RGBColor(128, 0, 128),
-                    'orange': RGBColor(255, 165, 0)
-                }
-                
-                color_value = font_properties['color']
-                try:
-                    # Handle string color names
-                    if isinstance(color_value, str) and color_value.lower() in color_map:
-                        font.color.rgb = color_map[color_value.lower()]
-                    # Handle RGBColor objects
-                    elif hasattr(color_value, 'rgb'):
-                        font.color.rgb = color_value
-                    # Try to parse as RGB string
-                    elif isinstance(color_value, str):
-                        font.color.rgb = RGBColor.from_string(color_value)
-                    # Use directly if it's already an RGB value
-                    else:
-                        font.color.rgb = color_value
-                except Exception as e:
-                    # Fallback to black if all else fails
-                    font.color.rgb = RGBColor(0, 0, 0)
+        # Apply font properties if provided
+        if font_props:
+            font = style.font
+            font_props_obj = FontProperties(**font_props)
+            
+            if font_props_obj.name:
+                font.name = font_props_obj.name
+            if font_props_obj.size is not None:
+                font.size = font_props_obj.size
+            if font_props_obj.bold is not None:
+                font.bold = font_props_obj.bold
+            if font_props_obj.italic is not None:
+                font.italic = font_props_obj.italic
+            if font_props_obj.color is not None:
+                font.color.rgb = font_props_obj.color
         
-        # Set paragraph properties
-        if paragraph_properties:
-            if 'alignment' in paragraph_properties:
-                new_style.paragraph_format.alignment = paragraph_properties['alignment']
-            if 'spacing' in paragraph_properties:
-                new_style.paragraph_format.line_spacing = paragraph_properties['spacing']
+        # Apply paragraph properties if provided and style supports it
+        if paragraph_props and hasattr(style, 'paragraph_format'):
+            para_props = ParagraphProperties(**paragraph_props)
+            para_format = style.paragraph_format
+            
+            if para_props.alignment is not None:
+                para_format.alignment = para_props.alignment
+            if para_props.spacing is not None:
+                para_format.line_spacing = para_props.spacing
+            if para_props.space_before is not None:
+                para_format.space_before = para_props.space_before
+            if para_props.space_after is not None:
+                para_format.space_after = para_props.space_after
         
-        return new_style
+        return style
