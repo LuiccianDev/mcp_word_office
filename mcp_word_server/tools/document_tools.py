@@ -32,9 +32,12 @@ def _get_allowed_directories() -> List[str]:
         List of absolute paths to directories where documents can be created/accessed.
         Defaults to ['./documents'] if MCP_ALLOWED_DIRECTORIES is not set.
     """
+    
     allowed_dirs_str = os.environ.get("MCP_ALLOWED_DIRECTORIES", "./documents")
-    return [os.path.abspath(dir_path.strip()) 
-            for dir_path in allowed_dirs_str.split(",")]
+    
+    allowed_dirs = [dir.strip() for dir in allowed_dirs_str.split(",")]
+    
+    return [os.path.abspath(dir) for dir in allowed_dirs]
 
 def _is_path_in_allowed_directories(file_path: str) -> Tuple[bool, Optional[str]]:
     """Check if the given file path is within allowed directories.
@@ -63,8 +66,7 @@ def _is_path_in_allowed_directories(file_path: str) -> Tuple[bool, Optional[str]
     )
     return False, error_msg
 
-@check_file_writeable('filename')
-@validate_docx_file('filename')
+
 async def create_document(
     filename: str, 
     title: Optional[str] = None, 
@@ -80,16 +82,18 @@ async def create_document(
     Returns:
         str: Success or error message indicating the result of the operation.
     """
+
     is_allowed, error_message = _is_path_in_allowed_directories(filename)
     if not is_allowed:
         return f"Cannot create document: {error_message}"
-    
+
     directory = os.path.dirname(filename)
     if directory and not os.path.exists(directory):
         try:
             os.makedirs(directory, exist_ok=True)
         except OSError as e:
             return f"Cannot create directory '{directory}': {str(e)}"
+    
     try:
         doc: DocumentType = Document()
         
@@ -211,7 +215,7 @@ async def list_available_documents(directory: str = ".") -> str:
     except Exception as e:
         return f"Failed to list documents: {str(e)}"
 
-
+@validate_docx_file('source_filename')
 async def copy_document(source_filename: str, destination_filename: Optional[str] = None) -> str:
     """Create a copy of a Word document.
     

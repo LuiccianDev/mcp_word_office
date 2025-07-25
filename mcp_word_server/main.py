@@ -8,6 +8,7 @@ from mcp.server.fastmcp import FastMCP
 
 # modulos propios
 from mcp_word_server.tools.register_tools import register_all_tools
+from mcp_word_server.prompts.register_prompts import register_prompts
 
 def create_server() -> FastMCP:
     """Run the Word Document MCP Server."""
@@ -18,6 +19,9 @@ def create_server() -> FastMCP:
                 on_duplicate_tools="error")
     # Register all tools
     register_all_tools(mcp)
+    
+    # Register all prompts
+    register_prompts(mcp)
 
     return mcp
 
