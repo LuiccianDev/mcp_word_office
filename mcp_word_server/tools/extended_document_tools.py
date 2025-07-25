@@ -9,7 +9,7 @@ import json
 import subprocess
 import platform
 import shutil
-from typing import Optional
+from typing import Optional, Dict, Any
 
 # modulos propios
 from mcp_word_server.utils.extended_document_utils import get_paragraph_text, find_text
@@ -55,7 +55,7 @@ async def find_text_in_document(filename: str, text_to_find: str, match_case: bo
 
 @check_file_writeable('filename')
 @validate_docx_file('filename')
-async def convert_to_pdf(filename: str, output_filename: Optional[str] = None) -> str:
+async def convert_to_pdf(filename: str, output_filename: Optional[str] = None) -> Dict[str, Any]:
     """Convert a Word document to PDF format.
     
     Args:
@@ -92,10 +92,17 @@ async def convert_to_pdf(filename: str, output_filename: Optional[str] = None) -
             try:
                 from docx2pdf import convert
                 convert(filename, output_filename)
-                return f"Document successfully converted to PDF: {output_filename}"
+                return {
+                    "success": True,
+                    "message": "Document successfully converted to PDF",
+                    "pdf_path": output_filename
+                }
             except (ImportError, Exception) as e:
-                return f"Failed to convert document to PDF: {str(e)}\nNote: docx2pdf requires Microsoft Word to be installed."
-                
+                return {
+                    "success": False,
+                    "error": str(e),
+                    "hint": "docx2pdf requires Microsoft Word to be installed."
+                }
         elif system in ["Linux", "Darwin"]:  # Linux or macOS
             # Try using LibreOffice if available (common on Linux/macOS)
             try:
@@ -149,26 +156,45 @@ async def convert_to_pdf(filename: str, output_filename: Optional[str] = None) -
                         errors.append(f"{cmd_name} error: {str(e)}")
                 
                 if conversion_successful:
-                    return f"Document successfully converted to PDF: {output_filename}"
+                    return {
+                            "success": True,
+                            "message": "Document successfully converted to PDF",
+                            "pdf_path": output_filename
+                            }
                 else:
                     # If all LibreOffice attempts failed, try docx2pdf as fallback
                     try:
                         from docx2pdf import convert
                         convert(filename, output_filename)
-                        return f"Document successfully converted to PDF: {output_filename}"
+                        return {
+                                "success": True,
+                                "message": "Document converted using fallback docx2pdf",
+                                "pdf_path": output_filename
+                                }
                     except (ImportError, Exception) as e:
-                        error_msg = "Failed to convert document to PDF using LibreOffice or docx2pdf.\n"
-                        error_msg += "LibreOffice errors: " + "; ".join(errors) + "\n"
-                        error_msg += f"docx2pdf error: {str(e)}\n"
-                        error_msg += "To convert documents to PDF, please install either:\n"
-                        error_msg += "1. LibreOffice (recommended for Linux/macOS)\n"
-                        error_msg += "2. Microsoft Word (required for docx2pdf on Windows/macOS)"
-                        return error_msg
+                         return {
+                                    "success": False,
+                                    "error": "Conversion failed using both LibreOffice and docx2pdf",
+                                    "details": {
+                                        "libreoffice_errors": errors,
+                                        "docx2pdf_error": str(e)
+                                    },
+                                    "hint": "Install LibreOffice or Microsoft Word depending on your OS."
+                                }
                         
             except Exception as e:
-                return f"Failed to convert document to PDF: {str(e)}"
+                return {
+                "success": False,
+                "error": f"Failed to convert document to PDF: {str(e)}"
+            }
         else:
-            return f"PDF conversion not supported on {system} platform"
+            return {
+                "success": False,
+                "error": f"Unsupported platform: {system}"
+            }
             
     except Exception as e:
-        return f"Failed to convert document to PDF: {str(e)}"
+        return  {
+            "success": False,
+            "error": str(e)
+        }

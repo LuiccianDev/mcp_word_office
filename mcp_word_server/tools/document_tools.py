@@ -6,7 +6,7 @@ Word documents with security checks for file system access.
 # modulos estandar
 import json
 import os
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple,Dict,Any
 
 # modulos de terceros
 from docx import Document
@@ -187,33 +187,64 @@ async def get_document_outline(filename: str) -> str:
     return json.dumps(structure, indent=2)
 
 
-async def list_available_documents(directory: str = ".") -> str:
-    """List all .docx files in the specified directory.
+async def list_available_documents(directory: str = ".") -> Dict[str, Any]:
+    """List all .docx files in the specified directory and return a JSON-style dict.
     
     Args:
-        directory: Directory to search for Word documents
+        directory: Directory to search for Word documents.
+
+    Returns:
+        Dict with status, message, and list of documents (with size info).
     """
     try:
+        # Validar si existe la ruta
         if not os.path.exists(directory):
-            return f"Directory {directory} does not exist"
-        
+            return {
+                "status": "error",
+                "message": f"Directory '{directory}' does not exist.",
+                "documents": []
+            }
+
+        # Filtrar archivos .docx
         docx_files = [
-            f for f in os.listdir(directory) 
+            f for f in os.listdir(directory)
             if f.lower().endswith('.docx')
         ]
-        
+
+        # Si no hay archivos .docx
         if not docx_files:
-            return f"No Word documents found in {directory}"
-        
-        result = [f"Found {len(docx_files)} Word documents in {directory}:"]
+            return {
+                "status": "ok",
+                "message": "No Word documents found.",
+                "directory": os.path.abspath(directory),
+                "documents": []
+            }
+
+        # Preparar los datos detallados
+        documents = []
         for file in sorted(docx_files):
             file_path = os.path.join(directory, file)
             size_kb = os.path.getsize(file_path) / 1024
-            result.append(f"- {file} ({size_kb:.2f} KB)")
-        
-        return "\n".join(result)
+            documents.append({
+                "name": file,
+                "path": os.path.abspath(file_path),
+                "size_kb": round(size_kb, 2)
+            })
+
+        return {
+            "status": "ok",
+            "message": f"Found {len(documents)} Word document(s).",
+            "directory": os.path.abspath(directory),
+            "total": len(documents),
+            "documents": documents
+        }
+
     except Exception as e:
-        return f"Failed to list documents: {str(e)}"
+        return {
+            "status": "error",
+            "message": f"Failed to list documents: {str(e)}",
+            "documents": []
+        }
 
 @validate_docx_file('source_filename')
 async def copy_document(source_filename: str, destination_filename: Optional[str] = None) -> str:
