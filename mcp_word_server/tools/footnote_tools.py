@@ -4,20 +4,26 @@ Footnote and endnote tools for Word Document Server.
 These tools handle footnote and endnote functionality,
 including adding, customizing, and converting between them.
 """
+# modulos estandar
 import os
 from typing import Optional
+
+# modulos de terceros
 from docx import Document
+from docx.document import Document as DocumentType
 from docx.shared import Pt
 from docx.enum.style import WD_STYLE_TYPE
 
-from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension
+# modulos propios
+from mcp_word_server.validation.document_validators import validate_docx_file, check_file_writeable
 from mcp_word_server.core.footnotes import (
     find_footnote_references,
     get_format_symbols,
     customize_footnote_formatting
 )
 
-
+@check_file_writeable('filename')
+@validate_docx_file('filename')
 async def add_footnote_to_document(filename: str, paragraph_index: int, footnote_text: str) -> str:
     """Add a footnote to a specific paragraph in a Word document.
     
@@ -26,24 +32,14 @@ async def add_footnote_to_document(filename: str, paragraph_index: int, footnote
         paragraph_index: Index of the paragraph to add footnote to (0-based)
         footnote_text: Text content of the footnote
     """
-    filename = ensure_docx_extension(filename)
-    
     # Ensure paragraph_index is an integer
     try:
         paragraph_index = int(paragraph_index)
     except (ValueError, TypeError):
         return "Invalid parameter: paragraph_index must be an integer"
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot modify document: {error_message}. Consider creating a copy first."
-    
+
     try:
-        doc = Document(filename)
+        doc : DocumentType = Document(filename)
         
         # Validate paragraph index
         if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
@@ -87,7 +83,8 @@ async def add_footnote_to_document(filename: str, paragraph_index: int, footnote
     except Exception as e:
         return f"Failed to add footnote: {str(e)}"
 
-
+@check_file_writeable('filename')
+@validate_docx_file('filename')
 async def add_endnote_to_document(filename: str, paragraph_index: int, endnote_text: str) -> str:
     """Add an endnote to a specific paragraph in a Word document.
     
@@ -96,24 +93,14 @@ async def add_endnote_to_document(filename: str, paragraph_index: int, endnote_t
         paragraph_index: Index of the paragraph to add endnote to (0-based)
         endnote_text: Text content of the endnote
     """
-    filename = ensure_docx_extension(filename)
-    
     # Ensure paragraph_index is an integer
     try:
         paragraph_index = int(paragraph_index)
     except (ValueError, TypeError):
         return "Invalid parameter: paragraph_index must be an integer"
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot modify document: {error_message}. Consider creating a copy first."
-    
+
     try:
-        doc = Document(filename)
+        doc : DocumentType = Document(filename)
         
         # Validate paragraph index
         if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
@@ -147,25 +134,16 @@ async def add_endnote_to_document(filename: str, paragraph_index: int, endnote_t
     except Exception as e:
         return f"Failed to add endnote: {str(e)}"
 
-
+@check_file_writeable('filename')
+@validate_docx_file('filename')
 async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
     """Convert all footnotes to endnotes in a Word document.
     
     Args:
         filename: Path to the Word document
     """
-    filename = ensure_docx_extension(filename)
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot modify document: {error_message}. Consider creating a copy first."
-    
     try:
-        doc = Document(filename)
+        doc : DocumentType = Document(filename)
   
       
         # Find all runs that might be footnote references
@@ -231,7 +209,8 @@ async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
     except Exception as e:
         return f"Failed to convert footnotes to endnotes: {str(e)}"
 
-
+@check_file_writeable('filename')
+@validate_docx_file('filename')
 async def customize_footnote_style(filename: str, numbering_format: str = "1, 2, 3", 
                                   start_number: int = 1, font_name: Optional[str] = None,
                                   font_size: Optional[int] = None) -> str:
@@ -244,18 +223,8 @@ async def customize_footnote_style(filename: str, numbering_format: str = "1, 2,
         font_name: Optional font name for footnotes
         font_size: Optional font size for footnotes (in points)
     """
-    filename = ensure_docx_extension(filename)
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot modify document: {error_message}. Consider creating a copy first."
-    
     try:
-        doc = Document(filename)
+        doc : DocumentType = Document(filename)
         
         # Create or get footnote style
         footnote_style_name = "Footnote Text"

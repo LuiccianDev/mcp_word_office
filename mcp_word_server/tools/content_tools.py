@@ -3,13 +3,16 @@
 This module provides functions to add and manipulate various types of content
 in Word documents, including headings, paragraphs, tables, images, and page breaks.
 """
+# modulos standar
 import os
 from typing import List, Optional, Dict, Any
 
+# modulos terceros
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.document import Document as DocumentType
 
+# modulos propios
 from mcp_word_server.validation.document_validators import validate_docx_file, check_file_writeable
 from mcp_word_server.utils.document_utils import find_and_replace_text
 from mcp_word_server.core.styles import ensure_heading_style, ensure_table_style

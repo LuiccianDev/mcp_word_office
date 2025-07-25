@@ -3,20 +3,27 @@ Formatting tools for Word Document Server.
 
 These tools handle formatting operations for Word documents,
 including text formatting, table formatting, and custom styles.
-"""
+""" 
+
+# modulos estandar
 import os
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
+
+# modulos de terceros
 from docx import Document
+from docx.document import Document as DocumentType
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_COLOR_INDEX
 from docx.enum.style import WD_STYLE_TYPE
 
-from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension
+# modulos propios
+from mcp_word_server.validation.document_validators import check_file_writeable, validate_docx_file
 from mcp_word_server.utils.document_utils import find_and_replace_text
 from mcp_word_server.core.styles import create_style
 from mcp_word_server.core.tables import apply_table_style
 
-
+@validate_docx_file('filename')
+@check_file_writeable('filename')
 async def format_text(filename: str, paragraph_index: int, start_pos: int, end_pos: int, 
                     bold: Optional[bool] = None, italic: Optional[bool] = None, 
                     underline: Optional[bool] = None, color: Optional[str] = None,
@@ -35,8 +42,7 @@ async def format_text(filename: str, paragraph_index: int, start_pos: int, end_p
         font_size: Font size in points
         font_name: Font name/family
     """
-    filename = ensure_docx_extension(filename)
-    
+
     # Ensure numeric parameters are the correct type
     try:
         paragraph_index = int(paragraph_index)
@@ -46,17 +52,9 @@ async def format_text(filename: str, paragraph_index: int, start_pos: int, end_p
             font_size = int(font_size)
     except (ValueError, TypeError):
         return "Invalid parameter: paragraph_index, start_pos, end_pos, and font_size must be integers"
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot modify document: {error_message}. Consider creating a copy first."
-    
+     
     try:
-        doc = Document(filename)
+        doc : DocumentType = Document(filename)
         
         # Validate paragraph index
         if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
@@ -126,7 +124,8 @@ async def format_text(filename: str, paragraph_index: int, start_pos: int, end_p
     except Exception as e:
         return f"Failed to format text: {str(e)}"
 
-
+@validate_docx_file('filename')
+@check_file_writeable('filename')
 async def create_custom_style(filename: str, style_name: str, 
                              bold: Optional[bool] = None, italic: Optional[bool] = None,
                              font_size: Optional[int] = None, font_name: Optional[str] = None,
@@ -143,18 +142,8 @@ async def create_custom_style(filename: str, style_name: str,
         color: Text color (e.g., 'red', 'blue')
         base_style: Optional existing style to base this on
     """
-    filename = ensure_docx_extension(filename)
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot modify document: {error_message}. Consider creating a copy first."
-    
     try:
-        doc = Document(filename)
+        doc : DocumentType = Document(filename)
         
         # Build font properties dictionary
         font_properties = {}
@@ -183,7 +172,8 @@ async def create_custom_style(filename: str, style_name: str,
     except Exception as e:
         return f"Failed to create style: {str(e)}"
 
-
+@validate_docx_file('filename')
+@check_file_writeable('filename')
 async def format_table(filename: str, table_index: int, 
                       has_header_row: Optional[bool] = None,
                       border_style: Optional[str] = None,
@@ -197,18 +187,8 @@ async def format_table(filename: str, table_index: int,
         border_style: Style for borders ('none', 'single', 'double', 'thick')
         shading: 2D list of cell background colors (by row and column)
     """
-    filename = ensure_docx_extension(filename)
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot modify document: {error_message}. Consider creating a copy first."
-    
     try:
-        doc = Document(filename)
+        doc : DocumentType = Document(filename)
         
         # Validate table index
         if table_index < 0 or table_index >= len(doc.tables):

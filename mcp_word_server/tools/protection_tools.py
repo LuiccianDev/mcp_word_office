@@ -4,25 +4,28 @@ Protection tools for Word Document Server.
 These tools handle document protection features such as
 password protection, restricted editing, and digital signatures.
 """
+# modulos estandar
 import os
 import hashlib
 import datetime
 import io 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
+
+# modulos de terceros
 from docx import Document
+from docx.document import Document as DocumentType
 import msoffcrypto 
 
-from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension
-
-
-
+# modulos propios
+from mcp_word_server.validation.document_validators import check_file_writeable, validate_docx_file
 from mcp_word_server.core.protection import (
     add_protection_info,
     verify_document_protection,
     create_signature_info
 )
 
-
+@validate_docx_file('filename')
+@check_file_writeable('filename')
 async def protect_document(filename: str, password: str) -> str:
     """Add password protection to a Word document.
 
@@ -30,16 +33,6 @@ async def protect_document(filename: str, password: str) -> str:
         filename: Path to the Word document
         password: Password to protect the document with
     """
-    filename = ensure_docx_extension(filename)
-
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot protect document: {error_message}"
-
     try:
         # Read the original file content
         with open(filename, "rb") as infile:
@@ -78,7 +71,8 @@ async def protect_document(filename: str, password: str) -> str:
         except Exception as restore_e:
             return f"Failed to encrypt document {filename}: {str(e)}. Also failed to restore original file: {str(restore_e)}"
 
-
+@validate_docx_file('filename')
+@check_file_writeable('filename')
 async def add_restricted_editing(filename: str, password: str, editable_sections: List[str]) -> str:
     """Add restricted editing to a Word document, allowing editing only in specified sections.
 
@@ -87,16 +81,6 @@ async def add_restricted_editing(filename: str, password: str, editable_sections
         password: Password to protect the document with
         editable_sections: List of section names that can be edited
     """
-    filename = ensure_docx_extension(filename)
-
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot protect document: {error_message}"
-
     try:
         # Hash the password for security
         password_hash = hashlib.sha256(password.encode()).hexdigest()
@@ -119,6 +103,8 @@ async def add_restricted_editing(filename: str, password: str, editable_sections
     except Exception as e:
         return f"Failed to add restricted editing: {str(e)}"
 
+@validate_docx_file('filename')
+@check_file_writeable('filename')
 async def add_digital_signature(filename: str, signer_name: str, reason: Optional[str] = None) -> str:
     """Add a digital signature to a Word document.
 
@@ -127,18 +113,8 @@ async def add_digital_signature(filename: str, signer_name: str, reason: Optiona
         signer_name: Name of the person signing the document
         reason: Optional reason for signing
     """
-    filename = ensure_docx_extension(filename)
-
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot add signature to document: {error_message}"
-
     try:
-        doc = Document(filename)
+        doc : DocumentType = Document(filename)
 
         # Create signature info
         signature_info = create_signature_info(doc, signer_name, reason)
@@ -170,6 +146,7 @@ async def add_digital_signature(filename: str, signer_name: str, reason: Optiona
     except Exception as e:
         return f"Failed to add digital signature: {str(e)}"
 
+@validate_docx_file('filename')
 async def verify_document(filename: str, password: Optional[str] = None) -> str:
     """Verify document protection and/or digital signature.
 
@@ -177,10 +154,6 @@ async def verify_document(filename: str, password: Optional[str] = None) -> str:
         filename: Path to the Word document
         password: Optional password to verify
     """
-    filename = ensure_docx_extension(filename)
-
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
 
     try:
         # Verify document protection
@@ -222,6 +195,8 @@ async def verify_document(filename: str, password: Optional[str] = None) -> str:
     except Exception as e:
         return f"Failed to verify document: {str(e)}"
 
+@validate_docx_file('filename')
+@check_file_writeable('filename')
 async def unprotect_document(filename: str, password: str) -> str:
     """Remove password protection from a Word document.
 
@@ -229,16 +204,6 @@ async def unprotect_document(filename: str, password: str) -> str:
         filename: Path to the Word document
         password: Password that was used to protect the document
     """
-    filename = ensure_docx_extension(filename)
-
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot modify document: {error_message}"
-
     try:
         # Read the encrypted file content
         with open(filename, "rb") as infile:

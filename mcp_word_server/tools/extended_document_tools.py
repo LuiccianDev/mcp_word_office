@@ -3,18 +3,20 @@ Extended document tools for Word Document Server.
 
 These tools provide enhanced document content extraction and search capabilities.
 """
+# modulos estandar
 import os
 import json
 import subprocess
 import platform
 import shutil
-from typing import Dict, List, Optional, Any, Union, Tuple
-from docx import Document
+from typing import Optional
 
-from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension
+# modulos propios
 from mcp_word_server.utils.extended_document_utils import get_paragraph_text, find_text
+from mcp_word_server.validation.document_validators import validate_docx_file, check_file_writeable
 
 
+@validate_docx_file('filename')
 async def get_paragraph_text_from_document(filename: str, paragraph_index: int) -> str:
     """Get text from a specific paragraph in a Word document.
     
@@ -22,12 +24,6 @@ async def get_paragraph_text_from_document(filename: str, paragraph_index: int) 
         filename: Path to the Word document
         paragraph_index: Index of the paragraph to retrieve (0-based)
     """
-    filename = ensure_docx_extension(filename)
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
-
     if paragraph_index < 0:
         return "Invalid parameter: paragraph_index must be a non-negative integer"
     
@@ -37,7 +33,7 @@ async def get_paragraph_text_from_document(filename: str, paragraph_index: int) 
     except Exception as e:
         return f"Failed to get paragraph text: {str(e)}"
 
-
+@validate_docx_file('filename')
 async def find_text_in_document(filename: str, text_to_find: str, match_case: bool = True, whole_word: bool = False) -> str:
     """Find occurrences of specific text in a Word document.
     
@@ -47,11 +43,6 @@ async def find_text_in_document(filename: str, text_to_find: str, match_case: bo
         match_case: Whether to match case (True) or ignore case (False)
         whole_word: Whether to match whole words only (True) or substrings (False)
     """
-    filename = ensure_docx_extension(filename)
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
     if not text_to_find:
         return "Search text cannot be empty"
     
@@ -62,7 +53,8 @@ async def find_text_in_document(filename: str, text_to_find: str, match_case: bo
     except Exception as e:
         return f"Failed to search for text: {str(e)}"
 
-
+@check_file_writeable('filename')
+@validate_docx_file('filename')
 async def convert_to_pdf(filename: str, output_filename: Optional[str] = None) -> str:
     """Convert a Word document to PDF format.
     
@@ -71,11 +63,6 @@ async def convert_to_pdf(filename: str, output_filename: Optional[str] = None) -
         output_filename: Optional path for the output PDF. If not provided, 
                          will use the same name with .pdf extension
     """
-    filename = ensure_docx_extension(filename)
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
     # Generate output filename if not provided
     if not output_filename:
         base_name, _ = os.path.splitext(filename)
@@ -94,12 +81,8 @@ async def convert_to_pdf(filename: str, output_filename: Optional[str] = None) -
     
     # Create the directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
-    
-    # Check if output file can be written
-    is_writeable, error_message = check_file_writeable(output_filename)
-    if not is_writeable:
-        return f"Cannot create PDF: {error_message} (Path: {output_filename}, Dir: {output_dir})"
-    
+
+
     try:
         # Determine platform for appropriate conversion method
         system = platform.system()

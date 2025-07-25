@@ -1,72 +1,97 @@
+"""Document creation and manipulation tools for Word Document Server.
+
+This module provides functions for creating, reading, and manipulating
+Word documents with security checks for file system access.
 """
-Document creation and manipulation tools for Word Document Server.
-"""
-import os
+# modulos estandar
 import json
-from typing import Dict, List, Optional, Any
+import os
+from typing import List, Optional, Tuple
+
+# modulos de terceros
 from docx import Document
+from docx.document import Document as DocumentType
 
-from mcp_word_server.validation.document_validators import check_file_writeable, ensure_docx_extension, create_document_copy
-from mcp_word_server.utils.document_utils import get_document_properties, extract_document_text, get_document_structure
-from mcp_word_server.core.styles import ensure_heading_style, ensure_table_style
+# modulos propios
+from mcp_word_server.core.tables import copy_table
+from mcp_word_server.utils.document_utils import (get_document_properties, 
+                                                    extract_document_text, 
+                                                    get_document_structure,
+                                                    create_document_copy,
+                                                    ensure_docx_extension)
+from mcp_word_server.core.styles import (ensure_heading_style,
+                                        ensure_table_style)
+from mcp_word_server.validation.document_validators import (validate_docx_file,
+                                                            check_file_writeable)
 
 
-"""Add Changes """
-# Nueva función para obtener los directorios permitidos
-def get_allowed_directories() -> List[str]:
-    """Get the list of allowed directories from environment variables."""
-    # Obtener de variable de entorno, con valor predeterminado si no existe
+def _get_allowed_directories() -> List[str]:
+    """Get the list of allowed directories from environment variables.
+    
+    Returns:
+        List of absolute paths to directories where documents can be created/accessed.
+        Defaults to ['./documents'] if MCP_ALLOWED_DIRECTORIES is not set.
+    """
     allowed_dirs_str = os.environ.get("MCP_ALLOWED_DIRECTORIES", "./documents")
-    # Dividir por comas si hay múltiples directorios
-    allowed_dirs = [dir.strip() for dir in allowed_dirs_str.split(",")]
-    # Asegurar que las rutas estén normalizadas
-    return [os.path.abspath(dir) for dir in allowed_dirs]
-"""Add Changes """
-# Nueva función para verificar si una ruta está en directorios permitidos
-def is_path_in_allowed_directories(file_path: str) -> tuple[bool, Optional[str]]:
-    """Check if the given file path is within allowed directories."""
-    allowed_dirs = get_allowed_directories()
+    return [os.path.abspath(dir_path.strip()) 
+            for dir_path in allowed_dirs_str.split(",")]
+
+def _is_path_in_allowed_directories(file_path: str) -> Tuple[bool, Optional[str]]:
+    """Check if the given file path is within allowed directories.
+    
+    Args:
+        file_path: The file path to validate.
+        
+    Returns:
+        Tuple of (is_allowed, error_message) where is_allowed is a boolean
+        indicating if the path is allowed, and error_message provides details
+        if the path is not allowed.
+    """
+    allowed_dirs = _get_allowed_directories()
     abs_path = os.path.abspath(file_path)
     
-    # Verificar si el archivo está en alguno de los directorios permitidos
     for allowed_dir in allowed_dirs:
-        if os.path.commonpath([allowed_dir, abs_path]) == allowed_dir:
-            return True, None
+        try:
+            if os.path.commonpath([allowed_dir, abs_path]) == allowed_dir:
+                return True, None
+        except ValueError:
+            continue
     
-    return False, f"Path '{file_path}' is not in allowed directories: {', '.join(allowed_dirs)}"
+    error_msg = (
+        f"Path '{file_path}' is not in allowed directories: "
+        f"{', '.join(allowed_dirs)}"
+    )
+    return False, error_msg
 
-"""Add Changes """
-# Función modificada para crear documentos
-async def create_document(filename: str, title: Optional[str] = None, author: Optional[str] = None) -> str:
+@check_file_writeable('filename')
+@validate_docx_file('filename')
+async def create_document(
+    filename: str, 
+    title: Optional[str] = None, 
+    author: Optional[str] = None
+) -> str:
     """Create a new Word document with optional metadata.
     
     Args:
-        filename: Name of the document to create (with or without .docx extension)
-        title: Optional title for the document metadata
-        author: Optional author for the document metadata
+        filename: Name of the document to create (with or without .docx extension).
+        title: Optional title for the document metadata.
+        author: Optional author for the document metadata.
+        
+    Returns:
+        str: Success or error message indicating the result of the operation.
     """
-    filename = ensure_docx_extension(filename)
-    
-    # Verificar si el directorio está permitido
-    is_allowed, error_message = is_path_in_allowed_directories(filename)
+    is_allowed, error_message = _is_path_in_allowed_directories(filename)
     if not is_allowed:
         return f"Cannot create document: {error_message}"
     
-    # Asegurar que el directorio existe
     directory = os.path.dirname(filename)
     if directory and not os.path.exists(directory):
         try:
             os.makedirs(directory, exist_ok=True)
-        except Exception as e:
+        except OSError as e:
             return f"Cannot create directory '{directory}': {str(e)}"
-    
-    # Check if file is writeable
-    is_writeable, error_message = check_file_writeable(filename)
-    if not is_writeable:
-        return f"Cannot create document: {error_message}"
-    
     try:
-        doc = Document()
+        doc: DocumentType = Document()
         
         # Set properties if provided
         if title:
@@ -123,17 +148,13 @@ async def create_document(filename: str, title: Optional[str] = None, author: Op
         return f"Failed to create document: {str(e)}" """
 
 
+@validate_docx_file('filename')
 async def get_document_info(filename: str) -> str:
     """Get information about a Word document.
     
     Args:
         filename: Path to the Word document
     """
-    filename = ensure_docx_extension(filename)
-    
-    if not os.path.exists(filename):
-        return f"Document {filename} does not exist"
-    
     try:
         properties = get_document_properties(filename)
         return json.dumps(properties, indent=2)
@@ -141,25 +162,23 @@ async def get_document_info(filename: str) -> str:
         return f"Failed to get document info: {str(e)}"
 
 
+@validate_docx_file('filename')
 async def get_document_text(filename: str) -> str:
     """Extract all text from a Word document.
     
     Args:
         filename: Path to the Word document
-    """
-    filename = ensure_docx_extension(filename)
-    
+    """ 
     return extract_document_text(filename)
 
 
+@validate_docx_file('filename')
 async def get_document_outline(filename: str) -> str:
     """Get the structure of a Word document.
     
     Args:
         filename: Path to the Word document
     """
-    filename = ensure_docx_extension(filename)
-    
     structure = get_document_structure(filename)
     return json.dumps(structure, indent=2)
 
@@ -174,18 +193,21 @@ async def list_available_documents(directory: str = ".") -> str:
         if not os.path.exists(directory):
             return f"Directory {directory} does not exist"
         
-        docx_files = [f for f in os.listdir(directory) if f.endswith('.docx')]
+        docx_files = [
+            f for f in os.listdir(directory) 
+            if f.lower().endswith('.docx')
+        ]
         
         if not docx_files:
             return f"No Word documents found in {directory}"
         
-        result = f"Found {len(docx_files)} Word documents in {directory}:\n"
-        for file in docx_files:
+        result = [f"Found {len(docx_files)} Word documents in {directory}:"]
+        for file in sorted(docx_files):
             file_path = os.path.join(directory, file)
-            size = os.path.getsize(file_path) / 1024  # KB
-            result += f"- {file} ({size:.2f} KB)\n"
+            size_kb = os.path.getsize(file_path) / 1024
+            result.append(f"- {file} ({size_kb:.2f} KB)")
         
-        return result
+        return "\n".join(result)
     except Exception as e:
         return f"Failed to list documents: {str(e)}"
 
@@ -202,13 +224,13 @@ async def copy_document(source_filename: str, destination_filename: Optional[str
     if destination_filename:
         destination_filename = ensure_docx_extension(destination_filename)
     
-    success, message, new_path = create_document_copy(source_filename, destination_filename)
+    success, message, _ = create_document_copy(source_filename, destination_filename)
     if success:
         return message
-    else:
-        return f"Failed to copy document: {message}"
+    return f"Failed to copy document: {message}"
 
-
+@check_file_writeable('target_filename')
+@validate_docx_file('target_filename')
 async def merge_documents(target_filename: str, source_filenames: List[str], add_page_breaks: bool = True) -> str:
     """Merge multiple Word documents into a single document.
     
@@ -217,15 +239,6 @@ async def merge_documents(target_filename: str, source_filenames: List[str], add
         source_filenames: List of paths to source documents to merge
         add_page_breaks: If True, add page breaks between documents
     """
-    from mcp_word_server.core.tables import copy_table
-    
-    target_filename = ensure_docx_extension(target_filename)
-    
-    # Check if target file is writeable
-    is_writeable, error_message = check_file_writeable(target_filename)
-    if not is_writeable:
-        return f"Cannot create target document: {error_message}"
-    
     # Validate all source documents exist
     missing_files = []
     for filename in source_filenames:
@@ -238,12 +251,12 @@ async def merge_documents(target_filename: str, source_filenames: List[str], add
     
     try:
         # Create a new document for the merged result
-        target_doc = Document()
+        target_doc: DocumentType = Document()
         
         # Process each source document
         for i, filename in enumerate(source_filenames):
             doc_filename = ensure_docx_extension(filename)
-            source_doc = Document(doc_filename)
+            source_doc: DocumentType = Document(doc_filename)
             
             # Add page break between documents (except before the first one)
             if add_page_breaks and i > 0:
