@@ -1,101 +1,169 @@
 # MCP Office Word Server
 
-**MCP Office Word Server** es un servidor Python que permite la creación, edición, protección y manipulación avanzada de documentos Microsoft Word (`.docx`) a través del Model Context Protocol (MCP). Este proyecto está diseñado para exponer operaciones de alto nivel sobre documentos Word de manera programática y automatizada.
+**MCP Office Word Server** es un servidor Python que implementa el Model Context Protocol (MCP) para proporcionar capacidades avanzadas de manipulación de documentos Microsoft Word (`.docx`). Este servidor permite la automatización de tareas complejas de procesamiento de documentos de manera programática.
 
-## Características principales
+## Tabla de Contenidos
+- [Características Principales](#-características-principales)
+- [Requisitos del Sistema](#-requisitos-del-sistema)
+- [Instalación](#-instalación)
+- [Uso Básico](#-uso-básico)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [API de Herramientas](#-api-de-herramientas)
+- [Seguridad](#-seguridad)
+- [Contribución](#-contribución)
+- [Licencia](#-licencia)
 
-- **Creación y gestión de documentos Word**
-  - Crear nuevos documentos con metadatos personalizados (título, autor).
-  - Listar, copiar y fusionar documentos existentes.
-  - Obtener propiedades, estructura y texto completo de documentos.
+## Características Principales
 
-- **Edición de contenido**
-  - Añadir encabezados, párrafos, tablas, imágenes y saltos de página.
-  - Eliminar párrafos y realizar búsqueda y reemplazo de texto.
-  - Añadir tablas de contenido generadas automáticamente.
+### Gestión de Documentos
+- Creación de nuevos documentos con metadatos personalizados
+- Listado y gestión de documentos existentes
+- Fusión de múltiples documentos
+- Extracción de metadatos y propiedades del documento
 
-- **Formato avanzado**
-  - Aplicar formato a rangos de texto (negrita, cursiva, subrayado, color, fuente, tamaño).
-  - Crear estilos personalizados y aplicarlos.
-  - Formatear tablas (bordes, sombreado, filas de encabezado).
+### Edición de Contenido
+- Inserción de texto, encabezados, párrafos y saltos de página
+- Gestión avanzada de tablas (creación, formato, edición)
+- Inserción y manipulación de imágenes
+- Búsqueda y reemplazo de texto con expresiones regulares
 
-- **Protección y seguridad**
-  - Proteger documentos con contraseña y restringir edición por secciones.
-  - Añadir y verificar firmas digitales.
-  - Eliminar protección y desencriptar documentos.
+### Formato Avanzado
+- Aplicación de estilos de párrafo y caracteres
+- Formato de fuente (negrita, cursiva, subrayado, color, tamaño)
+- Creación y aplicación de estilos personalizados
+- Formato de tablas (bordes, alineación, sombreado)
 
-- **Gestión de notas al pie y notas finales**
-  - Añadir notas al pie y notas finales a párrafos específicos.
-  - Convertir notas al pie en notas finales.
-  - Personalizar el formato y numeración de las notas.
+### Protección y Seguridad
+- Protección con contraseña a nivel de documento
+- Restricciones de edición por secciones
+- Firma digital de documentos
+- Eliminación segura de metadatos
 
-- **Herramientas extendidas**
-  - Extraer texto de párrafos específicos.
-  - Buscar texto en todo el documento (con opciones de mayúsculas/minúsculas y palabra completa).
-  - Convertir documentos Word a PDF (requiere LibreOffice o Microsoft Word).
+### Gestión de Referencias
+- Notas al pie y notas finales
+- Tablas de contenido generadas automáticamente
+- Números de página y encabezados/pies de página
 
-## ¿Qué es MCP (Model Context Protocol)?
+## Requisitos del Sistema
 
-MCP es un protocolo que permite exponer funciones de manipulación de documentos como "herramientas" accesibles desde clientes compatibles. Cada función del servidor puede ser llamada de forma remota, permitiendo la integración con asistentes, bots, automatizaciones y otros sistemas.
+- Python 3.11 o superior
+- Bibliotecas requeridas:
+  - `python-docx>=0.8.11`
+  - `msoffcrypto-tool>=4.12.0`
+  - `docx2pdf>=0.1.8` (opcional, para conversión a PDF)
 
-## Estructura del repositorio
+## Instalación
 
-- `mcp_word_server/tools/`  
-  Herramientas de alto nivel expuestas por el servidor (creación, edición, formato, protección, notas, etc.).
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/mcp-office-word.git
+   cd mcp-office-word
+   ```
 
-- `mcp_word_server/core/`  
-  Funcionalidad interna y utilidades para manipulación de Word (estilos, tablas, protección, notas).
+2. Crea y activa un entorno virtual (recomendado):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # En Windows: venv\Scripts\activate
+   ```
 
-- `mcp_word_server/utils/`  
-  Utilidades generales para manejo de archivos, extracción de texto, búsqueda, etc.
+3. Instala las dependencias:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- `mcp_word_server/main.py`  
-  Punto de entrada principal del servidor MCP.
+## Uso Básico
 
-- `mcp_word_server.py`  
-  Script ejecutable para iniciar el servidor.
-
-## Ejemplo de uso
-
-Puedes iniciar el servidor ejecutando:
-
+Inicia el servidor MCP:
 ```bash
 python mcp_word_server.py
 ```
 
-Luego, desde un cliente MCP compatible, puedes invocar herramientas como:
+### Ejemplos de Uso
 
-- Crear un documento:
-  - `create_document(filename="nuevo.docx", title="Mi Documento", author="Autor")`
-- Añadir un párrafo:
-  - `add_paragraph(filename="nuevo.docx", text="Este es un párrafo de ejemplo.")`
-- Proteger un documento:
-  - `protect_document(filename="nuevo.docx", password="segura123")`
-- Buscar texto:
-  - `find_text_in_document(filename="nuevo.docx", text_to_find="ejemplo")`
-- Convertir a PDF:
-  - `convert_to_pdf(filename="nuevo.docx")`
+#### Crear un nuevo documento
+```python
+create_document(
+    filename="ejemplo.docx",
+    title="Documento de Ejemplo",
+    author="Autor",
+    subject="Ejemplo de Documento"
+)
+```
 
-## Requisitos
+#### Añadir contenido
+```python
+add_paragraph(
+    filename="ejemplo.docx",
+    text="Este es un párrafo de ejemplo con formato.",
+    style="Heading1"
+)
+```
 
-- Python 3.8+
-- Paquetes: `python-docx`, `msoffcrypto-tool`, `docx2pdf` (opcional), `libreoffice` (para conversión a PDF en Linux/Mac)
-- Microsoft Word (solo si se usa `docx2pdf` en Windows)
+#### Buscar y reemplazar texto
+```python
+find_and_replace(
+    filename="ejemplo.docx",
+    find_text="ejemplo",
+    replace_text="muestra",
+    match_case=True
+)
+```
 
-## Extensibilidad
+## Estructura del Proyecto
 
-El servidor está diseñado para ser fácilmente ampliable. Puedes agregar nuevas herramientas en la carpeta `tools/` y exponerlas a través del protocolo MCP.
+```
+mcp-office-word/
+├── mcp_word_server/
+│   ├── tools/           # Herramientas MCP expuestas
+│   ├── core/            # Lógica principal de manipulación de Word
+│   ├── utils/           # Utilidades y funciones auxiliares
+│   ├── prompts/         # Prompt templates
+│   ├── validation/      # Validación de entrada
+│   └── main.py          # Punto de entrada principal
+├── tests/               # Pruebas unitarias
+└── README.md            # Este archivo
+```
+
+## API de Herramientas
+
+El servidor expone las siguientes categorías de herramientas:
+
+### Documentos
+- `create_document`: Crea un nuevo documento
+- `list_documents`: Lista documentos en el directorio
+- `merge_documents`: Combina múltiples documentos
+- `protect_document`: Protege un documento con contraseña
+
+### Contenido
+- `add_paragraph`: Añade un párrafo
+- `add_heading`: Añade un encabezado
+- `add_table`: Crea una tabla
+- `add_image`: Inserta una imagen
+
+### Formato
+- `apply_style`: Aplica un estilo
+- `format_text`: Formatea texto seleccionado
+- `format_table`: Formatea una tabla
+
+### Búsqueda
+- `find_text`: Busca texto en el documento
+- `find_and_replace`: Busca y reemplaza texto
 
 ## Seguridad
 
-- El servidor no ejecuta código arbitrario ni accede a recursos externos sin autorización.
-- Las operaciones de protección y firma digital usan hashing seguro y cifrado real de archivos.
-- El manejo de errores y permisos de archivos es robusto para evitar corrupción de documentos.
+- Todas las operaciones de protección utilizan cifrado seguro
+- Las contraseñas se manejan de forma segura y nunca se almacenan en texto plano
+- Validación de entrada en todas las funciones expuestas
+- Manejo seguro de archivos temporales
+
+## Contribución
+
+Las contribuciones son bienvenidas. Por favor, lee las pautas de contribución antes de enviar pull requests.
 
 ## Licencia
 
-MIT License.
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
 
 ---
 
-**Desarrollado para automatización y manipulación avanzada de documentos Word en entornos empresariales, educativos y de investigación.**
+**Desarrollado para simplificar la automatización de documentos Word en entornos empresariales y de desarrollo.**
