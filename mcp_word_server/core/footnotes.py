@@ -2,10 +2,11 @@
 Footnote and endnote functionality for Word Document Server.
 """
 from docx import Document
+from docx.document import Document as DocumentType
 from typing import List, Tuple
 
 
-def add_footnote(doc, paragraph, text):
+def add_footnote(doc: DocumentType, paragraph, text):
     """
     Add a footnote to a paragraph.
     
@@ -20,7 +21,7 @@ def add_footnote(doc, paragraph, text):
     return paragraph.add_footnote(text)
 
 
-def add_endnote(doc, paragraph, text):
+def add_endnote(doc: DocumentType, paragraph, text: str):
     """
     Add an endnote to a paragraph.
     This is a custom implementation since python-docx doesn't directly support endnotes.
@@ -58,7 +59,7 @@ def add_endnote(doc, paragraph, text):
     return paragraph
 
 
-def convert_footnotes_to_endnotes(doc):
+def convert_footnotes_to_endnotes(doc: DocumentType):
     """
     Convert all footnotes to endnotes in a document.
     
@@ -93,7 +94,7 @@ def convert_footnotes_to_endnotes(doc):
     return len(footnotes)
 
 
-def find_footnote_references(doc) -> List[Tuple[int, int, str]]:
+def find_footnote_references(doc: DocumentType) -> List[Tuple[int, int, str]]:
     """
     Find all footnote references in a document.
     
@@ -113,7 +114,14 @@ def find_footnote_references(doc) -> List[Tuple[int, int, str]]:
     
     return footnote_references
 
-
+def _fill_or_extend_format_symbols(base_list: List[str], count: int) -> List[str]:
+    """
+    Returns a list of length `count` based on `base_list`.
+    If `count` exceeds `base_list`, fills the rest with numeric strings.
+    """
+    if count <= len(base_list):
+        return base_list[:count]
+    return base_list + [str(i) for i in range(1, count - len(base_list) + 1)]
 def get_format_symbols(numbering_format: str, count: int) -> List[str]:
     """
     Get a list of formatting symbols based on the specified numbering format.
@@ -125,26 +133,24 @@ def get_format_symbols(numbering_format: str, count: int) -> List[str]:
     Returns:
         List of formatting symbols
     """
+    roman_numerals = [
+        "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x",
+        "xi", "xii", "xiii", "xiv", "xv", "xvi", "xvii", "xviii", "xix", "xx"
+    ]
+    alphabet = list(string.ascii_lowercase)
+    symbols = ["*", "†", "‡", "§", "¶", "||", "**", "††", "‡‡", "§§"]
+
     if numbering_format == "i, ii, iii":
-        roman_numerals = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x", 
-                         "xi", "xii", "xiii", "xiv", "xv", "xvi", "xvii", "xviii", "xix", "xx"]
-        return roman_numerals[:count] + [str(i) for i in range(count - len(roman_numerals) + 1, count + 1) if i > len(roman_numerals)]
-    
+        return _fill_or_extend_format_symbols(roman_numerals, count)
     elif numbering_format == "a, b, c":
-        alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
-                   "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
-                   "u", "v", "w", "x", "y", "z"]
-        return alphabet[:count] + [str(i) for i in range(count - len(alphabet) + 1, count + 1) if i > len(alphabet)]
-    
+        return _fill_or_extend_format_symbols(alphabet, count)
     elif numbering_format == "*, †, ‡":
-        symbols = ["*", "†", "‡", "§", "¶", "||", "**", "††", "‡‡", "§§"]
-        return symbols[:count] + [str(i) for i in range(count - len(symbols) + 1, count + 1) if i > len(symbols)]
-    
-    else:  # Default to numbers
+        return _fill_or_extend_format_symbols(symbols, count)  
+    else:  # Default to numeric strings
         return [str(i) for i in range(1, count + 1)]
 
 
-def customize_footnote_formatting(doc, footnote_refs, format_symbols, start_number, style=None):
+def customize_footnote_formatting(doc: DocumentType, footnote_refs, format_symbols, start_number, style=None):
     """
     Apply custom formatting to footnote references and text.
     

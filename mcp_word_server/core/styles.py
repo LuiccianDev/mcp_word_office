@@ -6,18 +6,13 @@ including creating custom styles, ensuring default styles exist, and applying
 consistent formatting.
 """
 # Standard library imports
-from dataclasses import dataclass
-from typing import Dict, Optional, Type, TypeVar, Any, Union, List
+from typing import Dict, Optional, Any, Union
 from enum import Enum
 
 # Third-party imports
 from docx import Document
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import RGBColor, Pt, Length
-# Eliminada la dependencia de Pydantic
-
-# Type variable for style type
-T = TypeVar('T', bound='StyleBase')
 
 # Constants for default values
 DEFAULT_HEADING_1_SIZE = Pt(16)
