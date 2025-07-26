@@ -1,20 +1,86 @@
 [project]
 name = "mcp-office-word"
-version = "0.1.0"
+version = "1.1.0"
 description = "MCP server for manipulating Microsoft Word documents"
 readme = "README.md"
 authors = [
     {name = "LuiccianDev"}
 ]
+license = {text = "MIT"}
+keywords = ["mcp", "microsoft-word", "office", "document-processing", "docx"]
 requires-python = ">=3.13"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+[project.urls]
+Homepage = "https://github.com/LuiccianDev/mcp-office-word"
+Repository = "https://github.com/LuiccianDev/mcp-office-word"
+Documentation = "https://mcp-office-word.readthedocs.io"
+"Bug Tracker" = "https://github.com/LuiccianDev/mcp-office-word/issues"
+Changelog = "https://github.com/LuiccianDev/mcp-office-word/blob/main/CHANGELOG.md"
+
 dependencies = [
     "docx2pdf>=0.1.8",
     "mcp[cli]>=1.9.0",
     "msoffcrypto-tool>=5.4.2",
-    "pytest>=8.4.1",
-    "pytest-asyncio>=1.1.0",
     "python-docx>=1.1.2",
 ]
 
 [project.scripts]
 mcp_server_word = "mcp_server.main:create_server"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "mypy>=1.17.0",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
+    "ruff>=0.12.5",
+]
+
+# Configuración de Black (formateador)
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+# Configuración de isort (organizar imports)
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+
+# Configuración de MyPy (verificador de tipos)
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+# Configuración de Ruff (linter moderno)
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
