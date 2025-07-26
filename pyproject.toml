@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mcp_server_word = "mcp_server.main:create_server"
+mcp_server_word = "word_mcp.main:create_server"
 
 [dependency-groups]
 dev = [
