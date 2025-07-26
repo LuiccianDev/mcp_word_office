@@ -18,11 +18,10 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 [project.urls]
-Homepage = "https://github.com/LuiccianDev/mcp-office-word"
-Repository = "https://github.com/LuiccianDev/mcp-office-word"
-Documentation = "https://mcp-office-word.readthedocs.io"
-"Bug Tracker" = "https://github.com/LuiccianDev/mcp-office-word/issues"
-Changelog = "https://github.com/LuiccianDev/mcp-office-word/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/LuiccianDev/mcp_office_word"
+Repository = "https://github.com/LuiccianDev/mcp_office_word"
+"Bug Tracker" = "https://github.com/LuiccianDev/mcp_office_word/issues"
+Changelog = "https://github.com/LuiccianDev/mcp_office_word/blob/main/CHANGELOG.md"
 
 dependencies = [
     "docx2pdf>=0.1.8",
