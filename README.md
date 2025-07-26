@@ -1,160 +1,294 @@
-# MCP Office Word Server
+<div align="center">
+  <h1>📄 MCP Office Word Server</h1>
+  <p>
+    <em>Potente servidor para la manipulación programática de documentos Word (.docx) mediante MCP</em>
+  </p>
+  
+  [![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/)
+  [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+  [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-brightgreen)](https://modelcontextprotocol.io)
+
+</div>
 
 **MCP Office Word Server** es un servidor Python que implementa el Model Context Protocol (MCP) para proporcionar capacidades avanzadas de manipulación de documentos Microsoft Word (`.docx`). Este servidor permite la automatización de tareas complejas de procesamiento de documentos de manera programática.
 
-## Tabla de Contenidos
-- [Características Principales](#-características-principales)
-- [Requisitos del Sistema](#-requisitos-del-sistema)
-- [Instalación](#-instalación)
-- [Uso Básico](#-uso-básico)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [API de Herramientas](#-api-de-herramientas)
-- [Seguridad](#-seguridad)
-- [Contribución](#-contribución)
-- [Licencia](#-licencia)
+> 💡 **Nota**: Este proyecto está diseñado para ser utilizado con clientes compatibles con MCP como Claude, permitiendo la manipulación de documentos Word mediante instrucciones en lenguaje natural.
 
-## Características Principales
+## 📑 Tabla de Contenidos
 
-### Gestión de Documentos
-- Creación de nuevos documentos con metadatos personalizados
-- Listado y gestión de documentos existentes
-- Fusión de múltiples documentos
-- Extracción de metadatos y propiedades del documento
+- [✨ Características Principales](#-características-principales)
+- [🖥️ Requisitos del Sistema](#️-requisitos-del-sistema)
+- [⚙️ Instalación](#️-instalación)
+- [ Configuración para Clientes MCP](#-configuración-para-clientes-mcp-claude-etc)
+- [🗂️ Estructura del Proyecto](#️-estructura-del-proyecto)
+- [🔧 API de Herramientas](#-api-de-herramientas)
+- [🔒 Seguridad](#-seguridad)
+- [🤝 Contribución](#-contribución)
+- [📜 Licencia](#-licencia)
 
-### Edición de Contenido
-- Inserción de texto, encabezados, párrafos y saltos de página
-- Gestión avanzada de tablas (creación, formato, edición)
-- Inserción y manipulación de imágenes
-- Búsqueda y reemplazo de texto con expresiones regulares
+## ✨ Características Principales
 
-### Formato Avanzado
-- Aplicación de estilos de párrafo y caracteres
-- Formato de fuente (negrita, cursiva, subrayado, color, tamaño)
-- Creación y aplicación de estilos personalizados
-- Formato de tablas (bordes, alineación, sombreado)
+### 📂 Gestión de Documentos
 
-### Protección y Seguridad
-- Protección con contraseña a nivel de documento
-- Restricciones de edición por secciones
-- Firma digital de documentos
-- Eliminación segura de metadatos
+- 📝 **Creación de documentos** con metadatos personalizados
+- 📋 **Gestión de archivos** existentes y listado de documentos
+- 🔄 **Fusión** de múltiples documentos en uno solo
+- 🔍 **Extracción** de metadatos y propiedades del documento
 
-### Gestión de Referencias
-- Notas al pie y notas finales
-- Tablas de contenido generadas automáticamente
-- Números de página y encabezados/pies de página
+### ✏️ Edición de Contenido
 
-## Requisitos del Sistema
+- 📝 **Inserción avanzada** de texto, encabezados y párrafos
+- 📊 **Gestión de tablas** con múltiples opciones de formato
+- 🖼️ **Manipulación de imágenes** con diferentes estilos
+- 🔍 **Búsqueda y reemplazo** con soporte para expresiones regulares
 
-- Python 3.11 o superior
-- Bibliotecas requeridas:
-  - `python-docx>=0.8.11`
-  - `msoffcrypto-tool>=4.12.0`
-  - `docx2pdf>=0.1.8` (opcional, para conversión a PDF)
+### 🎨 Formato Avanzado
 
-## Instalación
+- 🖍️ **Estilos personalizables** para párrafos y caracteres
+- 🔠 **Opciones de fuente** completas (familia, tamaño, color, efectos)
+- 🎭 **Temas y estilos** predefinidos y personalizables
+- 📐 **Formateo de tablas** con bordes, colores y alineación
 
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/tu-usuario/mcp-office-word.git
-   cd mcp-office-word
-   ```
+### 🔒 Protección y Seguridad
 
-2. Crea y activa un entorno virtual (recomendado):
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # En Windows: venv\Scripts\activate
-   ```
+- 🔐 **Protección** con contraseña a nivel de documento
+- 🛡️ **Restricciones** de edición por secciones
+- 📜 **Firma digital** para autenticidad del documento
+- 🗑️ **Eliminación segura** de metadatos sensibles
 
-3. Instala las dependencias:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 📚 Gestión de Referencias
 
-## Uso Básico
+- 📌 **Notas al pie** y notas finales personalizables
+- 📑 **Tablas de contenido** generadas automáticamente
+- 🔢 **Numeración** de páginas y secciones
+- 📖 **Índices** y referencias cruzadas
 
-Inicia el servidor MCP:
+## 🖥️ Requisitos del Sistema
+
+### 📋 Requisitos Mínimos
+
+- **Python**: 3.13 o superior
+- **Sistema Operativo**: Windows, macOS o Linux
+- **Memoria RAM**: 2 GB mínimo (4 GB recomendado)
+- **Espacio en disco**: 100 MB libres
+
+### 📦 Dependencias del Proyecto
+
+#### Dependencias Principales
+
+| Paquete | Versión | Descripción |
+|---------|---------|-------------|
+| `python-docx` | >=1.1.2 | Para manipulación avanzada de documentos Word |
+| `msoffcrypto-tool` | >=5.4.2 | Para manejo seguro de documentos cifrados |
+| `docx2pdf` | >=0.1.8 | Para conversión de documentos a PDF |
+| `mcp[cli]` | >=1.9.0 | Framework MCP para la creación de herramientas |
+
+#### Dependencias de Desarrollo
+
+| Paquete | Versión | Propósito |
+|---------|---------|-----------|
+| `black` | >=25.1.0 | Formateador de código |
+| `isort` | >=6.0.1 | Organizador de imports |
+| `mypy` | >=1.17.0 | Verificación de tipos estáticos |
+| `pytest` | >=8.4.1 | Framework de pruebas |
+| `ruff` | >=0.12.5 | Linter y formateador rápido |
+
+> 💡 Todas las dependencias se gestionan automáticamente a través de `uv` siguiendo la configuración en `pyproject.toml`.
+
+## ⚙️ Instalación
+
+### Requisitos Previos
+
+- Python 3.13 o superior
+- [uv](https://github.com/astral-sh/uv) - Instalador y gestor de entornos ultra rápido
+
+### 1. Clonar el repositorio
+
 ```bash
-python mcp_word_server.py
+git clone https://github.com/LuiccianDev/mcp_office_word.git
+cd mcp_office_word
 ```
 
-### Ejemplos de Uso
+### 2. Configurar entorno virtual con uv
 
-#### Crear un nuevo documento
-```python
-create_document(
-    filename="ejemplo.docx",
-    title="Documento de Ejemplo",
-    author="Autor",
-    subject="Ejemplo de Documento"
-)
+uv es el gestor de paquetes recomendado para este proyecto. Crea y activa automáticamente un entorno virtual:
+
+```bash
+# Crear y activar entorno virtual
+uv venv
+
+# En Windows:
+.venv\Scripts\activate
+
+# En macOS/Linux:
+source .venv/bin/activate
 ```
 
-#### Añadir contenido
-```python
-add_paragraph(
-    filename="ejemplo.docx",
-    text="Este es un párrafo de ejemplo con formato.",
-    style="Heading1"
-)
+### 3. Instalar dependencias
+
+Instala las dependencias del proyecto usando uv:
+
+```bash
+uv pip install -e ".[dev]"
 ```
 
-#### Buscar y reemplazar texto
-```python
-find_and_replace(
-    filename="ejemplo.docx",
-    find_text="ejemplo",
-    replace_text="muestra",
-    match_case=True
-)
+> ℹ️ El comando anterior instalará tanto las dependencias principales como las de desarrollo.
+
+
+## 🔌 Configuración para Clientes MCP
+
+### Metadatos del Proyecto
+
+| Propiedad | Valor |
+|-----------|-------|
+| **Nombre** | `mcp-office-word` |
+| **Versión** | `1.1.0` |
+| **Python** | `>=3.13` |
+| **Licencia** | MIT |
+| **Autor** | LuiccianDev |
+
+### Enlaces Rápidos
+- [Repositorio](https://github.com/LuiccianDev/mcp_office_word)
+- [Documentación](https://github.com/LuiccianDev/mcp_office_word/blob/main/README.md)
+- [Reportar un Problema](https://github.com/LuiccianDev/mcp_office_word/issues)
+- [Registro de Cambios](https://github.com/LuiccianDev/mcp_office_word/blob/main/CHANGELOG.md)
+
+### Configuración Básica
+
+Para integrar el servidor MCP Office Word con clientes compatibles como Claude, sigue estos pasos:
+
+1. **Inicia el servidor** siguiendo las instrucciones en la sección [🚀 Uso Básico](#-uso-básico).
+2. **Configura tu cliente MCP** con los siguientes parámetros:
+
+```json
+{
+  "mcp-word-office": {
+    "command": "python",
+    "args": [
+      "Users/path/to/mcp_server.py"
+    ],
+    "env": {
+      "MCP_ALLOWED_DIRECTORIES": "Users/path/to/your/documents"
+    }
+  }
+}
 ```
 
-## Estructura del Proyecto
+### 🔧 Variables de Entorno Clave
+
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `MCP_ALLOWED_DIRECTORIES` | Directorios accesibles por el servidor (separados por comas) | `"C:\\Users\\Usuario\\Documentos,C:\\Proyectos"` |
+
+### 🔒 Consideraciones de Seguridad
+
+- 🔐 **Directorios Permitidos**: Limita los directorios accesibles a solo los necesarios.
+- 🛡️ **Entorno Virtual**: Siempre usa un entorno virtual para aislar las dependencias.
+- 🔄 **Actualizaciones**: Mantén el servidor actualizado con las últimas correcciones de seguridad.
+- 👥 **Permisos**: Asegúrate de que los permisos de archivo sean los adecuados.
+
+## 🗂️ Estructura del Proyecto
 
 ```
 mcp-office-word/
-├── mcp_word_server/
-│   ├── tools/           # Herramientas MCP expuestas
-│   ├── core/            # Lógica principal de manipulación de Word
-│   ├── utils/           # Utilidades y funciones auxiliares
-│   ├── prompts/         # Prompt templates
-│   ├── validation/      # Validación de entrada
-│   └── main.py          # Punto de entrada principal
-├── tests/               # Pruebas unitarias
-└── README.md            # Este archivo
+├── 📁 mcp_word_server/      # Paquete principal del servidor
+│   ├── 📁 core/             # Lógica principal de manipulación de Word
+│   │   ├── __init__.py
+│   │   ├── exceptions.py    # Manejo de excepciones personalizadas
+│   │   └── styles.py        # Gestión de estilos de documento
+│   │
+│   ├── 📁 tools/            # Herramientas MCP expuestas
+│   │   ├── __init__.py
+│   │   ├── content_tools.py # Herramientas de contenido
+│   │   └── document_tools.py# Herramientas de documento
+│   │
+│   ├── 📁 utils/            # Utilidades y funciones auxiliares
+│   ├── 📁 prompts/          # Plantillas de prompts para MCP
+│   ├── 📁 validation/       # Validación de entrada
+│   └── main.py             # Punto de entrada principal
+│
+├── 📁 tests/                # Pruebas unitarias
+├── 📄 README.md             # Este archivo
+├── 📄 requirements.txt      # Dependencias del proyecto
+└── 📄 mcp_server.py         # Script principal del servidor
 ```
 
-## API de Herramientas
+### 📋 Descripción de Directorios
 
-El servidor expone las siguientes categorías de herramientas:
+- **`mcp_word_server/`**: Contiene todo el código fuente del servidor.
+  - **`core/`**: Lógica central para la manipulación de documentos Word.
+  - **`tools/`**: Implementación de las herramientas expuestas a través de MCP.
+  - **`utils/`**: Funciones auxiliares compartidas.
+  - **`prompts/`**: Plantillas para generar instrucciones para el modelo de lenguaje.
+  - **`validation/`**: Validación de entradas y parámetros.
 
-### Documentos
-- `create_document`: Crea un nuevo documento
-- `list_documents`: Lista documentos en el directorio
-- `merge_documents`: Combina múltiples documentos
-- `protect_document`: Protege un documento con contraseña
+- **`tests/`**: Pruebas unitarias y de integración para garantizar el correcto funcionamiento.
 
-### Contenido
-- `add_paragraph`: Añade un párrafo
-- `add_heading`: Añade un encabezado
-- `add_table`: Crea una tabla
-- `add_image`: Inserta una imagen
+## 🔧 API de Herramientas
 
-### Formato
-- `apply_style`: Aplica un estilo
-- `format_text`: Formatea texto seleccionado
-- `format_table`: Formatea una tabla
+El servidor MCP Office Word expone un conjunto completo de herramientas organizadas en categorías lógicas para facilitar la manipulación de documentos Word.
 
-### Búsqueda
-- `find_text`: Busca texto en el documento
-- `find_and_replace`: Busca y reemplaza texto
+### 📄 Documentos
 
-## Seguridad
+| Herramienta | Descripción | Parámetros |
+|-------------|-------------|------------|
+| `create_document` | Crea un nuevo documento Word | `filename`, `title`, `author`, `subject` |
+| `list_documents` | Lista documentos en directorios permitidos | `directory` (opcional) |
+| `merge_documents` | Combina múltiples documentos | `target_filename`, `source_filenames` |
+| `protect_document` | Protege un documento con contraseña | `filename`, `password` |
 
-- Todas las operaciones de protección utilizan cifrado seguro
-- Las contraseñas se manejan de forma segura y nunca se almacenan en texto plano
-- Validación de entrada en todas las funciones expuestas
-- Manejo seguro de archivos temporales
+### 📝 Contenido
+
+| Herramienta | Descripción | Parámetros |
+|-------------|-------------|------------|
+| `add_paragraph` | Añade un párrafo de texto | `filename`, `text`, `style` |
+| `add_heading` | Añade un encabezado | `filename`, `text`, `level` |
+| `add_table` | Crea una tabla | `filename`, `rows`, `cols`, `data` |
+| `add_image` | Inserta una imagen | `filename`, `image_path`, `width` |
+
+### 🎨 Formato
+
+| Herramienta | Descripción | Parámetros |
+|-------------|-------------|------------|
+| `apply_style` | Aplica un estilo a un elemento | `filename`, `element_id`, `style` |
+| `format_text` | Formatea un rango de texto | `filename`, `start`, `end`, `format` |
+| `format_table` | Formatea una tabla | `filename`, `table_index`, `style` |
+
+### 🔍 Búsqueda
+
+| Herramienta | Descripción | Parámetros |
+|-------------|-------------|------------|
+| `find_text` | Busca texto en el documento | `filename`, `search_text` |
+| `find_and_replace` | Busca y reemplaza texto | `filename`, `find_text`, `replace_text` |
+
+### 📚 Referencias
+
+| Herramienta | Descripción |
+|-------------|-------------|
+| `add_footnote` | Añade una nota al pie |
+| `add_endnote` | Añade una nota final |
+| `update_toc` | Actualiza la tabla de contenido |
+
+> ℹ️ Para una documentación detallada de cada herramienta, consulta el archivo [TOOLS.md](TOOLS.md).
+
+## 🔒 Seguridad
+
+### Consideraciones de Seguridad
+
+1. **Validación de Entrada**
+   - Todas las funciones realizan validación estricta de parámetros
+   - Se utilizan tipos de datos fuertemente tipados
+   - Se aplica sanitización de rutas de archivo
+
+2. **Seguridad de Archivos**
+   - Uso de `MCP_ALLOWED_DIRECTORIES` para restringir acceso
+   - Manejo seguro de archivos temporales
+   - Validación de tipos MIME para archivos subidos
+
+3. **Buenas Prácticas**
+   - Código revisado con `mypy` para seguridad de tipos
+   - Análisis estático con `ruff`
+   - Pruebas unitarias para casos de seguridad
 
 ## Contribución
 
