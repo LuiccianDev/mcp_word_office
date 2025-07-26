@@ -5,29 +5,33 @@ This module provides utilities for managing and applying styles in Word document
 including creating custom styles, ensuring default styles exist, and applying
 consistent formatting.
 """
+
 # Standard library imports
-from typing import Dict, Optional, Any, Union
 from enum import Enum
+from typing import Any, Dict, Optional, Union
 
 # Third-party imports
 from docx import Document
 from docx.enum.style import WD_STYLE_TYPE
-from docx.shared import RGBColor, Pt, Length
+from docx.shared import Length, Pt, RGBColor
 
 # Constants for default values
 DEFAULT_HEADING_1_SIZE = Pt(16)
 DEFAULT_HEADING_2_SIZE = Pt(14)
 DEFAULT_HEADING_SIZE = Pt(12)
-DEFAULT_FONT_NAME = 'Calibri'
+DEFAULT_FONT_NAME = "Calibri"
 DEFAULT_FONT_SIZE = Pt(11)
 DEFAULT_COLOR = RGBColor(0, 0, 0)  # Black
 
+
 class StyleType(str, Enum):
     """Supported style types for document elements."""
-    PARAGRAPH = 'paragraph'
-    CHARACTER = 'character'
-    TABLE = 'table'
-    NUMBERING = 'numbering'
+
+    PARAGRAPH = "paragraph"
+    CHARACTER = "character"
+    TABLE = "table"
+    NUMBERING = "numbering"
+
 
 def _parse_color(value: Any) -> RGBColor:
     """Parse color value to RGBColor."""
@@ -37,15 +41,15 @@ def _parse_color(value: Any) -> RGBColor:
         return value
     if isinstance(value, str):
         color_map = {
-            'red': RGBColor(255, 0, 0),
-            'blue': RGBColor(0, 0, 255),
-            'green': RGBColor(0, 128, 0),
-            'yellow': RGBColor(255, 255, 0),
-            'black': RGBColor(0, 0, 0),
-            'gray': RGBColor(128, 128, 128),
-            'white': RGBColor(255, 255, 255),
-            'purple': RGBColor(128, 0, 128),
-            'orange': RGBColor(255, 165, 0)
+            "red": RGBColor(255, 0, 0),
+            "blue": RGBColor(0, 0, 255),
+            "green": RGBColor(0, 128, 0),
+            "yellow": RGBColor(255, 255, 0),
+            "black": RGBColor(0, 0, 0),
+            "gray": RGBColor(128, 128, 128),
+            "white": RGBColor(255, 255, 255),
+            "purple": RGBColor(128, 0, 128),
+            "orange": RGBColor(255, 165, 0),
         }
         color_lower = value.lower()
         if color_lower in color_map:
@@ -56,15 +60,17 @@ def _parse_color(value: Any) -> RGBColor:
             pass
     return DEFAULT_COLOR
 
+
 class FontProperties:
     """Model for font-related style properties."""
+
     def __init__(
         self,
         name: str = DEFAULT_FONT_NAME,
         size: Optional[Union[int, Length]] = DEFAULT_FONT_SIZE,
         bold: bool = False,
         italic: bool = False,
-        color: Optional[Union[str, RGBColor]] = None
+        color: Optional[Union[str, RGBColor]] = None,
     ):
         self.name = name
         self.size = size
@@ -72,19 +78,22 @@ class FontProperties:
         self.italic = italic
         self.color = _parse_color(color)
 
+
 class ParagraphProperties:
     """Model for paragraph-related style properties."""
+
     def __init__(
         self,
         alignment: Optional[int] = None,
         spacing: Optional[float] = None,
         space_before: Optional[Length] = None,
-        space_after: Optional[Length] = None
+        space_after: Optional[Length] = None,
     ):
         self.alignment = alignment
         self.spacing = spacing
         self.space_before = space_before
         self.space_after = space_after
+
 
 def ensure_heading_style(doc: Document) -> None:
     """
@@ -94,14 +103,14 @@ def ensure_heading_style(doc: Document) -> None:
         doc: The document to ensure styles for.
     """
     for level in range(1, 10):
-        style_name = f'Heading {level}'
+        style_name = f"Heading {level}"
         if style_name not in doc.styles:
             try:
                 style = doc.styles.add_style(style_name, WD_STYLE_TYPE.PARAGRAPH)
                 font = style.font
-                font.name = 'Calibri'
+                font.name = "Calibri"
                 font.bold = True
-                
+
                 # Set appropriate font size based on heading level
                 if level == 1:
                     font.size = DEFAULT_HEADING_1_SIZE
@@ -113,6 +122,7 @@ def ensure_heading_style(doc: Document) -> None:
                 # Log error but continue with other styles
                 print(f"Warning: Failed to create {style_name} style: {e}")
 
+
 def ensure_table_style(doc: Document) -> None:
     """
     Ensure default table style exists in the document.
@@ -120,12 +130,13 @@ def ensure_table_style(doc: Document) -> None:
     Args:
         doc: The document to ensure the table style for.
     """
-    style_name = 'Table Grid'
+    style_name = "Table Grid"
     if style_name not in doc.styles:
         try:
             doc.styles.add_style(style_name, WD_STYLE_TYPE.TABLE)
         except Exception as e:
             print(f"Warning: Failed to create {style_name} style: {e}")
+
 
 def create_style(
     doc: Document,
@@ -133,7 +144,7 @@ def create_style(
     style_type: WD_STYLE_TYPE = WD_STYLE_TYPE.PARAGRAPH,
     base_style: Optional[str] = None,
     font_props: Optional[Dict[str, Any]] = None,
-    paragraph_props: Optional[Dict[str, Any]] = None
+    paragraph_props: Optional[Dict[str, Any]] = None,
 ) -> Any:
     """
     Create or update a style in the document.
@@ -155,16 +166,16 @@ def create_style(
     except KeyError:
         # Create new style
         style = doc.styles.add_style(style_name, style_type)
-        
+
         # Set base style if specified
         if base_style and base_style in doc.styles:
             style.base_style = doc.styles[base_style]
-        
+
         # Apply font properties if provided
         if font_props:
             font = style.font
             font_props_obj = FontProperties(**font_props)
-            
+
             if font_props_obj.name:
                 font.name = font_props_obj.name
             if font_props_obj.size is not None:
@@ -175,12 +186,12 @@ def create_style(
                 font.italic = font_props_obj.italic
             if font_props_obj.color is not None:
                 font.color.rgb = font_props_obj.color
-        
+
         # Apply paragraph properties if provided and style supports it
-        if paragraph_props and hasattr(style, 'paragraph_format'):
+        if paragraph_props and hasattr(style, "paragraph_format"):
             para_props = ParagraphProperties(**paragraph_props)
             para_format = style.paragraph_format
-            
+
             if para_props.alignment is not None:
                 para_format.alignment = para_props.alignment
             if para_props.spacing is not None:
@@ -189,5 +200,5 @@ def create_style(
                 para_format.space_before = para_props.space_before
             if para_props.space_after is not None:
                 para_format.space_after = para_props.space_after
-        
+
         return style

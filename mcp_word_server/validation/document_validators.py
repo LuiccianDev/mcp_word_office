@@ -3,18 +3,19 @@
 This module provides helper functions for file system operations such as
 checking permissions, copying files, and ensuring correct file extensions.
 """
-import os
-from pathlib import Path
-from typing import Tuple, Optional, Union
+
 import asyncio
 import functools
 import inspect
-from typing import Callable, TypeVar, Any, cast, Dict, Optional
+import os
+from pathlib import Path
+from typing import Any, Callable, Dict, Optional, Tuple, TypeVar, Union, cast
 
 from docx import Document
 from docx.opc.exceptions import PackageNotFoundError
 
 F = TypeVar("F", bound=Callable[..., Any])
+
 
 # Decorator function to validate a .docx file path
 def validate_docx_file(param_name: str) -> Callable[[F], F]:
@@ -29,38 +30,46 @@ def validate_docx_file(param_name: str) -> Callable[[F], F]:
         - The file has a .docx extension.
         - The file is a valid (non-corrupt) Word document.
     """
+
     def decorator(func: F) -> F:
         if asyncio.iscoroutinefunction(func):
+
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 path_value = _get_argument_value(func, param_name, args, kwargs)
                 if path_value is None:
                     return {"error": f"Parameter '{param_name}' not found."}
-                
+
                 if error := _validate_docx_path(path_value):
                     return error
-                
+
                 return await func(*args, **kwargs)
+
             return cast(F, async_wrapper)
         else:
+
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
                 path_value = _get_argument_value(func, param_name, args, kwargs)
                 if path_value is None:
                     return {"error": f"Parameter '{param_name}' not found."}
-                
+
                 if error := _validate_docx_path(path_value):
                     return error
-                
+
                 return func(*args, **kwargs)
+
             return cast(F, sync_wrapper)
 
     return decorator
+
 
 def check_file_writeable(param_name: str) -> Callable[[F], F]:
     """Decorador que verifica si el archivo indicado es escribible."""
+
     def decorator(func: F) -> F:
         if inspect.iscoroutinefunction(func):
+
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 value = _get_argument_value(func, param_name, args, kwargs)
@@ -76,6 +85,7 @@ def check_file_writeable(param_name: str) -> Callable[[F], F]:
             return cast(F, async_wrapper)
 
         else:
+
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
                 value = _get_argument_value(func, param_name, args, kwargs)
@@ -91,6 +101,7 @@ def check_file_writeable(param_name: str) -> Callable[[F], F]:
             return cast(F, sync_wrapper)
 
     return decorator
+
 
 # helper function to check if a file is writeable
 def _check_file_writeable(path_value: Union[str, Path]) -> Tuple[bool, str]:
@@ -105,12 +116,15 @@ def _check_file_writeable(path_value: Union[str, Path]) -> Tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
+
 # helper function to extract an argument's value from args or kwargs
-def _get_argument_value(func: Callable, name: str, args: tuple, kwargs: dict) -> Optional[Any]:
+def _get_argument_value(
+    func: Callable, name: str, args: tuple, kwargs: dict
+) -> Optional[Any]:
     """Extracts an argument's value from args or kwargs."""
     if name in kwargs:
         return kwargs[name]
-    
+
     try:
         sig = inspect.signature(func)
         param_names = list(sig.parameters.keys())
@@ -121,7 +135,8 @@ def _get_argument_value(func: Callable, name: str, args: tuple, kwargs: dict) ->
     except (ValueError, IndexError):
         return None
     return None
-    
+
+
 # helper function to validate a .docx file path of validate_docx_file decorator
 def _validate_docx_path(path_str: str) -> Optional[Dict[str, str]]:
     """Performs validation checks on a given .docx file path."""
@@ -141,5 +156,5 @@ def _validate_docx_path(path_str: str) -> Optional[Dict[str, str]]:
         return {"error": f"File '{path}' is not a valid Word document (.docx)."}
     except Exception as e:
         return {"error": f"Could not open document: {e}"}
-    
+
     return None

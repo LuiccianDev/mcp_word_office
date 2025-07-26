@@ -9,4 +9,4 @@ from mcp_word_server.main import create_server
 
 if __name__ == "__main__":
     mcp = create_server()
-    mcp.run(transport='stdio')
+    mcp.run(transport="stdio")

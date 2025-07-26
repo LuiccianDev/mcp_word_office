@@ -4,28 +4,35 @@ Protection tools for Word Document Server.
 These tools handle document protection features such as
 password protection, restricted editing, and digital signatures.
 """
+
 # modulos estandar
-import os
-import hashlib
 import datetime
-import io 
+import hashlib
+import io
+import os
 from typing import List, Optional
+
+import msoffcrypto
 
 # modulos de terceros
 from docx import Document
 from docx.document import Document as DocumentType
-import msoffcrypto 
 
-# modulos propios
-from mcp_word_server.validation.document_validators import check_file_writeable, validate_docx_file
 from mcp_word_server.core.protection import (
     add_protection_info,
+    create_signature_info,
     verify_document_protection,
-    create_signature_info
 )
 
-@validate_docx_file('filename')
-@check_file_writeable('filename')
+# modulos propios
+from mcp_word_server.validation.document_validators import (
+    check_file_writeable,
+    validate_docx_file,
+)
+
+
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def protect_document(filename: str, password: str) -> str:
     """Add password protection to a Word document.
 
@@ -40,18 +47,17 @@ async def protect_document(filename: str, password: str) -> str:
 
         # Create an msoffcrypto file object from the original data
         file = msoffcrypto.OfficeFile(io.BytesIO(original_data))
-        file.load_key(password=password) # Set the password for encryption
+        file.load_key(password=password)  # Set the password for encryption
 
         # Encrypt the data into an in-memory buffer
         encrypted_data_io = io.BytesIO()
-        
-        file.encrypt(password=password, outfile=encrypted_data_io) 
+
+        file.encrypt(password=password, outfile=encrypted_data_io)
 
         # Overwrite the original file with the encrypted data
         with open(filename, "wb") as outfile:
             outfile.write(encrypted_data_io.getvalue())
 
-        
         base_path, _ = os.path.splitext(filename)
         metadata_path = f"{base_path}.protection"
         if os.path.exists(metadata_path):
@@ -62,7 +68,7 @@ async def protect_document(filename: str, password: str) -> str:
     except Exception as e:
         # Attempt to restore original file content on failure
         try:
-            if 'original_data' in locals():
+            if "original_data" in locals():
                 with open(filename, "wb") as outfile:
                     outfile.write(original_data)
                 return f"Failed to encrypt document {filename}: {str(e)}. Original file restored."
@@ -71,9 +77,12 @@ async def protect_document(filename: str, password: str) -> str:
         except Exception as restore_e:
             return f"Failed to encrypt document {filename}: {str(e)}. Also failed to restore original file: {str(restore_e)}"
 
-@validate_docx_file('filename')
-@check_file_writeable('filename')
-async def add_restricted_editing(filename: str, password: str, editable_sections: List[str]) -> str:
+
+@validate_docx_file("filename")
+@check_file_writeable("filename")
+async def add_restricted_editing(
+    filename: str, password: str, editable_sections: List[str]
+) -> str:
     """Add restricted editing to a Word document, allowing editing only in specified sections.
 
     Args:
@@ -90,7 +99,7 @@ async def add_restricted_editing(filename: str, password: str, editable_sections
             filename,
             protection_type="restricted",
             password_hash=password_hash,
-            sections=editable_sections
+            sections=editable_sections,
         )
 
         if not editable_sections:
@@ -103,9 +112,12 @@ async def add_restricted_editing(filename: str, password: str, editable_sections
     except Exception as e:
         return f"Failed to add restricted editing: {str(e)}"
 
-@validate_docx_file('filename')
-@check_file_writeable('filename')
-async def add_digital_signature(filename: str, signer_name: str, reason: Optional[str] = None) -> str:
+
+@validate_docx_file("filename")
+@check_file_writeable("filename")
+async def add_digital_signature(
+    filename: str, signer_name: str, reason: Optional[str] = None
+) -> str:
     """Add a digital signature to a Word document.
 
     Args:
@@ -114,7 +126,7 @@ async def add_digital_signature(filename: str, signer_name: str, reason: Optiona
         reason: Optional reason for signing
     """
     try:
-        doc : DocumentType = Document(filename)
+        doc: DocumentType = Document(filename)
 
         # Create signature info
         signature_info = create_signature_info(doc, signer_name, reason)
@@ -124,7 +136,7 @@ async def add_digital_signature(filename: str, signer_name: str, reason: Optiona
             filename,
             protection_type="signature",
             password_hash="",  # No password for signature-only
-            signature_info=signature_info
+            signature_info=signature_info,
         )
 
         if success:
@@ -134,8 +146,12 @@ async def add_digital_signature(filename: str, signer_name: str, reason: Optiona
             signature_para.add_run(f"Digitally signed by: {signer_name}").bold = True
             if reason:
                 signature_para.add_run(f"\nReason: {reason}")
-            signature_para.add_run(f"\nDate: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            signature_para.add_run(f"\nSignature ID: {signature_info['content_hash'][:8]}")
+            signature_para.add_run(
+                f"\nDate: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
+            signature_para.add_run(
+                f"\nSignature ID: {signature_info['content_hash'][:8]}"
+            )
 
             # Save the document with the visible signature
             doc.save(filename)
@@ -146,7 +162,8 @@ async def add_digital_signature(filename: str, signer_name: str, reason: Optiona
     except Exception as e:
         return f"Failed to add digital signature: {str(e)}"
 
-@validate_docx_file('filename')
+
+@validate_docx_file("filename")
 async def verify_document(filename: str, password: Optional[str] = None) -> str:
     """Verify document protection and/or digital signature.
 
@@ -169,7 +186,8 @@ async def verify_document(filename: str, password: Optional[str] = None) -> str:
         if os.path.exists(metadata_path):
             try:
                 import json
-                with open(metadata_path, 'r') as f:
+
+                with open(metadata_path, "r") as f:
                     protection_data = json.load(f)
 
                 if protection_data.get("type") == "signature":
@@ -195,8 +213,9 @@ async def verify_document(filename: str, password: Optional[str] = None) -> str:
     except Exception as e:
         return f"Failed to verify document: {str(e)}"
 
-@validate_docx_file('filename')
-@check_file_writeable('filename')
+
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def unprotect_document(filename: str, password: str) -> str:
     """Remove password protection from a Word document.
 
@@ -211,11 +230,13 @@ async def unprotect_document(filename: str, password: str) -> str:
 
         # Create an msoffcrypto file object from the encrypted data
         file = msoffcrypto.OfficeFile(io.BytesIO(encrypted_data))
-        file.load_key(password=password) # Set the password for decryption
+        file.load_key(password=password)  # Set the password for decryption
 
         # Decrypt the data into an in-memory buffer
         decrypted_data_io = io.BytesIO()
-        file.decrypt(outfile=decrypted_data_io) # Pass the buffer as the 'outfile' argument
+        file.decrypt(
+            outfile=decrypted_data_io
+        )  # Pass the buffer as the 'outfile' argument
 
         # Overwrite the original file with the decrypted data
         with open(filename, "wb") as outfile:
@@ -224,17 +245,17 @@ async def unprotect_document(filename: str, password: str) -> str:
         return f"Document {filename} decrypted successfully."
 
     except msoffcrypto.exceptions.InvalidKeyError:
-            return f"Failed to decrypt document {filename}: Incorrect password."
+        return f"Failed to decrypt document {filename}: Incorrect password."
     except msoffcrypto.exceptions.InvalidFormatError:
-            return f"Failed to decrypt document {filename}: File is not encrypted or is not a supported Office format."
+        return f"Failed to decrypt document {filename}: File is not encrypted or is not a supported Office format."
     except Exception as e:
         # Attempt to restore encrypted file content on failure
         try:
-            if 'encrypted_data' in locals():
+            if "encrypted_data" in locals():
                 with open(filename, "wb") as outfile:
                     outfile.write(encrypted_data)
                 return f"Failed to decrypt document {filename}: {str(e)}. Encrypted file restored."
             else:
-                    return f"Failed to decrypt document {filename}: {str(e)}. Could not restore encrypted file."
+                return f"Failed to decrypt document {filename}: {str(e)}. Could not restore encrypted file."
         except Exception as restore_e:
-                return f"Failed to decrypt document {filename}: {str(e)}. Also failed to restore encrypted file: {str(restore_e)}"
+            return f"Failed to decrypt document {filename}: {str(e)}. Also failed to restore encrypted file: {str(restore_e)}"

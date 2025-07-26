@@ -4,17 +4,22 @@ Prompt templates for MCP Office Word Server.
 This module contains all the prompt templates used for generating academic documents
 in the MCP Office Word Server application based on prompts_estudiantes.md.
 """
+
 from typing import Dict, List, Optional
+
 from pydantic import BaseModel
+
 
 class PromptTemplate(BaseModel):
     """A class to represent a prompt template."""
+
     name: str
     description: str
     template: str
     parameters: Optional[List[str]] = None
     category: str
     academic_level: str
+
 
 # Secondary/High School Prompts
 SECONDARY_ESSAY_BASIC = PromptTemplate(
@@ -30,7 +35,7 @@ SECONDARY_ESSAY_BASIC = PromptTemplate(
 - Agregar una portada simple""",
     parameters=["filename"],
     category="essay",
-    academic_level="secondary"
+    academic_level="secondary",
 )
 
 SECONDARY_ARGUMENTATIVE_ESSAY = PromptTemplate(
@@ -47,7 +52,7 @@ SECONDARY_ARGUMENTATIVE_ESSAY = PromptTemplate(
 - Formato APA básico""",
     parameters=["topic", "filename"],
     category="essay",
-    academic_level="secondary"
+    academic_level="secondary",
 )
 
 # University Level Prompts
@@ -66,7 +71,7 @@ UNIVERSITY_CRITICAL_ESSAY = PromptTemplate(
 - {word_count} palabras""",
     parameters=["filename", "word_count"],
     category="essay",
-    academic_level="university"
+    academic_level="university",
 )
 
 UNIVERSITY_RESEARCH_PROPOSAL = PromptTemplate(
@@ -85,7 +90,7 @@ UNIVERSITY_RESEARCH_PROPOSAL = PromptTemplate(
 - Referencias preliminares""",
     parameters=["filename"],
     category="proposal",
-    academic_level="university"
+    academic_level="university",
 )
 
 # Laboratory Reports
@@ -102,7 +107,7 @@ SECONDARY_LAB_REPORT = PromptTemplate(
 - Numeración de figuras y tablas""",
     parameters=["filename"],
     category="lab_report",
-    academic_level="secondary"
+    academic_level="secondary",
 )
 
 # University Thesis Templates
@@ -123,7 +128,7 @@ UNIVERSITY_THESIS_TEMPLATE = PromptTemplate(
 - Formato académico institucional""",
     parameters=["filename"],
     category="thesis",
-    academic_level="university"
+    academic_level="university",
 )
 
 # Graduate Level Prompts
@@ -144,7 +149,7 @@ GRADUATE_RESEARCH_ARTICLE = PromptTemplate(
 - Referencias en formato de revista específica""",
     parameters=["filename"],
     category="research",
-    academic_level="graduate"
+    academic_level="graduate",
 )
 
 GRADUATE_DOCTORAL_PROPOSAL = PromptTemplate(
@@ -167,7 +172,7 @@ GRADUATE_DOCTORAL_PROPOSAL = PromptTemplate(
 - Referencias extensas (100+ fuentes)""",
     parameters=["filename"],
     category="proposal",
-    academic_level="graduate"
+    academic_level="graduate",
 )
 
 # Business Case Studies
@@ -188,7 +193,7 @@ UNIVERSITY_CASE_STUDY = PromptTemplate(
 - Anexos con datos relevantes""",
     parameters=["filename"],
     category="case_study",
-    academic_level="university"
+    academic_level="university",
 )
 
 # Format Templates
@@ -208,7 +213,7 @@ APA_FORMAT_TEMPLATE = PromptTemplate(
 - DOI cuando esté disponible""",
     parameters=["filename"],
     category="format",
-    academic_level="all"
+    academic_level="all",
 )
 
 MLA_FORMAT_TEMPLATE = PromptTemplate(
@@ -226,7 +231,7 @@ MLA_FORMAT_TEMPLATE = PromptTemplate(
 - Sin portada separada""",
     parameters=["filename"],
     category="format",
-    academic_level="all"
+    academic_level="all",
 )
 
 # Specialized Academic Documents
@@ -244,7 +249,7 @@ ACCOUNTING_REPORT_TEMPLATE = PromptTemplate(
 - Formato profesional contable""",
     parameters=["filename"],
     category="business",
-    academic_level="university"
+    academic_level="university",
 )
 
 LEGAL_ESSAY_TEMPLATE = PromptTemplate(
@@ -263,7 +268,7 @@ LEGAL_ESSAY_TEMPLATE = PromptTemplate(
 - Anexos con textos normativos""",
     parameters=["filename"],
     category="legal",
-    academic_level="university"
+    academic_level="university",
 )
 
 MEDICAL_CASE_STUDY = PromptTemplate(
@@ -283,7 +288,7 @@ MEDICAL_CASE_STUDY = PromptTemplate(
 - Referencias médicas actualizadas""",
     parameters=["filename"],
     category="medical",
-    academic_level="university"
+    academic_level="university",
 )
 
 # Dictionary of all available prompts
@@ -292,76 +297,72 @@ PROMPT_REGISTRY = {
     "secondary_essay_basic": SECONDARY_ESSAY_BASIC,
     "secondary_argumentative_essay": SECONDARY_ARGUMENTATIVE_ESSAY,
     "secondary_lab_report": SECONDARY_LAB_REPORT,
-    
     # University Level
     "university_critical_essay": UNIVERSITY_CRITICAL_ESSAY,
     "university_research_proposal": UNIVERSITY_RESEARCH_PROPOSAL,
     "university_thesis_template": UNIVERSITY_THESIS_TEMPLATE,
     "university_case_study": UNIVERSITY_CASE_STUDY,
-    
     # Graduate Level
     "graduate_research_article": GRADUATE_RESEARCH_ARTICLE,
     "graduate_doctoral_proposal": GRADUATE_DOCTORAL_PROPOSAL,
-    
     # Format Templates
     "apa_format_template": APA_FORMAT_TEMPLATE,
     "mla_format_template": MLA_FORMAT_TEMPLATE,
-    
     # Specialized Academic Documents
     "accounting_report_template": ACCOUNTING_REPORT_TEMPLATE,
     "legal_essay_template": LEGAL_ESSAY_TEMPLATE,
     "medical_case_study": MEDICAL_CASE_STUDY,
 }
 
+
 def get_prompt_template(prompt_name: str) -> Optional[PromptTemplate]:
     """
     Retrieve a prompt template by name.
-    
+
     Args:
         prompt_name: The name of the prompt template to retrieve
-        
+
     Returns:
         The requested PromptTemplate or None if not found
     """
     return PROMPT_REGISTRY.get(prompt_name)
 
+
 def list_available_prompts() -> Dict[str, str]:
     """
     List all available prompt templates with their descriptions.
-    
+
     Returns:
         A dictionary mapping prompt names to their descriptions
     """
     return {name: prompt.description for name, prompt in PROMPT_REGISTRY.items()}
 
+
 def get_prompts_by_category(category: str) -> List[PromptTemplate]:
     """
     Get all prompt templates for a specific category.
-    
+
     Args:
         category: The category to filter by (e.g., 'essay', 'proposal', 'research')
-        
+
     Returns:
         A list of PromptTemplate objects matching the category
     """
     return [
-        prompt 
-        for prompt in PROMPT_REGISTRY.values() 
-        if prompt.category == category
+        prompt for prompt in PROMPT_REGISTRY.values() if prompt.category == category
     ]
+
 
 def get_prompts_by_academic_level(level: str) -> List[PromptTemplate]:
     """
     Get all prompt templates for a specific academic level.
-    
+
     Args:
         level: The academic level to filter by (e.g., 'secondary', 'university', 'graduate')
-        
+
     Returns:
         A list of PromptTemplate objects matching the academic level
     """
     return [
-        prompt 
-        for prompt in PROMPT_REGISTRY.values() 
-        if prompt.academic_level == level
+        prompt for prompt in PROMPT_REGISTRY.values() if prompt.academic_level == level
     ]

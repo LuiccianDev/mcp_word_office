@@ -4,14 +4,18 @@ Extended document utilities for the Word Document Server.
 This module provides advanced functions for interacting with Word documents,
 including searching for text and retrieving specific content elements.
 """
+
 import re
-from typing import Dict, List, Any, Pattern
+from typing import Any, Dict, List, Pattern
+
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.text.paragraph import Paragraph
+
 from mcp_word_server.validation.document_validators import validate_docx_file
 
-@validate_docx_file('doc_path')
+
+@validate_docx_file("doc_path")
 def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
     """Get text from a specific paragraph in a Word document.
 
@@ -28,7 +32,7 @@ def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
         if not 0 <= paragraph_index < len(doc.paragraphs):
             return {
                 "error": f"Invalid paragraph index: {paragraph_index}. "
-                        f"Document has {len(doc.paragraphs)} paragraphs."
+                f"Document has {len(doc.paragraphs)} paragraphs."
             }
 
         paragraph: Paragraph = doc.paragraphs[paragraph_index]
@@ -37,21 +41,17 @@ def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
             "index": paragraph_index,
             "text": paragraph.text,
             "style": paragraph.style.name if paragraph.style else "Normal",
-            "is_heading": paragraph.style.name.startswith("Heading")
-            if paragraph.style
-            else False,
+            "is_heading": (
+                paragraph.style.name.startswith("Heading") if paragraph.style else False
+            ),
         }
     except Exception as e:
         return {"error": f"Failed to get paragraph text: {e}"}
 
 
-
-@validate_docx_file('doc_path')
+@validate_docx_file("doc_path")
 def find_text(
-    doc_path: str, 
-    text_to_find: str, 
-    match_case: bool = True, 
-    whole_word: bool = False
+    doc_path: str, text_to_find: str, match_case: bool = True, whole_word: bool = False
 ) -> Dict[str, Any]:
     """Find all occurrences of specific text in a Word document.
 
@@ -97,29 +97,31 @@ def find_text(
         return {"error": f"Failed to search for text: {e}"}
 
 
-def _create_search_pattern(text_to_find: str, match_case: bool, whole_word: bool) -> Pattern[str]:
+def _create_search_pattern(
+    text_to_find: str, match_case: bool, whole_word: bool
+) -> Pattern[str]:
     """Create a regex pattern for searching text."""
     pattern = re.escape(text_to_find)
     if whole_word:
         pattern = r"\b" + pattern + r"\b"
-    
+
     flags = 0 if match_case else re.IGNORECASE
     return re.compile(pattern, flags)
 
 
 def _search_in_element(
-    element: Any, 
-    pattern: Pattern[str], 
-    location_prefix: str
+    element: Any, pattern: Pattern[str], location_prefix: str
 ) -> List[Dict[str, Any]]:
     """Search for a pattern within a document element (paragraph or cell)."""
     occurrences = []
     for match in pattern.finditer(element.text):
         context = element.text[:100] + ("..." if len(element.text) > 100 else "")
-        occurrences.append({
-            "location": location_prefix,
-            "position": match.start(),
-            "match": match.group(0),
-            "context": context,
-        })
+        occurrences.append(
+            {
+                "location": location_prefix,
+                "position": match.start(),
+                "match": match.group(0),
+                "context": context,
+            }
+        )
     return occurrences
