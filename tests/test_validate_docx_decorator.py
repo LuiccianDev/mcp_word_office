@@ -12,7 +12,7 @@ from typing import Dict
 import pytest
 
 # Import the decorator and related functions
-from mcp_word_server.validation.document_validators import validate_docx_file
+from src.word_mcp.validation.document_validators import validate_docx_file
 
 # Test data directory path
 TEST_DATA_DIR = Path(__file__).parent.parent / "test_data"

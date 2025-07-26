@@ -10,7 +10,7 @@ import pytest_asyncio
 from docx import Document
 
 # Import the module to test
-from mcp_word_server.tools import document_tools
+from src.word_mcp.tools import document_tools
 
 # Mark all tests in this module as asyncio
 pytestmark = pytest.mark.asyncio
