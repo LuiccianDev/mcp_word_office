@@ -17,7 +17,7 @@
 ## 📑 Tabla de Contenidos
 
 - [✨ Características Principales](#-características-principales)
-- [🖥️ Requisitos del Sistema](#️-requisitos-del-sistema) 
+- [🖥️ Requisitos del Sistema](#️-requisitos-del-sistema)
 - [⚙️ Instalación](#️-instalación)
 - [🗂️ Estructura del Proyecto](#️-estructura-del-proyecto)
 - [🔧 API de Herramientas](#-api-de-herramientas)
