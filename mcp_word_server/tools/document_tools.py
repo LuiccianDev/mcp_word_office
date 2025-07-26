@@ -187,56 +187,75 @@ async def get_document_outline(filename: str) -> str:
     return json.dumps(structure, indent=2)
 
 
-async def list_available_documents(directory: str = ".") -> Dict[str, Any]:
-    """List all .docx files in the specified directory and return a JSON-style dict.
-    
+async def list_available_documents(directory: Optional[str] = None) -> Dict[str, Any]:
+    """
+    List all .docx files in the specified or allowed directories.
+
     Args:
-        directory: Directory to search for Word documents.
+        directory: Optional path to a directory. If not provided, uses all allowed.
 
     Returns:
-        Dict with status, message, and list of documents (with size info).
+        Dictionary with status, message, and list of found documents.
     """
     try:
-        # Validar si existe la ruta
-        if not os.path.exists(directory):
-            return {
-                "status": "error",
-                "message": f"Directory '{directory}' does not exist.",
-                "documents": []
-            }
+        # Si no se especifica directorio, usamos todos los permitidos
+        if directory is None:
+            search_directories = _get_allowed_directories()
+            if not search_directories:
+                return {
+                    "status": "error",
+                    "message": "No accessible directories found in MCP configuration.",
+                    "allowed_directories": _get_allowed_directories(),
+                    "documents": []
+                }
+        else:
+            abs_dir = os.path.abspath(directory)
+            allowed_dirs = _get_allowed_directories()
+            
+            # Validación segura usando commonpath
+            is_allowed = any(
+                os.path.commonpath([abs_dir, allowed]) == allowed for allowed in allowed_dirs
+            )
+            if not is_allowed:
+                return {
+                    "status": "error",
+                    "message": f"Directory '{directory}' is not in allowed directories: {', '.join(allowed_dirs)}",
+                    "allowed_directories": allowed_dirs,
+                    "documents": []
+                }
+            search_directories = [abs_dir]
 
-        # Filtrar archivos .docx
-        docx_files = [
-            f for f in os.listdir(directory)
-            if f.lower().endswith('.docx')
-        ]
+        all_documents = []
+        total_found = 0
 
-        # Si no hay archivos .docx
-        if not docx_files:
-            return {
-                "status": "ok",
-                "message": "No Word documents found.",
-                "directory": os.path.abspath(directory),
-                "documents": []
-            }
+        for search_dir in search_directories:
+            if not os.path.exists(search_dir):
+                continue
 
-        # Preparar los datos detallados
-        documents = []
-        for file in sorted(docx_files):
-            file_path = os.path.join(directory, file)
-            size_kb = os.path.getsize(file_path) / 1024
-            documents.append({
-                "name": file,
-                "path": os.path.abspath(file_path),
-                "size_kb": round(size_kb, 2)
-            })
+            docx_files = [
+                f for f in os.listdir(search_dir)
+                if f.lower().endswith('.docx') and not f.startswith('~$')  # Excluir archivos temporales
+            ]
+
+            for file in sorted(docx_files):
+                file_path = os.path.join(search_dir, file)
+                size_kb = os.path.getsize(file_path) / 1024
+                all_documents.append({
+                    "name": file,
+                    "path": os.path.abspath(file_path),
+                    "size_kb": round(size_kb, 2),
+                    "source_directory": search_dir
+                })
+
+            total_found += len(docx_files)
 
         return {
             "status": "ok",
-            "message": f"Found {len(documents)} Word document(s).",
-            "directory": os.path.abspath(directory),
-            "total": len(documents),
-            "documents": documents
+            "message": f"Found {total_found} Word document(s)" + (
+                f" across {len(search_directories)} directories" if len(search_directories) > 1 else "") + ".",
+            "directories_searched": search_directories,
+            "total": total_found,
+            "documents": all_documents
         }
 
     except Exception as e:
