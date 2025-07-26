@@ -114,10 +114,10 @@ uv pip install -e ".[dev]"
 
 ### Enlaces Rápidos
 
-- [Repositorio](https://github.com/LuiccianDev/mcp_office_word)
-- [Documentación](https://github.com/LuiccianDev/mcp_office_word/blob/main/README.md)
-- [Reportar un Problema](https://github.com/LuiccianDev/mcp_office_word/issues)
-- [Registro de Cambios](https://github.com/LuiccianDev/mcp_office_word/blob/main/CHANGELOG.md)
+- [Repositorio](https://github.com/LuiccianDev/mcp_word_office)
+- [Documentación](https://github.com/LuiccianDev/mcp_word_office/blob/master/README.md)
+- [Reportar un Problema](https://github.com/LuiccianDev/mcp_word_office/issues)
+- [Registro de Cambios](https://github.com/LuiccianDev/mcp_word_office/blob/master/CHANGELOG.md)
 
 ### Configuración Básica
 
