@@ -2,9 +2,9 @@
 trigger: manual
 ---
 
-
 ---
 
+```text
 project/
 │
 ├── mcp_word_server/
@@ -18,7 +18,7 @@ project/
 │ └── test_[modulo].py
 ├── requirements.txt
 └── README.md
-
+```
 ## ✅ Reglas para el entorno de pruebas
 
 1. **Usar Pytest como framework de testing.**
