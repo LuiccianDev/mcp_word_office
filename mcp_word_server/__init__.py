@@ -1,7 +1,7 @@
 """
 Word Document Server - MCP server for Microsoft Word document manipulation.
 
-This package provides tools for creating, reading, and manipulating Microsoft Word 
+This package provides tools for creating, reading, and manipulating Microsoft Word
 documents through the Model Context Protocol (MCP).
 
 Features:
@@ -12,4 +12,4 @@ Features:
 - Footnote and endnote management
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
