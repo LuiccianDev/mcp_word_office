@@ -3,7 +3,7 @@ Utility functions for the Word Document Server.
 This package contains utility modules for file operations and document handling.
 """
 
-from mcp_word_server.utils.document_utils import (
+from word_mcp.utils.document_utils import (
     create_document_copy,
     ensure_docx_extension,
     extract_document_text,
@@ -12,7 +12,7 @@ from mcp_word_server.utils.document_utils import (
     get_document_properties,
     get_document_structure,
 )
-from mcp_word_server.utils.extended_document_utils import find_text, get_paragraph_text
+from word_mcp.utils.extended_document_utils import find_text, get_paragraph_text
 
 __all__ = [
     # document_utils

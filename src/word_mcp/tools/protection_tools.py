@@ -18,14 +18,14 @@ import msoffcrypto
 from docx import Document
 from docx.document import Document as DocumentType
 
-from mcp_word_server.core.protection import (
+from word_mcp.core.protection import (
     add_protection_info,
     create_signature_info,
     verify_document_protection,
 )
 
 # modulos propios
-from mcp_word_server.validation.document_validators import (
+from word_mcp.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )

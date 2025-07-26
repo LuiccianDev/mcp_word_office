@@ -12,7 +12,7 @@ from docx import Document
 from docx.document import Document as DocumentType
 from docx.text.paragraph import Paragraph
 
-from mcp_word_server.validation.document_validators import validate_docx_file
+from word_mcp.validation.document_validators import validate_docx_file
 
 
 @validate_docx_file("doc_path")

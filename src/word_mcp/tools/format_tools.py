@@ -14,11 +14,11 @@ from docx.document import Document as DocumentType
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Pt, RGBColor
 
-from mcp_word_server.core.styles import create_style
-from mcp_word_server.core.tables import apply_table_style
+from word_mcp.core.styles import create_style
+from word_mcp.core.tables import apply_table_style
 
 # modulos propios
-from mcp_word_server.validation.document_validators import (
+from word_mcp.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )

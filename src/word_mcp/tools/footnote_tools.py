@@ -14,14 +14,14 @@ from docx.document import Document as DocumentType
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Pt
 
-from mcp_word_server.core.footnotes import (
+from word_mcp.core.footnotes import (
     customize_footnote_formatting,
     find_footnote_references,
     get_format_symbols,
 )
 
 # modulos propios
-from mcp_word_server.validation.document_validators import (
+from word_mcp.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )

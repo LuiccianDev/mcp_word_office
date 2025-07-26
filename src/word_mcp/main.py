@@ -6,10 +6,10 @@ Acts as the central controller for the MCP server that handles Word document ope
 # modulos de terceros
 from mcp.server.fastmcp import FastMCP
 
-from mcp_word_server.prompts.register_prompts import register_prompts
+from word_mcp.prompts.register_prompts import register_prompts
 
 # modulos propios
-from mcp_word_server.tools.register_tools import register_all_tools
+from word_mcp.tools.register_tools import register_all_tools
 
 
 def create_server() -> FastMCP:

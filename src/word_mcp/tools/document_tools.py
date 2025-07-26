@@ -13,18 +13,18 @@ from typing import Any, Dict, List, Optional, Tuple
 from docx import Document
 from docx.document import Document as DocumentType
 
-from mcp_word_server.core.styles import ensure_heading_style, ensure_table_style
+from word_mcp.core.styles import ensure_heading_style, ensure_table_style
 
 # modulos propios
-from mcp_word_server.core.tables import copy_table
-from mcp_word_server.utils.document_utils import (
+from word_mcp.core.tables import copy_table
+from word_mcp.utils.document_utils import (
     create_document_copy,
     ensure_docx_extension,
     extract_document_text,
     get_document_properties,
     get_document_structure,
 )
-from mcp_word_server.validation.document_validators import (
+from word_mcp.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )

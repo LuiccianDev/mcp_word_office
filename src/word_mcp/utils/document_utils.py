@@ -14,7 +14,7 @@ from docx.document import Document as DocumentType
 from docx.oxml.coreprops import CT_CoreProperties
 from docx.section import Section
 
-from mcp_word_server.validation.document_validators import validate_docx_file
+from word_mcp.validation.document_validators import validate_docx_file
 
 
 @validate_docx_file("filename")

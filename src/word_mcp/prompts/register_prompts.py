@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 
-from mcp_word_server.prompts.prompts import PROMPT_REGISTRY
+from word_mcp.prompts.prompts import PROMPT_REGISTRY
 
 
 def register_prompts(mcp: FastMCP):

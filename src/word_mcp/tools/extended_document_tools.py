@@ -13,8 +13,8 @@ import subprocess
 from typing import Any, Dict, Optional
 
 # modulos propios
-from mcp_word_server.utils.extended_document_utils import find_text, get_paragraph_text
-from mcp_word_server.validation.document_validators import (
+from word_mcp.utils.extended_document_utils import find_text, get_paragraph_text
+from word_mcp.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )

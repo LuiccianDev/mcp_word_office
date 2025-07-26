@@ -13,11 +13,11 @@ from docx import Document
 from docx.document import Document as DocumentType
 from docx.shared import Inches, Pt
 
-from mcp_word_server.core.styles import ensure_heading_style
-from mcp_word_server.utils.document_utils import find_and_replace_text
+from word_mcp.core.styles import ensure_heading_style
+from word_mcp.utils.document_utils import find_and_replace_text
 
 # modulos propios
-from mcp_word_server.validation.document_validators import (
+from word_mcp.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )
