@@ -10,4 +10,4 @@ wheels/
 docs/
 # Virtual environments
 .venv
-.windsurf/
+.windsurf
