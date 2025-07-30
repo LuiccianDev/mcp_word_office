@@ -75,7 +75,7 @@ def _is_path_in_allowed_directories(file_path: str) -> Tuple[bool, Optional[str]
 
 async def create_document(
     filename: str, title: Optional[str] = None, author: Optional[str] = None
-) -> str:
+) -> dict[str, Any]:
     """Create a new Word document with optional metadata.
 
     Args:
@@ -89,14 +89,14 @@ async def create_document(
 
     is_allowed, error_message = _is_path_in_allowed_directories(filename)
     if not is_allowed:
-        return f"Cannot create document: {error_message}"
+        return {"status": "error", "message": f"Cannot create document: {error_message}"}
 
     directory = os.path.dirname(filename)
     if directory and not os.path.exists(directory):
         try:
             os.makedirs(directory, exist_ok=True)
         except OSError as e:
-            return f"Cannot create directory '{directory}': {str(e)}"
+            return {"status": "error", "message": f"Cannot create directory '{directory}': {str(e)}"}
 
     try:
         doc: DocumentType = Document()
@@ -114,9 +114,9 @@ async def create_document(
         # Save the document
         doc.save(filename)
 
-        return f"Document {filename} created successfully"
+        return {"status": "success", "message": f"Document {filename} created successfully"}
     except Exception as e:
-        return f"Failed to create document: {str(e)}"
+        return {"status": "error", "message": f"Failed to create document: {str(e)}"}
 
     #! Function removed
     # async def create_document(filename: str, title: Optional[str] = None, author: Optional[str] = None) -> str:
@@ -156,7 +156,7 @@ async def create_document(
 
 
 @validate_docx_file("filename")
-async def get_document_info(filename: str) -> str:
+async def get_document_info(filename: str) -> dict[str, Any]:
     """Get information about a Word document.
 
     Args:
@@ -164,9 +164,9 @@ async def get_document_info(filename: str) -> str:
     """
     try:
         properties = get_document_properties(filename)
-        return json.dumps(properties, indent=2)
+        return properties
     except Exception as e:
-        return f"Failed to get document info: {str(e)}"
+        return {"status": "error", "message": f"Failed to get document info: {str(e)}"}
 
 
 @validate_docx_file("filename")
@@ -180,14 +180,14 @@ async def get_document_text(filename: str) -> str:
 
 
 @validate_docx_file("filename")
-async def get_document_outline(filename: str) -> str:
+async def get_document_outline(filename: str) -> dict[str, Any]:
     """Get the structure of a Word document.
 
     Args:
         filename: Path to the Word document
     """
     structure = get_document_structure(filename)
-    return json.dumps(structure, indent=2)
+    return structure
 
 
 async def list_available_documents(directory: Optional[str] = None) -> Dict[str, Any]:
@@ -258,7 +258,7 @@ async def list_available_documents(directory: Optional[str] = None) -> Dict[str,
             total_found += len(docx_files)
 
         return {
-            "status": "ok",
+            "status": "success",
             "message": f"Found {total_found} Word document(s)"
             + (
                 f" across {len(search_directories)} directories"
@@ -282,7 +282,7 @@ async def list_available_documents(directory: Optional[str] = None) -> Dict[str,
 @validate_docx_file("source_filename")
 async def copy_document(
     source_filename: str, destination_filename: Optional[str] = None
-) -> str:
+) -> dict[str, Any]:
     """Create a copy of a Word document.
 
     Args:
@@ -296,15 +296,15 @@ async def copy_document(
 
     success, message, _ = create_document_copy(source_filename, destination_filename)
     if success:
-        return message
-    return f"Failed to copy document: {message}"
+        return {"status": "success", "message": message}
+    return {"status": "error", "message": f"Failed to copy document: {message}"}
 
 
 @check_file_writeable("target_filename")
 @validate_docx_file("target_filename")
 async def merge_documents(
     target_filename: str, source_filenames: List[str], add_page_breaks: bool = True
-) -> str:
+) -> dict[str, Any]:
     """Merge multiple Word documents into a single document.
 
     Args:
@@ -320,7 +320,7 @@ async def merge_documents(
             missing_files.append(doc_filename)
 
     if missing_files:
-        return f"Cannot merge documents. The following source files do not exist: {', '.join(missing_files)}"
+        return {"status": "error", "message": f"Cannot merge documents. The following source files do not exist: {', '.join(missing_files)}"}
 
     try:
         # Create a new document for the merged result
@@ -366,6 +366,6 @@ async def merge_documents(
 
         # Save the merged document
         target_doc.save(target_filename)
-        return f"Successfully merged {len(source_filenames)} documents into {target_filename}"
+        return {"status": "success", "message": f"Successfully merged {len(source_filenames)} documents into {target_filename}"}
     except Exception as e:
-        return f"Failed to merge documents: {str(e)}"
+        return {"status": "error", "message": f"Failed to merge documents: {str(e)}"}

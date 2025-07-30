@@ -10,7 +10,7 @@ import datetime
 import hashlib
 import io
 import os
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import msoffcrypto
 
@@ -33,7 +33,7 @@ from word_mcp.validation.document_validators import (
 
 @validate_docx_file("filename")
 @check_file_writeable("filename")
-async def protect_document(filename: str, password: str) -> str:
+async def protect_document(filename: str, password: str) -> dict[str, Any]:
     """Add password protection to a Word document.
 
     Args:
@@ -63,7 +63,7 @@ async def protect_document(filename: str, password: str) -> str:
         if os.path.exists(metadata_path):
             os.remove(metadata_path)
 
-        return f"Document {filename} encrypted successfully with password."
+        return {"status": "success", "message": f"Document {filename} encrypted successfully with password."}
 
     except Exception as e:
         # Attempt to restore original file content on failure
@@ -71,18 +71,18 @@ async def protect_document(filename: str, password: str) -> str:
             if "original_data" in locals():
                 with open(filename, "wb") as outfile:
                     outfile.write(original_data)
-                return f"Failed to encrypt document {filename}: {str(e)}. Original file restored."
+                return {"status": "error", "error": f"Failed to encrypt document {filename}: {str(e)}. Original file restored."}
             else:
-                return f"Failed to encrypt document {filename}: {str(e)}. Could not restore original file."
+                return {"status": "error", "error": f"Failed to encrypt document {filename}: {str(e)}. Could not restore original file."}
         except Exception as restore_e:
-            return f"Failed to encrypt document {filename}: {str(e)}. Also failed to restore original file: {str(restore_e)}"
+            return {"status": "error", "error": f"Failed to encrypt document {filename}: {str(e)}. Also failed to restore original file: {str(restore_e)}"}
 
 
 @validate_docx_file("filename")
 @check_file_writeable("filename")
 async def add_restricted_editing(
     filename: str, password: str, editable_sections: List[str]
-) -> str:
+) -> dict[str, Any]:
     """Add restricted editing to a Word document, allowing editing only in specified sections.
 
     Args:
@@ -103,21 +103,21 @@ async def add_restricted_editing(
         )
 
         if not editable_sections:
-            return "No editable sections specified. Document will be fully protected."
+            return {"status": "error", "error": "No editable sections specified. Document will be fully protected."}
 
         if success:
-            return f"Document {filename} protected with restricted editing. Editable sections: {', '.join(editable_sections)}"
+            return {"status": "success", "message": f"Document {filename} protected with restricted editing. Editable sections: {', '.join(editable_sections)}"}
         else:
-            return f"Failed to protect document {filename} with restricted editing"
+            return {"status": "error", "error": f"Failed to protect document {filename} with restricted editing"}
     except Exception as e:
-        return f"Failed to add restricted editing: {str(e)}"
+        return {"status": "error", "error": f"Failed to add restricted editing: {str(e)}"}
 
 
 @validate_docx_file("filename")
 @check_file_writeable("filename")
 async def add_digital_signature(
     filename: str, signer_name: str, reason: Optional[str] = None
-) -> str:
+) -> dict[str, Any]:
     """Add a digital signature to a Word document.
 
     Args:
@@ -156,15 +156,15 @@ async def add_digital_signature(
             # Save the document with the visible signature
             doc.save(filename)
 
-            return f"Digital signature added to document {filename}"
+            return {"status": "success", "message": f"Digital signature added to document {filename}"}
         else:
-            return f"Failed to add digital signature to document {filename}"
+            return {"status": "error", "error": f"Failed to add digital signature to document {filename}"}
     except Exception as e:
-        return f"Failed to add digital signature: {str(e)}"
+        return {"status": "error", "error": f"Failed to add digital signature: {str(e)}"}
 
 
 @validate_docx_file("filename")
-async def verify_document(filename: str, password: Optional[str] = None) -> str:
+async def verify_document(filename: str, password: Optional[str] = None) -> dict[str, Any]:
     """Verify document protection and/or digital signature.
 
     Args:
@@ -177,7 +177,7 @@ async def verify_document(filename: str, password: Optional[str] = None) -> str:
         is_verified, message = verify_document_protection(filename, password)
 
         if not is_verified and password:
-            return f"Document verification failed: {message}"
+            return {"status": "error", "error": f"Document verification failed: {message}"}
 
         # If document has a digital signature, verify content integrity
         base_path, _ = os.path.splitext(filename)
@@ -203,20 +203,20 @@ async def verify_document(filename: str, password: Optional[str] = None) -> str:
 
                         # Compare hashes
                         if current_hash != original_hash:
-                            return f"Document has been modified since it was signed by {signature_info.get('signer')}"
+                            return {"status": "error", "error": f"Document has been modified since it was signed by {signature_info.get('signer')}"}
                         else:
-                            return f"Document signature is valid. Signed by {signature_info.get('signer')} on {signature_info.get('timestamp')}"
+                            return {"status": "success", "message": f"Document signature is valid. Signed by {signature_info.get('signer')} on {signature_info.get('timestamp')}"}
             except Exception as e:
-                return f"Error verifying signature: {str(e)}"
+                return {"status": "error", "error": f"Error verifying signature: {str(e)}"}
 
-        return message
+        return {"status": "success", "message": message}
     except Exception as e:
-        return f"Failed to verify document: {str(e)}"
+        return {"status": "error", "error": f"Failed to verify document: {str(e)}"}
 
 
 @validate_docx_file("filename")
 @check_file_writeable("filename")
-async def unprotect_document(filename: str, password: str) -> str:
+async def unprotect_document(filename: str, password: str) -> dict[str, Any]:
     """Remove password protection from a Word document.
 
     Args:
@@ -242,20 +242,20 @@ async def unprotect_document(filename: str, password: str) -> str:
         with open(filename, "wb") as outfile:
             outfile.write(decrypted_data_io.getvalue())
 
-        return f"Document {filename} decrypted successfully."
+        return {"status": "success", "message": f"Document {filename} decrypted successfully."}
 
     except msoffcrypto.exceptions.InvalidKeyError:
-        return f"Failed to decrypt document {filename}: Incorrect password."
+        return {"status": "error", "error": f"Failed to decrypt document {filename}: Incorrect password."}
     except msoffcrypto.exceptions.InvalidFormatError:
-        return f"Failed to decrypt document {filename}: File is not encrypted or is not a supported Office format."
+        return {"status": "error", "error": f"Failed to decrypt document {filename}: File is not encrypted or is not a supported Office format."}
     except Exception as e:
         # Attempt to restore encrypted file content on failure
         try:
             if "encrypted_data" in locals():
                 with open(filename, "wb") as outfile:
                     outfile.write(encrypted_data)
-                return f"Failed to decrypt document {filename}: {str(e)}. Encrypted file restored."
+                return {"status": "error", "error": f"Failed to decrypt document {filename}: {str(e)}. Encrypted file restored."}
             else:
-                return f"Failed to decrypt document {filename}: {str(e)}. Could not restore encrypted file."
+                return {"status": "error", "error": f"Failed to decrypt document {filename}: {str(e)}. Could not restore encrypted file."}
         except Exception as restore_e:
-            return f"Failed to decrypt document {filename}: {str(e)}. Also failed to restore encrypted file: {str(restore_e)}"
+            return {"status": "error", "error": f"Failed to decrypt document {filename}: {str(e)}. Also failed to restore encrypted file: {str(restore_e)}"}

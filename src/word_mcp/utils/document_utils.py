@@ -152,7 +152,7 @@ def get_document_structure(filename: str) -> Dict[str, Any]:
 
         return structure
     except Exception as e:
-        return {"error": f"Failed to get document structure: {str(e)}"}
+        return {"status": "error", "message": f"Failed to get document structure: {str(e)}"}
 
 
 def find_paragraph_by_text(

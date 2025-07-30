@@ -21,7 +21,7 @@ from word_mcp.validation.document_validators import (
 
 
 @validate_docx_file("filename")
-async def get_paragraph_text_from_document(filename: str, paragraph_index: int) -> str:
+async def get_paragraph_text_from_document(filename: str, paragraph_index: int) -> dict[str, Any]:
     """Get text from a specific paragraph in a Word document.
 
     Args:
@@ -29,19 +29,19 @@ async def get_paragraph_text_from_document(filename: str, paragraph_index: int) 
         paragraph_index: Index of the paragraph to retrieve (0-based)
     """
     if paragraph_index < 0:
-        return "Invalid parameter: paragraph_index must be a non-negative integer"
+        return {"error": "Invalid parameter: paragraph_index must be a non-negative integer"}
 
     try:
         result = get_paragraph_text(filename, paragraph_index)
-        return json.dumps(result, indent=2)
+        return result
     except Exception as e:
-        return f"Failed to get paragraph text: {str(e)}"
+        return {"error": f"Failed to get paragraph text: {str(e)}"}
 
 
 @validate_docx_file("filename")
 async def find_text_in_document(
     filename: str, text_to_find: str, match_case: bool = True, whole_word: bool = False
-) -> str:
+) -> dict[str, Any]:
     """Find occurrences of specific text in a Word document.
 
     Args:
@@ -51,21 +51,21 @@ async def find_text_in_document(
         whole_word: Whether to match whole words only (True) or substrings (False)
     """
     if not text_to_find:
-        return "Search text cannot be empty"
+        return {"status": "error", "message": "Search text cannot be empty"}
 
     try:
 
         result = find_text(filename, text_to_find, match_case, whole_word)
-        return json.dumps(result, indent=2)
+        return result
     except Exception as e:
-        return f"Failed to search for text: {str(e)}"
+        return {"status": "error", "message": f"Failed to search for text: {str(e)}"}
 
 
 @check_file_writeable("filename")
 @validate_docx_file("filename")
 async def convert_to_pdf(
     filename: str, output_filename: Optional[str] = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Convert a Word document to PDF format.
 
     Args:
@@ -103,12 +103,15 @@ async def convert_to_pdf(
 
                 convert(filename, output_filename)
                 return {
+                    "status": "success",
                     "success": True,
                     "message": "Document successfully converted to PDF",
                     "pdf_path": output_filename,
                 }
             except (ImportError, Exception) as e:
                 return {
+                    "status": "error",
+                    "message": "Failed to convert document to PDF",
                     "success": False,
                     "error": str(e),
                     "hint": "docx2pdf requires Microsoft Word to be installed.",
@@ -176,6 +179,7 @@ async def convert_to_pdf(
 
                 if conversion_successful:
                     return {
+                        "status": "success",
                         "success": True,
                         "message": "Document successfully converted to PDF",
                         "pdf_path": output_filename,
@@ -187,12 +191,14 @@ async def convert_to_pdf(
 
                         convert(filename, output_filename)
                         return {
+                            "status": "success",
                             "success": True,
                             "message": "Document converted using fallback docx2pdf",
                             "pdf_path": output_filename,
                         }
                     except (ImportError, Exception) as e:
                         return {
+                            "status": "error",
                             "success": False,
                             "error": "Conversion failed using both LibreOffice and docx2pdf",
                             "details": {
@@ -204,11 +210,12 @@ async def convert_to_pdf(
 
             except Exception as e:
                 return {
+                    "status": "error",
                     "success": False,
                     "error": f"Failed to convert document to PDF: {str(e)}",
                 }
         else:
-            return {"success": False, "error": f"Unsupported platform: {system}"}
+            return {"status": "error", "success": False, "error": f"Unsupported platform: {system}"}
 
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return {"status": "error", "success": False, "error": str(e)}

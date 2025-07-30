@@ -6,7 +6,7 @@ including searching for text and retrieving specific content elements.
 """
 
 import re
-from typing import Any, Dict, List, Pattern
+from typing import Any, List, Pattern
 
 from docx import Document
 from docx.document import Document as DocumentType
@@ -16,7 +16,7 @@ from word_mcp.validation.document_validators import validate_docx_file
 
 
 @validate_docx_file("doc_path")
-def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
+def get_paragraph_text(doc_path: str, paragraph_index: int) -> dict[str, Any]:
     """Get text from a specific paragraph in a Word document.
 
     Args:
@@ -31,13 +31,15 @@ def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
 
         if not 0 <= paragraph_index < len(doc.paragraphs):
             return {
-                "error": f"Invalid paragraph index: {paragraph_index}. "
+                "status": "error",
+                "message": f"Invalid paragraph index: {paragraph_index}. "
                 f"Document has {len(doc.paragraphs)} paragraphs."
             }
 
         paragraph: Paragraph = doc.paragraphs[paragraph_index]
 
         return {
+            "status": "success",
             "index": paragraph_index,
             "text": paragraph.text,
             "style": paragraph.style.name if paragraph.style else "Normal",
@@ -46,13 +48,13 @@ def get_paragraph_text(doc_path: str, paragraph_index: int) -> Dict[str, Any]:
             ),
         }
     except Exception as e:
-        return {"error": f"Failed to get paragraph text: {e}"}
+        return {"status": "error", "message": f"Failed to get paragraph text: {e}"}
 
 
 @validate_docx_file("doc_path")
 def find_text(
     doc_path: str, text_to_find: str, match_case: bool = True, whole_word: bool = False
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Find all occurrences of specific text in a Word document.
 
     Args:
@@ -65,12 +67,12 @@ def find_text(
         A dictionary with search results, or an error dictionary.
     """
     if not text_to_find:
-        return {"error": "Search text cannot be empty"}
+        return {"status": "error", "message": "Search text cannot be empty"}
 
     try:
         doc: DocumentType = Document(doc_path)
         search_pattern = _create_search_pattern(text_to_find, match_case, whole_word)
-        all_occurrences: List[Dict[str, Any]] = []
+        all_occurrences: list[dict[str, Any]] = []
 
         # Search in paragraphs
         for i, para in enumerate(doc.paragraphs):
@@ -87,6 +89,7 @@ def find_text(
                     )
 
         return {
+            "status": "success",
             "query": text_to_find,
             "match_case": match_case,
             "whole_word": whole_word,
@@ -94,7 +97,7 @@ def find_text(
             "total_count": len(all_occurrences),
         }
     except Exception as e:
-        return {"error": f"Failed to search for text: {e}"}
+        return {"status": "error", "message": f"Failed to search for text: {e}"}
 
 
 def _create_search_pattern(
@@ -111,7 +114,7 @@ def _create_search_pattern(
 
 def _search_in_element(
     element: Any, pattern: Pattern[str], location_prefix: str
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Search for a pattern within a document element (paragraph or cell)."""
     occurrences = []
     for match in pattern.finditer(element.text):

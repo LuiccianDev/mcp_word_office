@@ -6,7 +6,7 @@ including adding, customizing, and converting between them.
 """
 
 # modulos estandar
-from typing import Optional
+from typing import Optional, Any
 
 # modulos de terceros
 from docx import Document
@@ -238,7 +238,7 @@ async def customize_footnote_style(
     start_number: int = 1,
     font_name: Optional[str] = None,
     font_size: Optional[int] = None,
-) -> str:
+) -> dict[str, Any]:
     """Customize footnote numbering and formatting in a Word document.
 
     Args:
@@ -279,13 +279,19 @@ async def customize_footnote_style(
         )
 
         # Apply custom formatting to footnotes
-        count = customize_footnote_formatting(
+        customize_footnote_formatting(
             doc, footnote_refs, format_symbols, start_number, footnote_style
         )
 
         # Save the document
         doc.save(filename)
 
-        return f"Footnote style and numbering customized in {filename}"
+        return {
+            "status": "success",
+            "message": f"Footnote style and numbering customized in {filename}",
+        }
     except Exception as e:
-        return f"Failed to customize footnote style: {str(e)}"
+        return {
+            "status": "error",
+            "error": f"Failed to customize footnote style: {str(e)}",
+        }
