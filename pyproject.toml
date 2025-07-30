@@ -17,6 +17,12 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
+dependencies = [
+    "docx2pdf>=0.1.8",
+    "mcp[cli]>=1.12.2",
+    "msoffcrypto-tool>=5.4.2",
+    "python-docx>=1.2.0",
+]
 [project.urls]
 Homepage = "https://github.com/LuiccianDev/mcp_word_office"
 Repository = "https://github.com/LuiccianDev/mcp_word_office"
@@ -31,14 +37,12 @@ dependencies = [
     "python-docx>=1.1.2",
 ]
 
-[project.scripts]
-mcp_server_word = "word_mcp.main:create_server"
-
 [dependency-groups]
 dev = [
     "black>=25.1.0",
     "isort>=6.0.1",
     "mypy>=1.17.0",
+    "pillow>=11.3.0",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.1.0",
     "ruff>=0.12.5",
@@ -84,3 +88,11 @@ ignore = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
