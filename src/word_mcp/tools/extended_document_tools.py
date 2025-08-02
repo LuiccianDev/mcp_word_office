@@ -5,12 +5,11 @@ These tools provide enhanced document content extraction and search capabilities
 """
 
 # modulos estandar
-import json
 import os
 import platform
 import shutil
 import subprocess
-from typing import Any, Dict, Optional
+from typing import Any
 
 # modulos propios
 from word_mcp.utils.extended_document_utils import find_text, get_paragraph_text
@@ -64,7 +63,7 @@ async def find_text_in_document(
 @check_file_writeable("filename")
 @validate_docx_file("filename")
 async def convert_to_pdf(
-    filename: str, output_filename: Optional[str] = None
+    filename: str, output_filename: str | None = None
 ) -> dict[str, Any]:
     """Convert a Word document to PDF format.
 

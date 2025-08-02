@@ -5,9 +5,8 @@ Word documents with security checks for file system access.
 """
 
 # modulos estandar
-import json
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # modulos de terceros
 from docx import Document
@@ -30,7 +29,7 @@ from word_mcp.validation.document_validators import (
 )
 
 
-def _get_allowed_directories() -> List[str]:
+def _get_allowed_directories() -> list[str]:
     """Get the list of allowed directories from environment variables.
 
     Returns:
@@ -45,7 +44,7 @@ def _get_allowed_directories() -> List[str]:
     return [os.path.abspath(dir) for dir in allowed_dirs]
 
 
-def _is_path_in_allowed_directories(file_path: str) -> Tuple[bool, Optional[str]]:
+def _is_path_in_allowed_directories(file_path: str) -> tuple[bool, str | None]:
     """Check if the given file path is within allowed directories.
 
     Args:
@@ -74,7 +73,7 @@ def _is_path_in_allowed_directories(file_path: str) -> Tuple[bool, Optional[str]
 
 
 async def create_document(
-    filename: str, title: Optional[str] = None, author: Optional[str] = None
+    filename: str, title: str | None = None, author: str | None = None
 ) -> dict[str, Any]:
     """Create a new Word document with optional metadata.
 
@@ -190,7 +189,7 @@ async def get_document_outline(filename: str) -> dict[str, Any]:
     return structure
 
 
-async def list_available_documents(directory: Optional[str] = None) -> Dict[str, Any]:
+async def list_available_documents(directory: str | None = None) -> dict[str, Any]:
     """
     List all .docx files in the specified or allowed directories.
 
@@ -198,7 +197,7 @@ async def list_available_documents(directory: Optional[str] = None) -> Dict[str,
         directory: Optional path to a directory. If not provided, uses all allowed.
 
     Returns:
-        Dictionary with status, message, and list of found documents.
+        dict[str, Any]: dictionary with status, message, and list of found documents.
     """
     try:
         # Si no se especifica directorio, usamos todos los permitidos
@@ -281,7 +280,7 @@ async def list_available_documents(directory: Optional[str] = None) -> Dict[str,
 
 @validate_docx_file("source_filename")
 async def copy_document(
-    source_filename: str, destination_filename: Optional[str] = None
+    source_filename: str, destination_filename: str | None = None
 ) -> dict[str, Any]:
     """Create a copy of a Word document.
 
@@ -303,7 +302,7 @@ async def copy_document(
 @check_file_writeable("target_filename")
 @validate_docx_file("target_filename")
 async def merge_documents(
-    target_filename: str, source_filenames: List[str], add_page_breaks: bool = True
+    target_filename: str, source_filenames: list[str], add_page_breaks: bool = True
 ) -> dict[str, Any]:
     """Merge multiple Word documents into a single document.
 

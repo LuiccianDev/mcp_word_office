@@ -81,7 +81,7 @@ async def protect_document(filename: str, password: str) -> dict[str, Any]:
 @validate_docx_file("filename")
 @check_file_writeable("filename")
 async def add_restricted_editing(
-    filename: str, password: str, editable_sections: List[str]
+    filename: str, password: str, editable_sections: list[str]
 ) -> dict[str, Any]:
     """Add restricted editing to a Word document, allowing editing only in specified sections.
 
@@ -116,7 +116,7 @@ async def add_restricted_editing(
 @validate_docx_file("filename")
 @check_file_writeable("filename")
 async def add_digital_signature(
-    filename: str, signer_name: str, reason: Optional[str] = None
+    filename: str, signer_name: str, reason: str | None = None
 ) -> dict[str, Any]:
     """Add a digital signature to a Word document.
 
@@ -164,7 +164,7 @@ async def add_digital_signature(
 
 
 @validate_docx_file("filename")
-async def verify_document(filename: str, password: Optional[str] = None) -> dict[str, Any]:
+async def verify_document(filename: str, password: str | None = None) -> dict[str, Any]:
     """Verify document protection and/or digital signature.
 
     Args:
