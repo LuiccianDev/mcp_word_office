@@ -69,6 +69,7 @@ src_paths = ["src"]
 python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
+disallow_untyped_decorators = true
 disallow_untyped_defs = true
 no_implicit_optional = true
 warn_redundant_casts = true
