@@ -3,7 +3,7 @@
   <p>
     <em>Potente servidor para la manipulación programática de documentos Word (.docx) mediante MCP</em>
   </p>
-  
+
   [![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-brightgreen)](https://modelcontextprotocol.io)
