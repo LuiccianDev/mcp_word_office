@@ -23,7 +23,6 @@ __all__ = [
     "find_paragraph_by_text",
     "get_document_properties",
     "get_document_structure",
-
     # extended_document_utils
     "get_paragraph_text",
     "find_text",

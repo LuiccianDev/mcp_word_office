@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Any, Dict, Optional, Union
 
 # Third-party imports
-from docx import Document
+from docx.document import Document
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Length, Pt, RGBColor
 

@@ -23,8 +23,8 @@ from word_mcp.validation.document_validators import (
 )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any]:
     """Add a heading to a Word document.
 
@@ -42,7 +42,7 @@ async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any
     """
     try:
         # Validate and normalize heading level
-        heading_level = _validate_heading_level(level)
+        heading_level: int = _validate_heading_level(level)
 
         doc: DocumentType = Document(filename)
         ensure_heading_style(doc)
@@ -53,7 +53,7 @@ async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any
             doc.save(filename)
             return {
                 "status": "success",
-                "message": f"Heading '{text}' (level {heading_level}) added to {filename}"
+                "message": f"Heading '{text}' (level {heading_level}) added to {filename}",
             }
 
         except Exception:
@@ -71,19 +71,21 @@ async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any
             return {
                 "status": "success",
                 "message": f"Heading '{text}' added to {filename} with direct formatting "
-                "(style not available)"
+                "(style not available)",
             }
 
     except Exception as error:
         return {
             "status": "error",
-            "message": f"Failed to add heading to document: {str(error)}"
+            "message": f"Failed to add heading to document: {str(error)}",
         }
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
-async def add_paragraph(filename: str, text: str, style: Optional[str] = None) -> dict[str, Any]:
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
+async def add_paragraph(
+    filename: str, text: str, style: Optional[str] = None
+) -> dict[str, Any]:
     """Add a paragraph to a Word document.
 
     Args:
@@ -107,13 +109,19 @@ async def add_paragraph(filename: str, text: str, style: Optional[str] = None) -
             except KeyError:
                 paragraph.style = doc.styles["Normal"]
                 doc.save(filename)
-                return {"status": "error", "message": f"Style '{style}' not found. Paragraph added with default style to {filename}"}
+                return {
+                    "status": "error",
+                    "message": f"Style '{style}' not found. Paragraph added with default style to {filename}",
+                }
 
         doc.save(filename)
         return {"status": "success", "message": f"Paragraph added to {filename}"}
 
     except Exception as error:
-        return {"status": "error", "message": f"Failed to add paragraph to document: {str(error)}"}
+        return {
+            "status": "error",
+            "message": f"Failed to add paragraph to document: {str(error)}",
+        }
 
 
 def _populate_table(
@@ -139,8 +147,8 @@ def _populate_table(
             table.cell(i, j).text = str(cell_text)
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def add_table(
     filename: str, rows: int, cols: int, data: Optional[List[List[Any]]] = None
 ) -> dict[str, Any]:
@@ -178,14 +186,20 @@ async def add_table(
             _populate_table(table, data, rows, cols)
 
         doc.save(filename)
-        return {"status": "success", "message": f"Table ({rows}x{cols}) added to {filename}"}
+        return {
+            "status": "success",
+            "message": f"Table ({rows}x{cols}) added to {filename}",
+        }
 
     except Exception as error:
-        return {"status": "error", "message": f"Failed to add table to document: {str(error)}"}
+        return {
+            "status": "error",
+            "message": f"Failed to add table to document: {str(error)}",
+        }
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def add_picture(
     filename: str, image_path: str, width: Optional[float] = None
 ) -> dict[str, Any]:
@@ -221,14 +235,20 @@ async def add_picture(
             doc.add_picture(abs_image_path)
 
         doc.save(filename)
-        return {"status": "success", "message": f"Picture '{os.path.basename(image_path)}' added to {filename}"}
+        return {
+            "status": "success",
+            "message": f"Picture '{os.path.basename(image_path)}' added to {filename}",
+        }
 
     except Exception as error:
-        return {"status": "error", "message": f"Failed to add picture to document: {error}"}
+        return {
+            "status": "error",
+            "message": f"Failed to add picture to document: {error}",
+        }
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def add_page_break(filename: str) -> dict[str, Any]:
     """Add a page break to the document.
 
@@ -246,11 +266,14 @@ async def add_page_break(filename: str) -> dict[str, Any]:
         doc.add_page_break()
         return {"status": "success", "message": f"Page break added to {filename}"}
     except Exception as error:
-        return {"status": "error", "message": f"Failed to add page break to document: {str(error)}"}
+        return {
+            "status": "error",
+            "message": f"Failed to add page break to document: {str(error)}",
+        }
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def add_table_of_contents(
     filename: str, title: str = "Table of Contents", max_level: int = 3
 ) -> dict[str, Any]:
@@ -279,7 +302,10 @@ async def add_table_of_contents(
         headings = _extract_headings(doc, max_level)
 
         if not headings:
-            return {"status": "error", "message": f"No headings found in document {filename}. Table of contents not created."}
+            return {
+                "status": "error",
+                "message": f"No headings found in document {filename}. Table of contents not created.",
+            }
 
         # Create a new document for TOC
         toc_doc = Document()
@@ -302,14 +328,20 @@ async def add_table_of_contents(
         # Save the document with TOC
         toc_doc.save(filename)
 
-        return {"status": "success", "message": f"Table of contents with {len(headings)} entries added to {filename}"}
+        return {
+            "status": "success",
+            "message": f"Table of contents with {len(headings)} entries added to {filename}",
+        }
 
     except Exception as error:
-        return {"status": "error", "message": f"Failed to add table of contents to document: {str(error)}"}
+        return {
+            "status": "error",
+            "message": f"Failed to add table of contents to document: {str(error)}",
+        }
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any]:
     """Delete a paragraph from a document.
 
@@ -341,15 +373,23 @@ async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any
         paragraph_element.getparent().remove(paragraph_element)
 
         doc.save(filename)
-        return {"status": "success", "message": f"Paragraph at index {paragraph_index} deleted successfully."}
+        return {
+            "status": "success",
+            "message": f"Paragraph at index {paragraph_index} deleted successfully.",
+        }
 
     except Exception as error:
-        return {"status": "error", "message": f"Failed to delete paragraph from document: {str(error)}"}
+        return {
+            "status": "error",
+            "message": f"Failed to delete paragraph from document: {str(error)}",
+        }
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
-async def search_and_replace(filename: str, find_text: str, replace_text: str) -> dict[str, Any]:
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
+async def search_and_replace(
+    filename: str, find_text: str, replace_text: str
+) -> dict[str, Any]:
     """Search for text and replace all occurrences in a Word document.
 
     Args:
@@ -378,18 +418,18 @@ async def search_and_replace(filename: str, find_text: str, replace_text: str) -
             doc.save(filename)
             return {
                 "status": "success",
-                "message": f"Replaced {replacement_count} occurrence(s) of '{find_text}' with '{replace_text}' in {filename}"
+                "message": f"Replaced {replacement_count} occurrence(s) of '{find_text}' with '{replace_text}' in {filename}",
             }
 
         return {
             "status": "error",
-            "message": f"No occurrences of '{find_text}' found in {filename}"
+            "message": f"No occurrences of '{find_text}' found in {filename}",
         }
 
     except Exception as error:
         return {
             "status": "error",
-            "message": f"Failed to perform search and replace in document: {str(error)}"
+            "message": f"Failed to perform search and replace in document: {str(error)}",
         }
 
 
@@ -464,35 +504,6 @@ def _extract_headings(
             except (ValueError, IndexError):
                 continue
     return headings
-
-
-def _validate_image_file(image_path: str) -> str:
-    """Validate an image file and return its absolute path.
-
-    Args:
-        image_path: Path to the image file to validate.
-
-    Returns:
-        str: Absolute path to the image file.
-
-    Raises:
-        FileNotFoundError: If the image file doesn't exist.
-        IOError: If there's an error accessing the image file.
-    """
-    abs_image_path = os.path.abspath(image_path)
-
-    if not os.path.exists(abs_image_path):
-        raise FileNotFoundError(f"Image file not found: {abs_image_path}")
-
-    # Check file size
-    try:
-        image_size_kb = os.path.getsize(abs_image_path) / 1024
-        if image_size_kb <= 0:
-            raise IOError(f"Image file is empty: {abs_image_path}")
-        return abs_image_path
-
-    except OSError as error:
-        raise IOError(f"Error accessing image file: {error}") from error
 
 
 def _validate_image_file(image_path: str) -> str:

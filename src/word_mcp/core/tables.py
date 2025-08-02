@@ -5,9 +5,10 @@ This module provides functionality for working with tables in Word documents,
 including formatting borders, applying styles, and copying tables between documents.
 """
 
+import re
 from typing import Any, Dict, List, Optional, Union
 
-from docx.document import Document as DocumentType
+from docx.document import Document
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 from docx.oxml.shared import OxmlElement, qn
@@ -110,7 +111,7 @@ def apply_table_style(
         return False
 
 
-def copy_table(source_table: Table, target_doc: DocumentType) -> Table:
+def copy_table(source_table: Table, target_doc: Document) -> Table:
     """Create a deep copy of a table in another document.
 
     Args:
@@ -127,7 +128,7 @@ def copy_table(source_table: Table, target_doc: DocumentType) -> Table:
         raise ValueError("Source table has no rows or columns")
 
     # Create a new table with matching dimensions
-    new_table = target_doc.add_table(
+    new_table: Table = target_doc.add_table(
         rows=len(source_table.rows), cols=len(source_table.columns)
     )
 

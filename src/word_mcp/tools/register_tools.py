@@ -16,7 +16,7 @@ from word_mcp.tools import (
 )
 
 
-def register_all_tools(mcp: FastMCP):
+def register_all_tools(mcp: FastMCP) -> None:
     """Register all tools with the MCP server."""
     # Document tools (create, copy, info, etc.)
     mcp.tool()(document_tools.create_document)

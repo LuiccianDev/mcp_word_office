@@ -6,16 +6,18 @@ import datetime
 import hashlib
 import json
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+
+from docx.document import Document
 
 
 def add_protection_info(
     doc_path: str,
     protection_type: str,
     password_hash: str,
-    sections: Optional[List[str]] = None,
-    signature_info: Optional[Dict[str, Any]] = None,
-    raw_password: Optional[str] = None,
+    sections: list[str] | None = None,
+    signature_info: dict[str, Any] | None = None,
+    raw_password: str | None = None,
 ) -> bool:
     """
     Add document protection information to a separate metadata file and encrypt the document.
@@ -36,7 +38,7 @@ def add_protection_info(
     metadata_path = f"{base_path}.protection"
 
     # Prepare protection data
-    protection_data = {
+    protection_data: dict[str, Any] = {
         "type": protection_type,
         "password_hash": password_hash,
         "applied_date": datetime.datetime.now().isoformat(),
@@ -97,8 +99,8 @@ def add_protection_info(
 
 
 def verify_document_protection(
-    doc_path: str, password: Optional[str] = None
-) -> Tuple[bool, str]:
+    doc_path: str, password: str | None = None
+) -> tuple[bool, str]:
     """
     Verify if a document is protected and if the password is correct.
 
@@ -157,7 +159,7 @@ def is_section_editable(doc_path: str, section_name: str) -> bool:
     try:
         # Read protection data
         with open(metadata_path, "r") as f:
-            protection_data = json.load(f)
+            protection_data: dict[str, Any] = json.load(f)
 
         # Check protection type
         if protection_data.get("type") != "restricted":
@@ -165,7 +167,7 @@ def is_section_editable(doc_path: str, section_name: str) -> bool:
             return protection_data.get("type") != "password"
 
         # Check if the section is in the list of editable sections
-        editable_sections = protection_data.get("editable_sections", [])
+        editable_sections: list[str] = protection_data.get("editable_sections", [])
         return section_name in editable_sections
 
     except Exception:
@@ -174,8 +176,8 @@ def is_section_editable(doc_path: str, section_name: str) -> bool:
 
 
 def create_signature_info(
-    doc, signer_name: str, reason: Optional[str] = None
-) -> Dict[str, Any]:
+    doc: Document, signer_name: str, reason: str | None = None
+) -> dict[str, Any]:
     """
     Create signature information for a document.
 
@@ -188,7 +190,7 @@ def create_signature_info(
         Dictionary containing signature information
     """
     # Create signature info
-    signature_info = {
+    signature_info: dict[str, Any] = {
         "signer": signer_name,
         "timestamp": datetime.datetime.now().isoformat(),
     }
@@ -204,7 +206,7 @@ def create_signature_info(
     return signature_info
 
 
-def verify_signature(doc_path: str) -> Tuple[bool, str]:
+def verify_signature(doc_path: str) -> tuple[bool, str]:
     """
     Verify a document's digital signature.
 

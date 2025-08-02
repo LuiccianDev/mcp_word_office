@@ -7,18 +7,17 @@ including extracting properties, text, and structure from .docx files.
 
 import os
 import shutil
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.oxml.coreprops import CT_CoreProperties
-from docx.section import Section
 
 from word_mcp.validation.document_validators import validate_docx_file
 
 
-@validate_docx_file("filename")
-def get_document_properties(filename: str) -> Dict[str, Any]:
+@validate_docx_file("filename")  # type: ignore[misc]
+def get_document_properties(filename: str) -> dict[str, Any]:
     """Get properties of a Word document.
 
     Args:
@@ -31,7 +30,7 @@ def get_document_properties(filename: str) -> Dict[str, Any]:
     try:
         doc: DocumentType = Document(filename)
         core_props: CT_CoreProperties = doc.core_properties
-        sections: List[Section] = doc.sections
+        sections = doc.sections
 
         word_count: int = sum(
             len(paragraph.text.split()) for paragraph in doc.paragraphs
@@ -55,20 +54,20 @@ def get_document_properties(filename: str) -> Dict[str, Any]:
         return {"error": f"Failed to get document properties: {str(e)}"}
 
 
-@validate_docx_file("filename")
-def extract_document_text(filename: str) -> str:
+@validate_docx_file("filename")  # type: ignore[misc]
+def extract_document_text(filename: str) -> dict[str, Any]:
     """Extract all text from a Word document.
 
     Args:
         filename: Path to the Word document.
 
     Returns:
-        String containing all text content from the document.
+        Dict containing all text content from the document.
         On error, returns an error message string.
     """
     try:
         doc: DocumentType = Document(filename)
-        text_parts: List[str] = []
+        text_parts: list[str] = []
 
         # Extract text from paragraphs
         for paragraph in doc.paragraphs:
@@ -83,13 +82,13 @@ def extract_document_text(filename: str) -> str:
                         if paragraph.text.strip():
                             text_parts.append(paragraph.text)
 
-        return "\n".join(text_parts)
+        return {"status": "success", "text": "\n".join(text_parts)}
     except Exception as e:
-        return f"Failed to extract text: {str(e)}"
+        return {"status": "error", "message": f"Failed to extract text: {str(e)}"}
 
 
-@validate_docx_file("filename")
-def get_document_structure(filename: str) -> Dict[str, Any]:
+@validate_docx_file("filename")  # type: ignore[misc]
+def get_document_structure(filename: str) -> dict[str, Any]:
     """Get the structure of a Word document.
 
     Args:
@@ -101,7 +100,7 @@ def get_document_structure(filename: str) -> Dict[str, Any]:
     """
     try:
         doc: DocumentType = Document(filename)
-        structure: Dict[str, List[Dict[str, Any]]] = {"paragraphs": [], "tables": []}
+        structure: dict[str, list[dict[str, Any]]] = {"paragraphs": [], "tables": []}
 
         # Get paragraphs with preview text
         for para_idx, paragraph in enumerate(doc.paragraphs):
@@ -122,7 +121,7 @@ def get_document_structure(filename: str) -> Dict[str, Any]:
 
         # Get tables with preview data
         for table_idx, table in enumerate(doc.tables):
-            table_data: Dict[str, Any] = {
+            table_data: dict[str, Any] = {
                 "index": table_idx,
                 "rows": len(table.rows),
                 "columns": len(table.columns),
@@ -134,11 +133,11 @@ def get_document_structure(filename: str) -> Dict[str, Any]:
             max_preview_cols: int = min(3, len(table.columns))
 
             for row_idx in range(max_preview_rows):
-                row_data: List[str] = []
+                row_data: list[str] = []
                 for col_idx in range(max_preview_cols):
                     try:
                         cell_text: str = table.cell(row_idx, col_idx).text
-                        preview_text: str = cell_text[:20] + (
+                        preview_text = cell_text[:20] + (
                             "..." if len(cell_text) > 20 else ""
                         )
                         row_data.append(preview_text)
@@ -147,17 +146,19 @@ def get_document_structure(filename: str) -> Dict[str, Any]:
 
                 if row_data:  # Only add non-empty rows
                     table_data["preview"].append(row_data)
-
             structure["tables"].append(table_data)
 
         return structure
     except Exception as e:
-        return {"status": "error", "message": f"Failed to get document structure: {str(e)}"}
+        return {
+            "status": "error",
+            "message": f"Failed to get document structure: {str(e)}",
+        }
 
 
 def find_paragraph_by_text(
     doc: DocumentType, text: str, partial_match: bool = False
-) -> List[int]:
+) -> list[int]:
     """Find paragraphs containing specific text.
 
     Args:
@@ -172,7 +173,7 @@ def find_paragraph_by_text(
     if not text or not hasattr(doc, "paragraphs"):
         return []
 
-    matching_paragraphs: List[int] = []
+    matching_paragraphs: list[int] = []
 
     for para_idx, paragraph in enumerate(doc.paragraphs):
         if not paragraph.text:
@@ -230,8 +231,8 @@ def find_and_replace_text(doc: DocumentType, old_text: str, new_text: str) -> in
 
 
 def create_document_copy(
-    source_path: str, dest_path: Optional[str] = None
-) -> Tuple[bool, str, Optional[str]]:
+    source_path: str, dest_path: str | None = None
+) -> tuple[bool, str, str | None]:
     """Create a copy of a document.
 
     If `dest_path` is not provided, a new filename is generated by appending

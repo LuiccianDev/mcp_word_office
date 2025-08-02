@@ -19,8 +19,10 @@ from word_mcp.validation.document_validators import (
 )
 
 
-@validate_docx_file("filename")
-async def get_paragraph_text_from_document(filename: str, paragraph_index: int) -> dict[str, Any]:
+@validate_docx_file("filename")  # type: ignore[misc]
+async def get_paragraph_text_from_document(
+    filename: str, paragraph_index: int
+) -> dict[str, Any]:
     """Get text from a specific paragraph in a Word document.
 
     Args:
@@ -28,16 +30,18 @@ async def get_paragraph_text_from_document(filename: str, paragraph_index: int) 
         paragraph_index: Index of the paragraph to retrieve (0-based)
     """
     if paragraph_index < 0:
-        return {"error": "Invalid parameter: paragraph_index must be a non-negative integer"}
+        return {
+            "error": "Invalid parameter: paragraph_index must be a non-negative integer"
+        }
 
     try:
-        result = get_paragraph_text(filename, paragraph_index)
+        result: dict[str, Any] = get_paragraph_text(filename, paragraph_index)
         return result
     except Exception as e:
         return {"error": f"Failed to get paragraph text: {str(e)}"}
 
 
-@validate_docx_file("filename")
+@validate_docx_file("filename")  # type: ignore[misc]
 async def find_text_in_document(
     filename: str, text_to_find: str, match_case: bool = True, whole_word: bool = False
 ) -> dict[str, Any]:
@@ -54,14 +58,16 @@ async def find_text_in_document(
 
     try:
 
-        result = find_text(filename, text_to_find, match_case, whole_word)
+        result: dict[str, Any] = find_text(
+            filename, text_to_find, match_case, whole_word
+        )
         return result
     except Exception as e:
         return {"status": "error", "message": f"Failed to search for text: {str(e)}"}
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def convert_to_pdf(
     filename: str, output_filename: str | None = None
 ) -> dict[str, Any]:
@@ -214,7 +220,11 @@ async def convert_to_pdf(
                     "error": f"Failed to convert document to PDF: {str(e)}",
                 }
         else:
-            return {"status": "error", "success": False, "error": f"Unsupported platform: {system}"}
+            return {
+                "status": "error",
+                "success": False,
+                "error": f"Unsupported platform: {system}",
+            }
 
     except Exception as e:
         return {"status": "error", "success": False, "error": str(e)}

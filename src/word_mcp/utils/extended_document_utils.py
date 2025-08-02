@@ -6,7 +6,7 @@ including searching for text and retrieving specific content elements.
 """
 
 import re
-from typing import Any, List, Pattern
+from typing import Any, Pattern
 
 from docx import Document
 from docx.document import Document as DocumentType
@@ -15,7 +15,7 @@ from docx.text.paragraph import Paragraph
 from word_mcp.validation.document_validators import validate_docx_file
 
 
-@validate_docx_file("doc_path")
+@validate_docx_file("doc_path")  # type: ignore[misc]
 def get_paragraph_text(doc_path: str, paragraph_index: int) -> dict[str, Any]:
     """Get text from a specific paragraph in a Word document.
 
@@ -33,7 +33,7 @@ def get_paragraph_text(doc_path: str, paragraph_index: int) -> dict[str, Any]:
             return {
                 "status": "error",
                 "message": f"Invalid paragraph index: {paragraph_index}. "
-                f"Document has {len(doc.paragraphs)} paragraphs."
+                f"Document has {len(doc.paragraphs)} paragraphs.",
             }
 
         paragraph: Paragraph = doc.paragraphs[paragraph_index]
@@ -51,7 +51,7 @@ def get_paragraph_text(doc_path: str, paragraph_index: int) -> dict[str, Any]:
         return {"status": "error", "message": f"Failed to get paragraph text: {e}"}
 
 
-@validate_docx_file("doc_path")
+@validate_docx_file("doc_path")  # type: ignore[misc]
 def find_text(
     doc_path: str, text_to_find: str, match_case: bool = True, whole_word: bool = False
 ) -> dict[str, Any]:

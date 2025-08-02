@@ -27,11 +27,11 @@ from word_mcp.validation.document_validators import (
 )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def add_footnote_to_document(
     filename: str, paragraph_index: int, footnote_text: str
-) -> str:
+) -> dict[str, Any]:
     """Add a footnote to a specific paragraph in a Word document.
 
     Args:
@@ -41,16 +41,22 @@ async def add_footnote_to_document(
     """
     # Ensure paragraph_index is an integer
     try:
-        paragraph_index = int(paragraph_index)
+        paragraph_index = paragraph_index
     except (ValueError, TypeError):
-        return "Invalid parameter: paragraph_index must be an integer"
+        return {
+            "status": "error",
+            "error": "Invalid parameter: paragraph_index must be an integer",
+        }
 
     try:
         doc: DocumentType = Document(filename)
 
         # Validate paragraph index
         if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
-            return f"Invalid paragraph index. Document has {len(doc.paragraphs)} paragraphs (0-{len(doc.paragraphs)-1})."
+            return {
+                "status": "error",
+                "error": f"Invalid paragraph index. Document has {len(doc.paragraphs)} paragraphs (0-{len(doc.paragraphs)-1}).",
+            }
 
         paragraph = doc.paragraphs[paragraph_index]
 
@@ -60,10 +66,13 @@ async def add_footnote_to_document(
             footnote.text = ""
 
             # Create the footnote reference
-            reference = footnote.add_footnote(footnote_text)
+            footnote.add_footnote(footnote_text)
 
             doc.save(filename)
-            return f"Footnote added to paragraph {paragraph_index} in {filename}"
+            return {
+                "status": "success",
+                "message": f"Footnote added to paragraph {paragraph_index} in {filename}",
+            }
         except AttributeError:
             # Fall back to a simpler approach if direct footnote addition fails
             last_run = paragraph.add_run()
@@ -79,7 +88,7 @@ async def add_footnote_to_document(
 
             if not found_footnote_section:
                 doc.add_paragraph("\n").add_run()
-                doc.add_paragraph("Footnotes:").bold = True
+                doc.add_paragraph().add_run("Footnotes:").bold = True
 
             # Add footnote text
             footnote_para = doc.add_paragraph("¹ " + footnote_text)
@@ -88,13 +97,19 @@ async def add_footnote_to_document(
             )
 
             doc.save(filename)
-            return f"Footnote added to paragraph {paragraph_index} in {filename} (simplified approach)"
+            return {
+                "status": "success",
+                "message": f"Footnote added to paragraph {paragraph_index} in {filename} (simplified approach)",
+            }
     except Exception as e:
-        return f"Failed to add footnote: {str(e)}"
+        return {
+            "status": "error",
+            "error": f"Failed to add footnote: {str(e)}",
+        }
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def add_endnote_to_document(
     filename: str, paragraph_index: int, endnote_text: str
 ) -> str:
@@ -149,8 +164,8 @@ async def add_endnote_to_document(
         return f"Failed to add endnote: {str(e)}"
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
     """Convert all footnotes to endnotes in a Word document.
 
@@ -161,7 +176,7 @@ async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
         doc: DocumentType = Document(filename)
 
         # Find all runs that might be footnote references
-        footnote_references = []
+        footnote_references: list[dict[str, Any]] = []
 
         for para_idx, para in enumerate(doc.paragraphs):
             for run_idx, run in enumerate(para.runs):
@@ -186,12 +201,11 @@ async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
         doc.add_heading("Endnotes:", level=1)
 
         # Create a placeholder for endnote content, we'll fill it later
-        endnote_content = []
 
         # Find the footnote text at the bottom of the page
 
         found_footnote_section = False
-        footnote_text = []
+        footnote_text: list[str] = []
 
         for para in doc.paragraphs:
             if not found_footnote_section and para.text.startswith("Footnotes:"):
@@ -230,8 +244,8 @@ async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
         return f"Failed to convert footnotes to endnotes: {str(e)}"
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")  # type: ignore[misc]
 async def customize_footnote_style(
     filename: str,
     numbering_format: str = "1, 2, 3",

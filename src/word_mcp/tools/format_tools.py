@@ -24,8 +24,8 @@ from word_mcp.validation.document_validators import (
 )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")  # type: ignore[misc]
 async def format_text(
     filename: str,
     paragraph_index: int,
@@ -95,7 +95,7 @@ async def format_text(
 
         # Add text before target
         if start_pos > 0:
-            run_before = paragraph.add_run(text[:start_pos])
+            paragraph.add_run(text[:start_pos])
 
         # Add target text with formatting
         run_target = paragraph.add_run(target_text)
@@ -136,7 +136,7 @@ async def format_text(
 
         # Add text after target
         if end_pos < len(text):
-            run_after = paragraph.add_run(text[end_pos:])
+            paragraph.add_run(text[end_pos:])
 
         doc.save(filename)
         return {
@@ -150,8 +150,8 @@ async def format_text(
         }
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")  # type: ignore[misc]
 async def create_custom_style(
     filename: str,
     style_name: str,
@@ -178,7 +178,7 @@ async def create_custom_style(
         doc: DocumentType = Document(filename)
 
         # Build font properties dictionary
-        font_properties = {}
+        font_properties: dict[str, Any] = {}
         if bold is not None:
             font_properties["bold"] = bold
         if italic is not None:
@@ -191,7 +191,7 @@ async def create_custom_style(
             font_properties["color"] = color
 
         # Create the style
-        new_style = create_style(
+        create_style(
             doc,
             style_name,
             WD_STYLE_TYPE.PARAGRAPH,
@@ -211,8 +211,8 @@ async def create_custom_style(
         }
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")  # type: ignore[misc]
 async def format_table(
     filename: str,
     table_index: int,
@@ -234,7 +234,10 @@ async def format_table(
 
         # Validate table index
         if table_index < 0 or table_index >= len(doc.tables):
-            return f"Invalid table index. Document has {len(doc.tables)} tables (0-{len(doc.tables)-1})."
+            return {
+                "status": "error",
+                "error": f"Invalid table index. Document has {len(doc.tables)} tables (0-{len(doc.tables)-1}).",
+            }
 
         table = doc.tables[table_index]
 
