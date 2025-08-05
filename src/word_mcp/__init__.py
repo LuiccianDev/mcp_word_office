@@ -1,3 +1,3 @@
-from main import create_server
+from .main import create_server
 
 __all__ = ["create_server"]
