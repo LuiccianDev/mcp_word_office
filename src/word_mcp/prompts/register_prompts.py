@@ -1,26 +1,35 @@
-from typing import Any, Awaitable, Callable
+# register_prompts.py - registro de prompts
+from typing import Any, Awaitable, Callable, cast
 
 from mcp.server.fastmcp import FastMCP
 
-from word_mcp.prompts.prompts import PROMPT_REGISTRY
-
-from .prompts import PromptTemplate
+from word_mcp.prompts.prompts import PROMPT_REGISTRY, PromptTemplate
 
 
 def register_prompts(mcp: FastMCP) -> None:
     """Register all prompts with the MCP server."""
 
-    def create_prompt_function(
-        template: PromptTemplate,
-    ) -> Callable[..., Awaitable[str]]:
-        async def prompt_function(**kwargs: Any) -> str:
-            return template.template.format(**kwargs)
+    for _, prompt_template in PROMPT_REGISTRY.items():
+        # Crear función closure para cada prompt
+        def create_prompt_handler(
+            template: PromptTemplate,
+        ) -> Callable[..., Awaitable[str]]:
+            async def prompt_handler(**kwargs: Any) -> str:
+                try:
+                    return cast(str, template.template.format(**kwargs))
+                except KeyError as e:
+                    return f"Error: Parámetro requerido no encontrado: {e}"
 
-        return prompt_function
+            # Asignar metadata
+            prompt_handler.__name__ = template.name
+            prompt_handler.__doc__ = template.description
+            return prompt_handler
 
-    for _prompt_name, prompt_template in PROMPT_REGISTRY.items():
-        prompt_func = create_prompt_function(prompt_template)
-        mcp.prompt(name=prompt_template.name)(prompt_func)
+        # Registrar el prompt con el decorador
+        handler = create_prompt_handler(prompt_template)
+        mcp.prompt(name=prompt_template.name, description=prompt_template.description)(
+            handler
+        )
 
 
 """

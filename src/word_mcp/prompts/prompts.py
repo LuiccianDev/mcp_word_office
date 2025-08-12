@@ -5,8 +5,6 @@ This module contains all the prompt templates used for generating academic docum
 in the MCP Office Word Server application based on prompts_estudiantes.md.
 """
 
-from typing import Dict, List, Optional
-
 from pydantic import BaseModel
 
 
@@ -16,7 +14,7 @@ class PromptTemplate(BaseModel):
     name: str
     description: str
     template: str
-    parameters: Optional[List[str]] = None
+    parameters: list[str] | None = None
     category: str
     academic_level: str
 
@@ -313,56 +311,3 @@ PROMPT_REGISTRY = {
     "legal_essay_template": LEGAL_ESSAY_TEMPLATE,
     "medical_case_study": MEDICAL_CASE_STUDY,
 }
-
-
-def get_prompt_template(prompt_name: str) -> Optional[PromptTemplate]:
-    """
-    Retrieve a prompt template by name.
-
-    Args:
-        prompt_name: The name of the prompt template to retrieve
-
-    Returns:
-        The requested PromptTemplate or None if not found
-    """
-    return PROMPT_REGISTRY.get(prompt_name)
-
-
-def list_available_prompts() -> Dict[str, str]:
-    """
-    List all available prompt templates with their descriptions.
-
-    Returns:
-        A dictionary mapping prompt names to their descriptions
-    """
-    return {name: prompt.description for name, prompt in PROMPT_REGISTRY.items()}
-
-
-def get_prompts_by_category(category: str) -> List[PromptTemplate]:
-    """
-    Get all prompt templates for a specific category.
-
-    Args:
-        category: The category to filter by (e.g., 'essay', 'proposal', 'research')
-
-    Returns:
-        A list of PromptTemplate objects matching the category
-    """
-    return [
-        prompt for prompt in PROMPT_REGISTRY.values() if prompt.category == category
-    ]
-
-
-def get_prompts_by_academic_level(level: str) -> List[PromptTemplate]:
-    """
-    Get all prompt templates for a specific academic level.
-
-    Args:
-        level: The academic level to filter by (e.g., 'secondary', 'university', 'graduate')
-
-    Returns:
-        A list of PromptTemplate objects matching the academic level
-    """
-    return [
-        prompt for prompt in PROMPT_REGISTRY.values() if prompt.academic_level == level
-    ]
