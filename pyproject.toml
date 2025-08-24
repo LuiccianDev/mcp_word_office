@@ -23,19 +23,14 @@ dependencies = [
     "msoffcrypto-tool>=5.4.2",
     "python-docx>=1.2.0",
 ]
+
 [project.urls]
 Homepage = "https://github.com/LuiccianDev/mcp_word_office"
 Repository = "https://github.com/LuiccianDev/mcp_word_office"
 Documentation = "https://github.com/LuiccianDev/mcp_word_office/blob/master/README.md"
-"Bug Tracker" = "https://github.com/LuiccianDev/mcp_word_office/issues"
+issues = "https://github.com/LuiccianDev/mcp_word_office/issues"
 Changelog = "https://github.com/LuiccianDev/mcp_word_office/blob/master/CHANGELOG.md"
 
-dependencies = [
-    "docx2pdf>=0.1.8",
-    "mcp[cli]>=1.9.0",
-    "msoffcrypto-tool>=5.4.2",
-    "python-docx>=1.1.2",
-]
 
 [dependency-groups]
 dev = [
