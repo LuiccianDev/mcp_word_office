@@ -1,0 +1,41 @@
+{
+  "dxt_version": "0.1",
+  "name": "mcp_office",
+  "version": "1.0.1",
+  "description": "mcp word office",
+  "author": {
+    "name": "LuiccianDev",
+    "email": "LuiccianDev@gmail.com"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "src/mcp_word/server.py",
+    "mcp_config": {
+      "command": "python",
+      "args": [
+        "${__dirname}/src/mcp_word/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "${__dirname}/src",
+        "MCP_ALLOWED_DIRECTORIES" : "${user_config:directory}"
+      }
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ]
+  },
+  "user_config": {
+    "directory": {
+      "type": "directory",
+      "title": "directory work",
+      "description": "directory work",
+      "required": true,
+      "sensitive": false
+    }
+  },
+  "license": "MIT"
+}
