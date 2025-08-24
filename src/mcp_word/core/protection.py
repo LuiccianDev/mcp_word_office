@@ -120,7 +120,7 @@ def verify_document_protection(
 
     try:
         # Read protection data
-        with open(metadata_path, "r") as f:
+        with open(metadata_path) as f:
             protection_data = json.load(f)
 
         # If password is provided, verify it
@@ -158,7 +158,7 @@ def is_section_editable(doc_path: str, section_name: str) -> bool:
 
     try:
         # Read protection data
-        with open(metadata_path, "r") as f:
+        with open(metadata_path) as f:
             protection_data: dict[str, Any] = json.load(f)
 
         # Check protection type
@@ -226,7 +226,7 @@ def verify_signature(doc_path: str) -> tuple[bool, str]:
 
     try:
         # Read protection data
-        with open(metadata_path, "r") as f:
+        with open(metadata_path) as f:
             protection_data = json.load(f)
 
         if protection_data.get("type") != "signature":

@@ -1,9 +1,10 @@
 # register_prompts.py - registro de prompts
-from typing import Any, Awaitable, Callable, cast
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from word_mcp.prompts.prompts import PROMPT_REGISTRY, PromptTemplate
+from mcp_word.prompts.prompts import PROMPT_REGISTRY, PromptTemplate
 
 
 def register_prompts(mcp: FastMCP) -> None:
@@ -16,7 +17,7 @@ def register_prompts(mcp: FastMCP) -> None:
         ) -> Callable[..., Awaitable[str]]:
             async def prompt_handler(**kwargs: Any) -> str:
                 try:
-                    return cast(str, template.template.format(**kwargs))
+                    return template.template.format(**kwargs)
                 except KeyError as e:
                     return f"Error: Parámetro requerido no encontrado: {e}"
 

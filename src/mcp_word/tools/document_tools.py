@@ -12,18 +12,18 @@ from typing import Any
 from docx import Document
 from docx.document import Document as DocumentType
 
-from word_mcp.core.styles import ensure_heading_style, ensure_table_style
+from mcp_word.core.styles import ensure_heading_style, ensure_table_style
 
 # modulos propios
-from word_mcp.core.tables import copy_table
-from word_mcp.utils.document_utils import (
+from mcp_word.core.tables import copy_table
+from mcp_word.utils.document_utils import (
     create_document_copy,
     ensure_docx_extension,
     extract_document_text,
     get_document_properties,
     get_document_structure,
 )
-from word_mcp.validation.document_validators import (
+from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )
@@ -66,8 +66,7 @@ def _is_path_in_allowed_directories(file_path: str) -> tuple[bool, str | None]:
             continue
 
     error_msg = (
-        f"Path '{file_path}' is not in allowed directories: "
-        f"{', '.join(allowed_dirs)}"
+        f"Path '{file_path}' is not in allowed directories: {', '.join(allowed_dirs)}"
     )
     return False, error_msg
 
@@ -127,7 +126,7 @@ async def create_document(
         return {"status": "error", "message": f"Failed to create document: {str(e)}"}
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 async def get_document_info(filename: str) -> dict[str, Any]:
     """Get information about a Word document.
 
@@ -141,7 +140,7 @@ async def get_document_info(filename: str) -> dict[str, Any]:
         return {"status": "error", "message": f"Failed to get document info: {str(e)}"}
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 async def get_document_text(filename: str) -> dict[str, Any]:
     """Extract all text from a Word document.
 
@@ -155,7 +154,7 @@ async def get_document_text(filename: str) -> dict[str, Any]:
         return {"status": "error", "message": f"Failed to get document text: {str(e)}"}
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 async def get_document_outline(filename: str) -> dict[str, Any]:
     """Get the structure of a Word document.
 
@@ -172,44 +171,22 @@ async def get_document_outline(filename: str) -> dict[str, Any]:
         }
 
 
-async def list_available_documents(directory: str | None = None) -> dict[str, Any]:
+async def list_available_documents() -> dict[str, Any]:
     """
-    List all .docx files in the specified or allowed directories.
-
-    Args:
-        directory: Optional path to a directory. If not provided, uses all allowed.
+    List all .docx files in the allowed directories.
 
     Returns:
-        dict[str, Any]: dictionary with status, message, and list of found documents.
+        dict[str, Any]: Dictionary with status, message, and list of found documents.
     """
     try:
-        # Si no se especifica directorio, usamos todos los permitidos
-        if directory is None:
-            search_directories = _get_allowed_directories()
-            if not search_directories:
-                return {
-                    "status": "error",
-                    "message": "No accessible directories found in MCP configuration.",
-                    "allowed_directories": _get_allowed_directories(),
-                    "documents": [],
-                }
-        else:
-            abs_dir = os.path.abspath(directory)
-            allowed_dirs = _get_allowed_directories()
-
-            # Validación segura usando commonpath
-            is_allowed = any(
-                os.path.commonpath([abs_dir, allowed]) == allowed
-                for allowed in allowed_dirs
-            )
-            if not is_allowed:
-                return {
-                    "status": "error",
-                    "message": f"Directory '{directory}' is not in allowed directories: {', '.join(allowed_dirs)}",
-                    "allowed_directories": allowed_dirs,
-                    "documents": [],
-                }
-            search_directories = [abs_dir]
+        search_directories = _get_allowed_directories()
+        if not search_directories:
+            return {
+                "status": "error",
+                "message": "No accessible directories found in MCP configuration.",
+                "allowed_directories": search_directories,
+                "documents": [],
+            }
 
         all_documents = []
         total_found = 0
@@ -222,7 +199,7 @@ async def list_available_documents(directory: str | None = None) -> dict[str, An
                 f
                 for f in os.listdir(search_dir)
                 if f.lower().endswith(".docx")
-                and not f.startswith("~$")  # Excluir archivos temporales
+                and not f.startswith("~$")  # Exclude temporary files
             ]
 
             for file in sorted(docx_files):
@@ -261,7 +238,7 @@ async def list_available_documents(directory: str | None = None) -> dict[str, An
         }
 
 
-@validate_docx_file("source_filename")  # type: ignore[misc]
+@validate_docx_file("source_filename")
 async def copy_document(
     source_filename: str, destination_filename: str | None = None
 ) -> dict[str, Any]:
@@ -282,8 +259,8 @@ async def copy_document(
     return {"status": "error", "message": f"Failed to copy document: {message}"}
 
 
-@check_file_writeable("target_filename")  # type: ignore[misc]
-@validate_docx_file("target_filename")  # type: ignore[misc]
+@validate_docx_file("target_filename")
+@check_file_writeable("target_filename")
 async def merge_documents(
     target_filename: str, source_filenames: list[str], add_page_breaks: bool = True
 ) -> dict[str, Any]:

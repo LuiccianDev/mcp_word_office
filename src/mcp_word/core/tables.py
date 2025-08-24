@@ -6,7 +6,7 @@ including formatting borders, applying styles, and copying tables between docume
 """
 
 import re
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from docx.document import Document
 from docx.oxml import parse_xml
@@ -14,12 +14,13 @@ from docx.oxml.ns import nsdecls
 from docx.oxml.shared import OxmlElement, qn
 from docx.table import Table, _Cell, _Row
 
+
 # Type aliases for better code readability
-CellBorderStyle = Dict[str, Union[str, bool, int]]
-TableShading = List[List[Optional[str]]]
+CellBorderStyle = dict[str, str | bool | int]
+TableShading = list[list[str | None]]
 
 
-def set_cell_border(cell: _Cell, **kwargs: Union[str, bool, int]) -> None:
+def set_cell_border(cell: _Cell, **kwargs: str | bool | int) -> None:
     """Set cell border properties with validation and type safety.
 
     Args:
@@ -78,8 +79,8 @@ def set_cell_border(cell: _Cell, **kwargs: Union[str, bool, int]) -> None:
 def apply_table_style(
     table: Table,
     has_header_row: bool = False,
-    border_style: Optional[str] = None,
-    shading: Optional[TableShading] = None,
+    border_style: str | None = None,
+    shading: TableShading | None = None,
 ) -> bool:
     """Apply consistent formatting to a table.
 
@@ -192,7 +193,7 @@ def _apply_shading(table: Table, shading: TableShading) -> None:
         table: The table to apply shading to.
         shading: 2D list of color values (by row and column).
     """
-    HEX_COLOR_RE = re.compile(r"^[0-9A-Fa-f]{6}$")
+    HEX_COLOR_RE = re.compile(r"^[0-9A-Fa-f]{6}$")  # noqa: N806
 
     for i, row_colors in enumerate(shading):
         if i >= len(table.rows):

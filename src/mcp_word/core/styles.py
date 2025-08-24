@@ -8,12 +8,13 @@ consistent formatting.
 
 # Standard library imports
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 # Third-party imports
 from docx.document import Document
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Length, Pt, RGBColor
+
 
 # Constants for default values
 DEFAULT_HEADING_1_SIZE = Pt(16)
@@ -67,10 +68,10 @@ class FontProperties:
     def __init__(
         self,
         name: str = DEFAULT_FONT_NAME,
-        size: Optional[Union[int, Length]] = DEFAULT_FONT_SIZE,
+        size: int | Length | None = DEFAULT_FONT_SIZE,
         bold: bool = False,
         italic: bool = False,
-        color: Optional[Union[str, RGBColor]] = None,
+        color: str | RGBColor | None = None,
     ):
         self.name = name
         self.size = size
@@ -84,10 +85,10 @@ class ParagraphProperties:
 
     def __init__(
         self,
-        alignment: Optional[int] = None,
-        spacing: Optional[float] = None,
-        space_before: Optional[Length] = None,
-        space_after: Optional[Length] = None,
+        alignment: int | None = None,
+        spacing: float | None = None,
+        space_before: Length | None = None,
+        space_after: Length | None = None,
     ):
         self.alignment = alignment
         self.spacing = spacing
@@ -142,9 +143,9 @@ def create_style(
     doc: Document,
     style_name: str,
     style_type: WD_STYLE_TYPE = WD_STYLE_TYPE.PARAGRAPH,
-    base_style: Optional[str] = None,
-    font_props: Optional[Dict[str, Any]] = None,
-    paragraph_props: Optional[Dict[str, Any]] = None,
+    base_style: str | None = None,
+    font_props: dict[str, Any] | None = None,
+    paragraph_props: dict[str, Any] | None = None,
 ) -> Any:
     """
     Create or update a style in the document.

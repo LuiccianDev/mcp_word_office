@@ -9,12 +9,11 @@ import json
 import os
 import shutil
 import tempfile
-from typing import Optional, Tuple
 
 
 def remove_protection_info(
-    filename: str, password: Optional[str] = None
-) -> Tuple[bool, str]:
+    filename: str, password: str | None = None
+) -> tuple[bool, str]:
     """
     Remove protection information from a document and decrypt it if necessary.
 
@@ -34,7 +33,7 @@ def remove_protection_info(
 
     try:
         # Load protection data
-        with open(metadata_path, "r") as f:
+        with open(metadata_path) as f:
             protection_data = json.load(f)
 
         # Verify password if provided and required

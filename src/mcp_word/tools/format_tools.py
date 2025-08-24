@@ -14,18 +14,18 @@ from docx.document import Document as DocumentType
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Pt, RGBColor
 
-from word_mcp.core.styles import create_style
-from word_mcp.core.tables import apply_table_style
+from mcp_word.core.styles import create_style
+from mcp_word.core.tables import apply_table_style
 
 # modulos propios
-from word_mcp.validation.document_validators import (
+from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
-@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def format_text(
     filename: str,
     paragraph_index: int,
@@ -73,7 +73,7 @@ async def format_text(
         if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
             return {
                 "status": "error",
-                "error": f"Invalid paragraph index. Document has {len(doc.paragraphs)} paragraphs (0-{len(doc.paragraphs)-1}).",
+                "error": f"Invalid paragraph index. Document has {len(doc.paragraphs)} paragraphs (0-{len(doc.paragraphs) - 1}).",
             }
 
         paragraph = doc.paragraphs[paragraph_index]
@@ -150,8 +150,8 @@ async def format_text(
         }
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
-@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def create_custom_style(
     filename: str,
     style_name: str,
@@ -196,7 +196,7 @@ async def create_custom_style(
             style_name,
             WD_STYLE_TYPE.PARAGRAPH,
             base_style=base_style,
-            font_properties=font_properties,
+            font_props=font_properties,
         )
 
         doc.save(filename)
@@ -211,8 +211,8 @@ async def create_custom_style(
         }
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
-@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def format_table(
     filename: str,
     table_index: int,
@@ -236,13 +236,20 @@ async def format_table(
         if table_index < 0 or table_index >= len(doc.tables):
             return {
                 "status": "error",
-                "error": f"Invalid table index. Document has {len(doc.tables)} tables (0-{len(doc.tables)-1}).",
+                "error": f"Invalid table index. Document has {len(doc.tables)} tables (0-{len(doc.tables) - 1}).",
             }
 
         table = doc.tables[table_index]
 
         # Apply formatting
-        success = apply_table_style(table, has_header_row, border_style, shading)
+        # Convert shading to the expected type
+        table_shading: list[list[str | None]] | None = None
+        if shading is not None:
+            table_shading = [list(row) for row in shading]
+
+        success = apply_table_style(
+            table, has_header_row or False, border_style, table_shading
+        )
 
         if success:
             doc.save(filename)

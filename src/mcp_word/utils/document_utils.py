@@ -13,10 +13,10 @@ from docx import Document
 from docx.document import Document as DocumentType
 from docx.oxml.coreprops import CT_CoreProperties
 
-from word_mcp.validation.document_validators import validate_docx_file
+from mcp_word.validation.document_validators import validate_docx_file
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 def get_document_properties(filename: str) -> dict[str, Any]:
     """Get properties of a Word document.
 
@@ -54,7 +54,7 @@ def get_document_properties(filename: str) -> dict[str, Any]:
         return {"error": f"Failed to get document properties: {str(e)}"}
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 def extract_document_text(filename: str) -> dict[str, Any]:
     """Extract all text from a Word document.
 
@@ -87,7 +87,7 @@ def extract_document_text(filename: str) -> dict[str, Any]:
         return {"status": "error", "message": f"Failed to extract text: {str(e)}"}
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 def get_document_structure(filename: str) -> dict[str, Any]:
     """Get the structure of a Word document.
 
@@ -256,7 +256,7 @@ def create_document_copy(
     try:
         shutil.copy2(source_path, dest_path)
         return True, f"Document successfully copied to '{dest_path}'.", dest_path
-    except (shutil.Error, IOError) as e:
+    except (OSError, shutil.Error) as e:
         return False, f"Failed to copy document: {e}", None
 
 

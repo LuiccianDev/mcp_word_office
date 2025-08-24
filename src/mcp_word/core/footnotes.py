@@ -3,7 +3,6 @@ Footnote and endnote functionality for Word Document Server.
 """
 
 import string
-from typing import List
 
 from docx.document import Document
 from docx.text.paragraph import Paragraph
@@ -12,6 +11,7 @@ from docx.text.paragraph import Paragraph
 def add_footnote(doc: Document, paragraph: Paragraph, text: str) -> Paragraph:
     """
     Add a footnote to a paragraph.
+    Note: python-docx doesn't directly support footnotes, so this is a placeholder implementation.
 
     Args:
         doc: Document object
@@ -19,10 +19,17 @@ def add_footnote(doc: Document, paragraph: Paragraph, text: str) -> Paragraph:
         text: Text content of the footnote
 
     Returns:
-        The created footnote
+        The paragraph containing the footnote reference
     """
-    return paragraph.add_footnote(text)
-    # raise NotImplementedError("python-docx no admite footnotes directamente.")
+    # Since python-docx doesn't support footnotes directly, add a superscript reference
+    run = paragraph.add_run()
+    run.text = "¹"  # Using Unicode superscript as placeholder
+    run.font.superscript = True
+
+    # Add footnote text at the end of the document
+    doc.add_paragraph(f"¹ {text}")
+
+    return paragraph
 
 
 def add_endnote(doc: Document, paragraph: Paragraph, text: str) -> Paragraph:
@@ -79,7 +86,6 @@ def convert_footnotes_to_endnotes(doc: Document) -> int:
     # Collect all footnotes
     footnotes = []
     for para in doc.paragraphs:
-
         # This is a simplified implementation
         for run in para.runs:
             if run.font.superscript and run.text.isdigit():
@@ -93,7 +99,7 @@ def convert_footnotes_to_endnotes(doc: Document) -> int:
 
         # Add each footnote as an endnote
         for idx, (_para, footnote_num) in enumerate(footnotes):
-            doc.add_paragraph(f"{idx+1}. Converted from footnote {footnote_num}")
+            doc.add_paragraph(f"{idx + 1}. Converted from footnote {footnote_num}")
 
     return len(footnotes)
 
@@ -112,14 +118,13 @@ def find_footnote_references(doc: Document) -> list[tuple[int, int, str]]:
 
     for para_idx, para in enumerate(doc.paragraphs):
         for run_idx, run in enumerate(para.runs):
-
             if run.font.superscript and (run.text.isdigit() or run.text in "¹²³⁴⁵⁶⁷⁸⁹"):
                 footnote_references.append((para_idx, run_idx, run.text))
 
     return footnote_references
 
 
-def _fill_or_extend_format_symbols(base_list: List[str], count: int) -> List[str]:
+def _fill_or_extend_format_symbols(base_list: list[str], count: int) -> list[str]:
     """
     Returns a list of length `count` based on `base_list`.
     If `count` exceeds `base_list`, fills the rest with numeric strings.
@@ -129,7 +134,7 @@ def _fill_or_extend_format_symbols(base_list: List[str], count: int) -> List[str
     return base_list + [str(i) for i in range(1, count - len(base_list) + 1)]
 
 
-def get_format_symbols(numbering_format: str, count: int) -> List[str]:
+def get_format_symbols(numbering_format: str, count: int) -> list[str]:
     """
     Get a list of formatting symbols based on the specified numbering format.
 
@@ -213,7 +218,6 @@ def customize_footnote_formatting(
     # Find footnote section and update
     for para_idx, para in enumerate(doc.paragraphs):
         if para.text.startswith("Footnotes:") or para.text == "Footnotes":
-
             # Update footnotes with new symbols
             for i in range(len(footnote_refs)):
                 try:

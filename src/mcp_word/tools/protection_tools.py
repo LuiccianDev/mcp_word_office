@@ -18,21 +18,21 @@ import msoffcrypto
 from docx import Document
 from docx.document import Document as DocumentType
 
-from word_mcp.core.protection import (
+from mcp_word.core.protection import (
     add_protection_info,
     create_signature_info,
     verify_document_protection,
 )
 
 # modulos propios
-from word_mcp.validation.document_validators import (
+from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
-@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def protect_document(filename: str, password: str) -> dict[str, Any]:
     """Add password protection to a Word document.
 
@@ -90,8 +90,8 @@ async def protect_document(filename: str, password: str) -> dict[str, Any]:
             }
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
-@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def add_restricted_editing(
     filename: str, password: str, editable_sections: list[str]
 ) -> dict[str, Any]:
@@ -137,8 +137,8 @@ async def add_restricted_editing(
         }
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
-@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def add_digital_signature(
     filename: str, signer_name: str, reason: str | None = None
 ) -> dict[str, Any]:
@@ -196,7 +196,7 @@ async def add_digital_signature(
         }
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 async def verify_document(filename: str, password: str | None = None) -> dict[str, Any]:
     """Verify document protection and/or digital signature.
 
@@ -223,7 +223,7 @@ async def verify_document(filename: str, password: str | None = None) -> dict[st
             try:
                 import json
 
-                with open(metadata_path, "r") as f:
+                with open(metadata_path) as f:
                     protection_data = json.load(f)
 
                 if protection_data.get("type") == "signature":
@@ -259,8 +259,8 @@ async def verify_document(filename: str, password: str | None = None) -> dict[st
         return {"status": "error", "error": f"Failed to verify document: {str(e)}"}
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
-@check_file_writeable("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def unprotect_document(filename: str, password: str) -> dict[str, Any]:
     """Remove password protection from a Word document.
 

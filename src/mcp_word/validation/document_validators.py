@@ -8,11 +8,13 @@ import asyncio
 import functools
 import inspect
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Tuple, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from docx import Document
 from docx.opc.exceptions import PackageNotFoundError
+
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -104,7 +106,7 @@ def check_file_writeable(param_name: str) -> Callable[[F], F]:
 
 
 # helper function to check if a file is writeable
-def _check_file_writeable(path_value: Union[str, Path]) -> Tuple[bool, str]:
+def _check_file_writeable(path_value: str | Path) -> tuple[bool, str]:
     """Checks if a file is writeable."""
     try:
         path = Path(path_value).resolve()
@@ -120,7 +122,7 @@ def _check_file_writeable(path_value: Union[str, Path]) -> Tuple[bool, str]:
 # helper function to extract an argument's value from args or kwargs
 def _get_argument_value(
     func: Callable, name: str, args: tuple, kwargs: dict
-) -> Optional[Any]:
+) -> Any | None:
     """Extracts an argument's value from args or kwargs."""
     if name in kwargs:
         return kwargs[name]
@@ -138,7 +140,7 @@ def _get_argument_value(
 
 
 # helper function to validate a .docx file path of validate_docx_file decorator
-def _validate_docx_path(path_str: str) -> Optional[Dict[str, str]]:
+def _validate_docx_path(path_str: str) -> dict[str, str] | None:
     """Performs validation checks on a given .docx file path."""
 
     path = Path(path_str).resolve()

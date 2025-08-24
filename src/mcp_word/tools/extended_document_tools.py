@@ -12,14 +12,14 @@ import subprocess
 from typing import Any
 
 # modulos propios
-from word_mcp.utils.extended_document_utils import find_text, get_paragraph_text
-from word_mcp.validation.document_validators import (
+from mcp_word.utils.extended_document_utils import find_text, get_paragraph_text
+from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 async def get_paragraph_text_from_document(
     filename: str, paragraph_index: int
 ) -> dict[str, Any]:
@@ -41,7 +41,7 @@ async def get_paragraph_text_from_document(
         return {"error": f"Failed to get paragraph text: {str(e)}"}
 
 
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
 async def find_text_in_document(
     filename: str, text_to_find: str, match_case: bool = True, whole_word: bool = False
 ) -> dict[str, Any]:
@@ -57,7 +57,6 @@ async def find_text_in_document(
         return {"status": "error", "message": "Search text cannot be empty"}
 
     try:
-
         result: dict[str, Any] = find_text(
             filename, text_to_find, match_case, whole_word
         )
@@ -66,8 +65,8 @@ async def find_text_in_document(
         return {"status": "error", "message": f"Failed to search for text: {str(e)}"}
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def convert_to_pdf(
     filename: str, output_filename: str | None = None
 ) -> dict[str, Any]:
@@ -157,7 +156,7 @@ async def convert_to_pdf(
                             filename,
                         ]
 
-                        result = subprocess.run(
+                        result = subprocess.run(  # noqa: S603
                             cmd, capture_output=True, text=True, timeout=60
                         )
 

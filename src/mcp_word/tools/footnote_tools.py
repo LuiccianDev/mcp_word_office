@@ -14,21 +14,21 @@ from docx.document import Document as DocumentType
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Pt
 
-from word_mcp.core.footnotes import (
+from mcp_word.core.footnotes import (
     customize_footnote_formatting,
     find_footnote_references,
     get_format_symbols,
 )
 
 # modulos propios
-from word_mcp.validation.document_validators import (
+from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def add_footnote_to_document(
     filename: str, paragraph_index: int, footnote_text: str
 ) -> dict[str, Any]:
@@ -55,52 +55,39 @@ async def add_footnote_to_document(
         if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
             return {
                 "status": "error",
-                "error": f"Invalid paragraph index. Document has {len(doc.paragraphs)} paragraphs (0-{len(doc.paragraphs)-1}).",
+                "error": f"Invalid paragraph index. Document has {len(doc.paragraphs)} paragraphs (0-{len(doc.paragraphs) - 1}).",
             }
 
         paragraph = doc.paragraphs[paragraph_index]
 
-        # In python-docx, we'd use paragraph.add_footnote(), but we'll use a more robust approach
-        try:
-            footnote = paragraph.add_run()
-            footnote.text = ""
+        # In python-docx, footnotes aren't directly supported, so we use a fallback approach
+        # Fall back to a simpler approach
+        last_run = paragraph.add_run()
+        last_run.text = "¹"  # Unicode superscript 1
+        last_run.font.superscript = True
 
-            # Create the footnote reference
-            footnote.add_footnote(footnote_text)
+        # Add a footnote section at the end if it doesn't exist
+        found_footnote_section = False
+        for p in doc.paragraphs:
+            if p.text.startswith("Footnotes:"):
+                found_footnote_section = True
+                break
 
-            doc.save(filename)
-            return {
-                "status": "success",
-                "message": f"Footnote added to paragraph {paragraph_index} in {filename}",
-            }
-        except AttributeError:
-            # Fall back to a simpler approach if direct footnote addition fails
-            last_run = paragraph.add_run()
-            last_run.text = "¹"  # Unicode superscript 1
-            last_run.font.superscript = True
+        if not found_footnote_section:
+            doc.add_paragraph("\n").add_run()
+            doc.add_paragraph().add_run("Footnotes:").bold = True
 
-            # Add a footnote section at the end if it doesn't exist
-            found_footnote_section = False
-            for p in doc.paragraphs:
-                if p.text.startswith("Footnotes:"):
-                    found_footnote_section = True
-                    break
+        # Add footnote text
+        footnote_para = doc.add_paragraph("¹ " + footnote_text)
+        footnote_para.style = (
+            "Footnote Text" if "Footnote Text" in doc.styles else "Normal"
+        )
 
-            if not found_footnote_section:
-                doc.add_paragraph("\n").add_run()
-                doc.add_paragraph().add_run("Footnotes:").bold = True
-
-            # Add footnote text
-            footnote_para = doc.add_paragraph("¹ " + footnote_text)
-            footnote_para.style = (
-                "Footnote Text" if "Footnote Text" in doc.styles else "Normal"
-            )
-
-            doc.save(filename)
-            return {
-                "status": "success",
-                "message": f"Footnote added to paragraph {paragraph_index} in {filename} (simplified approach)",
-            }
+        doc.save(filename)
+        return {
+            "status": "success",
+            "message": f"Footnote added to paragraph {paragraph_index} in {filename} (simplified approach)",
+        }
     except Exception as e:
         return {
             "status": "error",
@@ -108,8 +95,8 @@ async def add_footnote_to_document(
         }
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def add_endnote_to_document(
     filename: str, paragraph_index: int, endnote_text: str
 ) -> str:
@@ -131,7 +118,7 @@ async def add_endnote_to_document(
 
         # Validate paragraph index
         if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
-            return f"Invalid paragraph index. Document has {len(doc.paragraphs)} paragraphs (0-{len(doc.paragraphs)-1})."
+            return f"Invalid paragraph index. Document has {len(doc.paragraphs)} paragraphs (0-{len(doc.paragraphs) - 1})."
 
         paragraph = doc.paragraphs[paragraph_index]
 
@@ -164,8 +151,8 @@ async def add_endnote_to_document(
         return f"Failed to add endnote: {str(e)}"
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
     """Convert all footnotes to endnotes in a Word document.
 
@@ -222,14 +209,14 @@ async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
 
             # Try to match with footnote text, or use placeholder
             if i < len(footnote_text):
-                endnote_para.text = f"†{i+1} {footnote_text[i]}"
+                endnote_para.text = f"†{i + 1} {footnote_text[i]}"
             else:
-                endnote_para.text = f"†{i+1} Converted from footnote {ref['text']}"
+                endnote_para.text = f"†{i + 1} Converted from footnote {ref['text']}"
 
             # Change the footnote reference to an endnote reference
             try:
                 paragraph = doc.paragraphs[ref["paragraph_index"]]
-                paragraph.runs[ref["run_index"]].text = f"†{i+1}"
+                paragraph.runs[ref["run_index"]].text = f"†{i + 1}"
             except IndexError:
                 # Skip if we can't locate the reference
                 pass
@@ -244,8 +231,8 @@ async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
         return f"Failed to convert footnotes to endnotes: {str(e)}"
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def customize_footnote_style(
     filename: str,
     numbering_format: str = "1, 2, 3",

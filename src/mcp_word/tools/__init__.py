@@ -5,7 +5,8 @@ This package contains the MCP tool implementations that expose functionality
 to clients through the Model Context Protocol.
 """
 
-from word_mcp.tools.register_tools import register_all_tools
+from mcp_word.tools.register_tools import register_all_tools
+
 
 __all__ = [
     "register_all_tools",

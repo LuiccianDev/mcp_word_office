@@ -6,25 +6,25 @@ in Word documents, including headings, paragraphs, tables, images, and page brea
 
 # modulos standar
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # modulos terceros
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.shared import Inches, Pt
 
-from word_mcp.core.styles import ensure_heading_style
-from word_mcp.utils.document_utils import find_and_replace_text
+from mcp_word.core.styles import ensure_heading_style
+from mcp_word.utils.document_utils import find_and_replace_text
 
 # modulos propios
-from word_mcp.validation.document_validators import (
+from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any]:
     """Add a heading to a Word document.
 
@@ -81,10 +81,10 @@ async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any
         }
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def add_paragraph(
-    filename: str, text: str, style: Optional[str] = None
+    filename: str, text: str, style: str | None = None
 ) -> dict[str, Any]:
     """Add a paragraph to a Word document.
 
@@ -126,7 +126,7 @@ async def add_paragraph(
 
 def _populate_table(
     table: Any,  # docx.table.Table type
-    data: List[List[Any]],
+    data: list[list[Any]],
     max_rows: int,
     max_cols: int,
 ) -> None:
@@ -147,10 +147,10 @@ def _populate_table(
             table.cell(i, j).text = str(cell_text)
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def add_table(
-    filename: str, rows: int, cols: int, data: Optional[List[List[Any]]] = None
+    filename: str, rows: int, cols: int, data: list[list[Any]] | None = None
 ) -> dict[str, Any]:
     """Add a table to a Word document.
 
@@ -198,10 +198,10 @@ async def add_table(
         }
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def add_picture(
-    filename: str, image_path: str, width: Optional[float] = None
+    filename: str, image_path: str, width: float | None = None
 ) -> dict[str, Any]:
     """Add an image to a Word document.
 
@@ -247,8 +247,8 @@ async def add_picture(
         }
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def add_page_break(filename: str) -> dict[str, Any]:
     """Add a page break to the document.
 
@@ -272,8 +272,8 @@ async def add_page_break(filename: str) -> dict[str, Any]:
         }
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def add_table_of_contents(
     filename: str, title: str = "Table of Contents", max_level: int = 3
 ) -> dict[str, Any]:
@@ -340,8 +340,8 @@ async def add_table_of_contents(
         }
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@check_file_writeable("filename")
+@validate_docx_file("filename")
 async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any]:
     """Delete a paragraph from a document.
 
@@ -364,7 +364,7 @@ async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any
         if paragraph_index < 0 or paragraph_index >= total_paragraphs:
             raise IndexError(
                 f"Paragraph index {paragraph_index} is out of range. "
-                f"Document has {total_paragraphs} paragraphs (0-{total_paragraphs-1})."
+                f"Document has {total_paragraphs} paragraphs (0-{total_paragraphs - 1})."
             )
 
         # Remove the paragraph by removing its XML element
@@ -385,8 +385,8 @@ async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any
         }
 
 
-@check_file_writeable("filename")  # type: ignore[misc]
-@validate_docx_file("filename")  # type: ignore[misc]
+@validate_docx_file("filename")
+@check_file_writeable("filename")
 async def search_and_replace(
     filename: str, find_text: str, replace_text: str
 ) -> dict[str, Any]:
@@ -481,8 +481,9 @@ def _copy_document_content(source_doc: Any, target_doc: Any) -> None:
 
 
 def _extract_headings(
-    doc: Any, max_level: int  # docx.document.Document type
-) -> List[Dict[str, Any]]:
+    doc: Any,
+    max_level: int,  # docx.document.Document type
+) -> list[dict[str, Any]]:
     """Extract headings from a document.
 
     Args:
@@ -528,8 +529,8 @@ def _validate_image_file(image_path: str) -> str:
     try:
         image_size_kb = os.path.getsize(abs_image_path) / 1024
         if image_size_kb <= 0:
-            raise IOError(f"Image file is empty: {abs_image_path}")
+            raise OSError(f"Image file is empty: {abs_image_path}")
         return abs_image_path
 
     except OSError as error:
-        raise IOError(f"Error accessing image file: {error}") from error
+        raise OSError(f"Error accessing image file: {error}") from error

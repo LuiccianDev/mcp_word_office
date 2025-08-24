@@ -7,6 +7,7 @@ for academic document generation.
 
 from .register_prompts import register_prompts
 
+
 __all__ = [
     "register_prompts",
 ]

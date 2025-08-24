@@ -6,7 +6,7 @@ Register all tools with the MCP server.
 from mcp.server.fastmcp import FastMCP
 
 # modulos propios
-from word_mcp.tools import (
+from mcp_word.tools import (
     content_tools,
     document_tools,
     extended_document_tools,
