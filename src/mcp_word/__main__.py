@@ -14,6 +14,7 @@ The module supports multiple execution modes:
 
 from mcp_word.main import create_server
 
+
 if __name__ == "__main__":
     mcp = create_server()
     mcp.run(transport="stdio")
