@@ -39,8 +39,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=25.1.0",
-    "isort>=6.0.1",
     "mypy>=1.17.0",
     "pillow>=11.3.0",
     "pre-commit>=4.2.0",
@@ -49,73 +47,16 @@ dev = [
     "ruff>=0.12.5",
 ]
 
-# Configuración de Black (formateador)
-[tool.black]
-line-length = 88
-target-version = ['py313']
-include = 'src/.*\.py$'
+[project.scripts]
+mcp_word_office = "mcp_word.__main__:main"
 
-# Configuración de isort (organizar imports)
-[tool.isort]
-profile = "black"
-line_length = 88
-multi_line_output = 3
-include_trailing_comma = true
-skip_glob = ["__pycache__", ".git", ".venv", "build", "dist"]
-src_paths = ["src"]
+[project.entry-points."mcp.servers"]
+mcp_word_office = "mcp_word.__main__:main"
 
-# Configuración de MyPy (verificador de tipos)
-[tool.mypy]
-python_version = "3.13"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_decorators = true
-disallow_untyped_defs = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-strict_equality = true
-show_error_codes = true
-check_untyped_defs = true
-ignore_missing_imports = true
-exclude = ["tests/", "build", ".venv"]
-files = ["src"]
 
-# Configuración de Ruff (linter moderno)
-[tool.ruff]
-line-length = 88
-target-version = "py313"
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_word"]
 
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "W291",  # trailing whitespace
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "S101",  # use of assert detected (pytest uses assert)
-    "S110",  #! raise exception in __init__ or any files after remove
-    "S112",  #! use of assert detected (pytest uses assert) after remove
-]
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "S106", "S108"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-pythonpath = ["src"]
-asyncio_mode = "auto"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
