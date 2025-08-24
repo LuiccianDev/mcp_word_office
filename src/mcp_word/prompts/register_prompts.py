@@ -4,7 +4,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from mcp_word.prompts.prompts import PROMPT_REGISTRY, PromptTemplate
+from .prompts import PROMPT_REGISTRY, PromptTemplate
 
 
 def register_prompts(mcp: FastMCP) -> None:
