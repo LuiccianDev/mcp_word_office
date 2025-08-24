@@ -12,7 +12,7 @@ The module supports multiple execution modes:
 - Default behavior: Start MCP server when no command is specified
 """
 
-from mcp_word.main import create_server
+from mcp_word.server import create_server
 
 
 if __name__ == "__main__":
