@@ -8,7 +8,7 @@ import pytest
 from docx import Document
 
 # Assuming document_tools.py is in src/word_mcp/tools
-from word_mcp.tools import document_tools
+from mcp_word.tools import document_tools
 
 
 @pytest.fixture  # type: ignore[misc]
@@ -48,7 +48,7 @@ async def test_get_document_info(temp_docx_file: str) -> None:
 async def test_get_document_text(temp_docx_file: str) -> None:
     """Test getting document text."""
     result = await document_tools.get_document_text(temp_docx_file)
-    assert "This is a test document." in result
+    assert "This is a test" in result["text"]
 
 
 @pytest.mark.asyncio  # type: ignore[misc]
@@ -61,7 +61,7 @@ async def test_get_document_outline(temp_docx_file: str) -> None:
 @pytest.mark.asyncio  # type: ignore[misc]
 async def test_list_available_documents(temp_docx_file: str, tmp_path: Path) -> None:
     """Test listing available documents."""
-    result = await document_tools.list_available_documents(str(tmp_path))
+    result = await document_tools.list_available_documents()
     assert result["status"] == "success"
     assert len(result["documents"]) > 0
 

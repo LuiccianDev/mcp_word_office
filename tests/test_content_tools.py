@@ -9,7 +9,7 @@ from docx import Document
 from PIL import Image
 
 # Assuming content_tools.py is in src/word_mcp/tools
-from word_mcp.tools import content_tools
+from mcp_word.tools import content_tools
 
 
 @pytest.fixture  # type: ignore[misc]
@@ -58,7 +58,7 @@ async def test_add_picture_with_patch(temp_docx_file: str, tmp_path: Path) -> No
     image = Image.new("RGB", (100, 100), color="red")
     image.save(image_path)
 
-    with patch("word_mcp.tools.content_tools.Document") as MockDocument:
+    with patch("mcp_word.tools.content_tools.Document") as MockDocument:
         mock_doc = MagicMock()
         MockDocument.return_value = mock_doc
 

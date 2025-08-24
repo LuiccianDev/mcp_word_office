@@ -7,7 +7,7 @@ import pytest
 from docx import Document
 
 # Assuming footnote_tools.py is in src/word_mcp/tools
-from word_mcp.tools import footnote_tools
+from mcp_word.tools import footnote_tools
 
 
 @pytest.fixture  # type: ignore[misc]
@@ -26,7 +26,7 @@ async def test_add_footnote_to_document(temp_docx_file: str) -> None:
     result = await footnote_tools.add_footnote_to_document(
         temp_docx_file, 0, "This is a test footnote."
     )
-    assert "Footnote added" in result
+    assert "Footnote added" in result["message"]
 
 
 @pytest.mark.asyncio  # type: ignore[misc]
