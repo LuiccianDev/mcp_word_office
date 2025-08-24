@@ -5,8 +5,16 @@
   "description": "mcp word office",
   "author": {
     "name": "LuiccianDev",
-    "email": "LuiccianDev@gmail.com"
+    "email": "LuiccianDev@gmail.com",
+    "url": "https://github.com/LuiccianDev/mcp_word_office"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LuiccianDev/mcp_word_office"
+  },
+  "homepage": "https://github.com/LuiccianDev",
+  "documentation": "https://github.com/LuiccianDev/mcp_word_office/blob/master/README.md",
+  "support": "https://github.com/LuiccianDev/mcp_word_office/issues",
   "server": {
     "type": "python",
     "entry_point": "src/mcp_word/server.py",
