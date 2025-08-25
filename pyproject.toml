@@ -1,5 +1,5 @@
 [project]
-name = "mcp-office-word"
+name = "mcp-word"
 version = "1.0.1"
 description = "MCP server for manipulating Microsoft Word documents"
 readme = "README.md"
