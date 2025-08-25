@@ -27,6 +27,8 @@ ENV/
 
 # IDE specific files
 .idea/
+.kiro/
+.windsurf/
 #.vscode/
 *.swp
 *.swo
