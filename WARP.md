@@ -12,7 +12,7 @@ The project follows a modular, layered architecture:
 
 - **`src/word_mcp/main.py`**: FastMCP server initialization and entry point
 - **`src/word_mcp/tools/`**: MCP tool implementations organized by functionality
-- **`src/word_mcp/core/`**: Core document processing logic and utilities  
+- **`src/word_mcp/core/`**: Core document processing logic and utilities
 - **`src/word_mcp/prompts/`**: MCP prompt templates and registration
 - **`src/mcp_server.py`**: Run script for starting the server
 
@@ -117,7 +117,7 @@ python src/mcp_server.py
 ## Key Dependencies
 
 - **python-docx**: Core Word document manipulation
-- **mcp[cli]**: Model Context Protocol implementation  
+- **mcp[cli]**: Model Context Protocol implementation
 - **msoffcrypto-tool**: Document protection/encryption
 - **docx2pdf**: PDF conversion capabilities
 - **FastMCP**: Simplified MCP server framework
