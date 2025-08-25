@@ -1,6 +1,3 @@
-# ==============================
-# Main Ruff Configuration
-# ==============================
 line-length = 88
 target-version = "py311"
 
@@ -28,9 +25,6 @@ ignore = [
 [lint.per-file-ignores]
 "tests/*" = ["S101", "S106", "S108"]
 
-# ==============================
-# isort Configuration within Ruff
-# ==============================
 [lint.isort]
 known-first-party = ["word:mcp"]   # Own code
 combine-as-imports = true            # Combine imports with "as"
@@ -38,9 +32,6 @@ order-by-type = true                 # Order by import type
 case-sensitive = false               # Case-insensitive ordering
 lines-after-imports = 2              # Extra line after imports
 
-# ==============================
-# Formatting Configuration
-# ==============================
 [format]
 quote-style = "double"
 indent-style = "space"
