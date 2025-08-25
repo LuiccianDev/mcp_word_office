@@ -19,8 +19,9 @@ The project follows a modular, layered architecture:
 ### Tool Categories
 
 Tools are organized into logical groups:
+
 - **Document Tools**: Create, copy, merge, list documents (`document_tools.py`)
-- **Content Tools**: Add paragraphs, headings, tables, images (`content_tools.py`) 
+- **Content Tools**: Add paragraphs, headings, tables, images (`content_tools.py`)
 - **Format Tools**: Text formatting, styling, table formatting (`format_tools.py`)
 - **Protection Tools**: Document protection and unprotection (`protection_tools.py`)
 - **Footnote Tools**: Footnote and endnote management (`footnote_tools.py`)
@@ -31,6 +32,7 @@ All tools are registered via `tools/register_tools.py` using the FastMCP decorat
 ## Development Commands
 
 ### Environment Setup
+
 ```bash
 # Create and activate virtual environment (using uv - recommended)
 uv venv
@@ -44,6 +46,7 @@ uv pip install -e ".[dev]"
 ```
 
 ### Code Quality & Formatting
+
 ```bash
 # Format code with Black
 black src/
@@ -62,6 +65,7 @@ pre-commit run --all-files
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 pytest
@@ -77,6 +81,7 @@ pytest -k "asyncio"
 ```
 
 ### Running the Server
+
 ```bash
 # Development mode (from project root)
 python src/mcp_server.py
@@ -89,6 +94,7 @@ python src/mcp_server.py
 ## Development Guidelines
 
 ### Code Standards
+
 - Python 3.13+ required
 - **Naming**: snake_case for functions/variables, PascalCase for classes, UPPER_SNAKE_CASE for constants
 - **Type Hints**: Mandatory throughout codebase, avoid `Any`
@@ -96,12 +102,14 @@ python src/mcp_server.py
 - **Input Validation**: Use Pydantic for input validation (as per project rules)
 
 ### Testing Patterns
+
 - All tools are async and require `@pytest.mark.asyncio`
 - Use `tmp_path` fixture for file operations
 - Set `MCP_ALLOWED_DIRECTORIES` environment variable in tests
 - Test fixtures create temporary .docx files for testing
 
 ### Security Considerations
+
 - **Directory Access**: Server respects `MCP_ALLOWED_DIRECTORIES` environment variable
 - **File Validation**: MIME type validation for uploaded files
 - **Path Sanitization**: All file paths are validated and sanitized
@@ -117,9 +125,11 @@ python src/mcp_server.py
 ## Configuration
 
 ### Environment Variables
+
 - `MCP_ALLOWED_DIRECTORIES`: Comma-separated list of accessible directories (security)
 
 ### MCP Client Configuration
+
 ```json
 {
   "mcp-word-office": {
@@ -145,6 +155,7 @@ New tools should follow this pattern:
 7. **Documentation**: Update TOOLS.md with new tool details
 
 Example tool structure:
+
 ```python
 async def new_tool(filename: str, param: str) -> dict[str, str]:
     """Tool description with parameters and return type."""
