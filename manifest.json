@@ -19,12 +19,11 @@
     "type": "python",
     "entry_point": "src/mcp_word/server.py",
     "mcp_config": {
-      "command": "python",
-      "args": [
-        "${__dirname}/src/mcp_word/server.py"
+      "command": "uv",
+      "args": ["--directory",
+        "${__dirname}","run","src/mcp_word/server.py"
       ],
       "env": {
-        "PYTHONPATH": "${__dirname}/src",
         "MCP_ALLOWED_DIRECTORIES" : "${user_config:directory}"
       }
     }
