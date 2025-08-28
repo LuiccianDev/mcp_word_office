@@ -139,7 +139,13 @@ For more details see [DXT Package Documentation](https://github.com/anthropics/d
 | ------------------------- | -------------------------------------------------------- | --------------------------------------- |
 | `MCP_ALLOWED_DIRECTORIES` | Directories accessible by the server (comma separated)   | `"\Users\User\Documents,.Projects"`     |
 
-### 🔒 Security Considerations
+## 📦 Docker Support
+
+Para instrucciones detalladas sobre cómo construir y ejecutar el servidor MCP Word Office en Docker, consulta la siguiente guía:
+
+- [Guía Docker: Docker.md](./Docker.md)
+
+## 🔒 Security Considerations
 
 - 🔐 **Allowed Directories**: Limit accessible directories to only those necessary.
 - 🛡️ **Virtual Environment**: Always use a virtual environment to isolate dependencies.
