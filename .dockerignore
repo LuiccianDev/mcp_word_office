@@ -1,0 +1,73 @@
+# Entornos virtuales
+.venv/
+env/
+venv/
+
+# Cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+
+# Archivos de dependencias y metadatos
+*.egg-info/
+*.dist-info/
+
+# Carpetas de editor y configuración local
+.vscode/
+.idea/
+*.swp
+*.bak
+
+# Builds y distribuciones locales
+build/
+dist/
+*.whl
+
+# Archivos generados por DXT
+*.dxt
+*.dxt-pack
+
+# Documentos y datos personales (ajusta según tus carpetas locales)
+Documents/
+documentos/
+*.docx
+*.xlsx
+*.pptx
+
+# Archivos de log y temporales
+*.log
+*.tmp
+
+# Otros archivos que no quieras en la imagen
+.DS_Store
+Thumbs.db
+
+# Test data (si no quieres incluirlo en la imagen)
+tests/
+
+# Archivos y carpetas desconocidos o genéricos
+*.unknown
+*.backup
+*.old
+*.orig
+temp/
+cache/
+tmp/
+misc/
+extra/
+*.dat
+*.bin
+*.dump
+
+.ruff_cache
+.mypy_cache
+.kiro
+.windsurf
+.env
+checkpoints/
+htmlcov/
+.git/
+coverage.xml
