@@ -43,10 +43,10 @@ dev = [
 ]
 
 [project.scripts]
-mcp_word_office = "mcp_word.__main__:main"
+mcp_word = "mcp_word.__main__:main"
 
 [project.entry-points."mcp.servers"]
-mcp_word_office = "mcp_word.__main__:main"
+mcp_word = "mcp_word.__main__:main"
 
 
 [tool.hatch.build.targets.wheel]
