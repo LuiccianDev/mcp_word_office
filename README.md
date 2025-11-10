@@ -12,7 +12,7 @@
 
 **MCP Office Word Server** is a Python server implementing the Model Context Protocol (MCP) to provide advanced capabilities for manipulating Microsoft Word (`.docx`) documents. This server enables automation of complex document processing tasks programmatically.
 
-> 💡 **Note**: This project is designed to be used with MCP-compatible clients such as Claude, allowing Word document manipulation via natural language instructions.
+> 💡 **Note**: This project is designed to be used with MCP-compatible clients such as Claude, Cursor or others IDEs, allowing Word document manipulation via natural language instructions.
 
 ## 📑 Table of Contents
 
