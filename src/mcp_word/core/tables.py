@@ -10,8 +10,8 @@ from typing import Any
 
 from docx.document import Document
 from docx.oxml import parse_xml
-from docx.oxml.ns import nsdecls
-from docx.oxml.shared import OxmlElement, qn
+from docx.oxml.ns import nsdecls, qn
+from docx.oxml.parser import OxmlElement
 from docx.table import Table, _Cell, _Row
 
 
@@ -107,8 +107,7 @@ def apply_table_style(
             _apply_shading(table, shading)
 
         return True
-    except Exception:
-        # Log the error in a real application
+    except (OSError, ValueError, KeyError):
         return False
 
 
@@ -254,7 +253,10 @@ def _copy_table_cell_contents(source_cell: _Cell, target_cell: _Cell) -> None:
 
         # Copy paragraph style and alignment
         target_paragraph.style = source_paragraph.style
-        target_paragraph.alignment = source_paragraph.alignment
+        if source_paragraph.paragraph_format.alignment is not None:
+            target_paragraph.paragraph_format.alignment = (
+                source_paragraph.paragraph_format.alignment
+            )
         # Copy text and formatting from each run
         for run in source_paragraph.runs:
             new_run = target_paragraph.add_run(run.text)

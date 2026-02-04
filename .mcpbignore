@@ -136,4 +136,12 @@ celerybeat-schedule
 *.sage.py
 cython_debug/
 
+opencode.json
+.opencode
+.agents/
+.dockerignore
+Docker.md
+Dockerfile
+
+
 # Project specific (add any project-specific patterns below)

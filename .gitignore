@@ -69,7 +69,11 @@ docs/
 .Trashes
 ehthumbs.db
 Thumbs.db
-
+opencode.json
+*.mcpb
+.agents/
+.opencode/
 
 GEMINI.md
 WARP.md
+docs/

@@ -5,10 +5,14 @@ Document protection functionality for Word Document Server.
 import datetime
 import hashlib
 import json
+import logging
 import os
 from typing import Any
 
 from docx.document import Document
+
+
+logger = logging.getLogger(__name__)
 
 
 def add_protection_info(
@@ -76,7 +80,7 @@ def add_protection_info(
 
                     # Write the encrypted file to the temp path
                     with open(temp_path, "wb") as out_file:
-                        office_file.encrypt(out_file)
+                        office_file.encrypt(out_file=out_file)
 
                 # Replace original with encrypted version
                 shutil.move(temp_path, doc_path)
@@ -86,15 +90,15 @@ def add_protection_info(
                 with open(metadata_path, "w") as f:
                     json.dump(protection_data, f, indent=2)
 
-            except Exception as e:
-                print(f"Encryption error: {str(e)}")
+            except OSError as e:
+                logger.error(f"Encryption error: {str(e)}")
                 if os.path.exists(temp_path):
                     os.unlink(temp_path)
                 return False
 
         return True
-    except Exception as e:
-        print(f"Protection error: {str(e)}")
+    except OSError as e:
+        logger.error(f"Protection error: {str(e)}")
         return False
 
 
@@ -133,7 +137,7 @@ def verify_document_protection(
         protection_type = protection_data.get("type", "unknown")
         return True, f"Document is protected with {protection_type} protection"
 
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         return False, f"Error verifying protection: {str(e)}"
 
 
@@ -170,8 +174,7 @@ def is_section_editable(doc_path: str, section_name: str) -> bool:
         editable_sections: list[str] = protection_data.get("editable_sections", [])
         return section_name in editable_sections
 
-    except Exception:
-        # In case of error, default to not editable for security
+    except (OSError, json.JSONDecodeError, KeyError):
         return False
 
 
@@ -259,5 +262,5 @@ def verify_signature(doc_path: str) -> tuple[bool, str]:
             f"Document signature is valid. Signed by {signature_info.get('signer')} on {signature_info.get('timestamp')}",
         )
 
-    except Exception as e:
+    except (OSError, json.JSONDecodeError, KeyError) as e:
         return False, f"Error verifying signature: {str(e)}"

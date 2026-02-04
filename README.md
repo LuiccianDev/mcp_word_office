@@ -114,14 +114,14 @@ Or use this configuration (less recommended):
 }
 ```
 
-### DXT Package Deployment
+### MCPB Package Deployment
 
 **Best for**: Integrated DXT ecosystem users who want seamless configuration management.
 
 1. **Package the project**:
 
    ```bash
-   dxt pack
+   mcpb pack
    ```
 
 2. **Configuration**: The DXT package automatically handles dependencies and provides user-friendly configuration through the manifest.json:
@@ -131,7 +131,7 @@ Or use this configuration (less recommended):
 
 4. **Server Configuration**: This project includes the [manifest.json](manifest.json) file for building the .dxt package.
 
-For more details see [DXT Package Documentation](https://github.com/anthropics/dxt).
+For more details see [MCPB Package Documentation](https://github.com/modelcontextprotocol/mcpb).
 
 ### 🔧 Key Environment Variables
 
@@ -171,7 +171,7 @@ src/
 
 ### 📋 Directory Description
 
-- **`word_mcp/`**: Contains all server source code.  
+- **`word_mcp/`**: Contains all server source code.
   - **`core/`**: Central logic for Word document manipulation.
   - **`tools/`**: Implementation of tools exposed via MCP.
   - **`utils/`**: Shared helper functions.

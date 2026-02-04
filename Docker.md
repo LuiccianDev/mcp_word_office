@@ -1,7 +1,7 @@
 
 # MCP Word Office
 
-This repository implements an MCP (Model Context Protocol) component designed to read, create, and modify Microsoft Word files automatically.  
+This repository implements an MCP (Model Context Protocol) component designed to read, create, and modify Microsoft Word files automatically.
 Below you will find the steps to build the Docker image and connect it with Claude Desktop as an MCP tool via `stdio`.
 
 ---
@@ -88,5 +88,5 @@ For Claude Desktop (or any MCP-compatible client via stdio) to automatically lau
 
 ---
 
-Do you have questions or need practical examples of Word manipulation?  
+Do you have questions or need practical examples of Word manipulation?
 Leave them in the Issues section of the repository.

@@ -341,7 +341,7 @@ cli = [
 [[package]]
 name = "mcp-word"
 version = "1.0.1"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "docx2pdf" },
     { name = "mcp", extra = ["cli"] },
