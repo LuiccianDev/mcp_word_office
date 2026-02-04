@@ -1,0 +1,48 @@
+"""Models package for structured output in MCP Word Server."""
+
+from .response_models import (
+    DocumentInfo,
+    DocumentOutline,
+    DocumentSummary,
+    DocumentText,
+    EndnoteResult,
+    FootnoteResult,
+    HeadingResult,
+    OperationError,
+    OperationResult,
+    PaginatedDocumentList,
+    ParagraphResult,
+    PDFResult,
+    PictureResult,
+    ProtectionResult,
+    SearchReplaceResult,
+    StyleResult,
+    TableFormatResult,
+    TableOfContentsResult,
+    TableResult,
+    TextFormatResult,
+)
+
+
+__all__ = [
+    "DocumentInfo",
+    "DocumentText",
+    "DocumentOutline",
+    "PaginatedDocumentList",
+    "DocumentSummary",
+    "OperationResult",
+    "OperationError",
+    "HeadingResult",
+    "ParagraphResult",
+    "TableResult",
+    "PictureResult",
+    "TableOfContentsResult",
+    "SearchReplaceResult",
+    "TextFormatResult",
+    "StyleResult",
+    "TableFormatResult",
+    "PDFResult",
+    "FootnoteResult",
+    "EndnoteResult",
+    "ProtectionResult",
+]

@@ -12,12 +12,27 @@ __author__ = "LuiccianDev"
 __description__ = (
     "MCP Word Office Server - Word document manipulation through Model Context Protocol"
 )
-__title__ = "mcp_word   "
+__title__ = "mcp_word"
 
-# Package metadata
+from .exception import (
+    ConfigurationError,
+    DocumentProcessingError,
+    ExceptionTool,
+    FileOperationError,
+    StyleError,
+    ValidationError,
+)
+
+
 __all__ = [
     "__version__",
     "__author__",
     "__description__",
     "__title__",
+    "DocumentProcessingError",
+    "ValidationError",
+    "FileOperationError",
+    "StyleError",
+    "ConfigurationError",
+    "ExceptionTool",
 ]

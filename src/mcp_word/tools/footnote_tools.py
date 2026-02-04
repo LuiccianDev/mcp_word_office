@@ -5,10 +5,8 @@ These tools handle footnote and endnote functionality,
 including adding, customizing, and converting between them.
 """
 
-# modulos estandar
 from typing import Any
 
-# modulos de terceros
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.enum.style import WD_STYLE_TYPE
@@ -19,8 +17,10 @@ from mcp_word.core.footnotes import (
     find_footnote_references,
     get_format_symbols,
 )
-
-# modulos propios
+from mcp_word.exception import (
+    DocumentProcessingError,
+    ExceptionTool,
+)
 from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
@@ -89,10 +89,11 @@ async def add_footnote_to_document(
             "message": f"Footnote added to paragraph {paragraph_index} in {filename} (simplified approach)",
         }
     except Exception as e:
-        return {
-            "status": "error",
-            "error": f"Failed to add footnote: {str(e)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to add footnote: {str(e)}"),
+            filename=filename,
+            operation="add footnote",
+        )
 
 
 @check_file_writeable("filename")
@@ -292,7 +293,8 @@ async def customize_footnote_style(
             "message": f"Footnote style and numbering customized in {filename}",
         }
     except Exception as e:
-        return {
-            "status": "error",
-            "error": f"Failed to customize footnote style: {str(e)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to customize footnote style: {str(e)}"),
+            filename=filename,
+            operation="customize footnote style",
+        )

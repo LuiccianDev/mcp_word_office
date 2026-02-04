@@ -1,8 +1,8 @@
 """Tests for the document_tools module."""
 
 import os
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import pytest
 from docx import Document

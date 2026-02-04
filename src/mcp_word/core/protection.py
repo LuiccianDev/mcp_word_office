@@ -76,7 +76,7 @@ def add_protection_info(
 
                     # Write the encrypted file to the temp path
                     with open(temp_path, "wb") as out_file:
-                        office_file.encrypt(out_file)
+                        office_file.encrypt(out_file=out_file)
 
                 # Replace original with encrypted version
                 shutil.move(temp_path, doc_path)

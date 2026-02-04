@@ -5,7 +5,6 @@ These tools handle document protection features such as
 password protection, restricted editing, and digital signatures.
 """
 
-# modulos estandar
 import datetime
 import hashlib
 import io
@@ -13,8 +12,6 @@ import os
 from typing import Any
 
 import msoffcrypto
-
-# modulos de terceros
 from docx import Document
 from docx.document import Document as DocumentType
 
@@ -23,8 +20,11 @@ from mcp_word.core.protection import (
     create_signature_info,
     verify_document_protection,
 )
-
-# modulos propios
+from mcp_word.exception import (
+    DocumentProcessingError,
+    ExceptionTool,
+    FileOperationError,
+)
 from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
@@ -69,25 +69,11 @@ async def protect_document(filename: str, password: str) -> dict[str, Any]:
         }
 
     except Exception as e:
-        # Attempt to restore original file content on failure
-        try:
-            if "original_data" in locals():
-                with open(filename, "wb") as outfile:
-                    outfile.write(original_data)
-                return {
-                    "status": "error",
-                    "error": f"Failed to encrypt document {filename}: {str(e)}. Original file restored.",
-                }
-            else:
-                return {
-                    "status": "error",
-                    "error": f"Failed to encrypt document {filename}: {str(e)}. Could not restore original file.",
-                }
-        except Exception as restore_e:
-            return {
-                "status": "error",
-                "error": f"Failed to encrypt document {filename}: {str(e)}. Also failed to restore original file: {str(restore_e)}",
-            }
+        return ExceptionTool.handle_error(
+            FileOperationError(f"Failed to encrypt document {filename}: {str(e)}"),
+            filename=filename,
+            operation="protect document",
+        )
 
 
 @validate_docx_file("filename")
@@ -131,10 +117,11 @@ async def add_restricted_editing(
                 "error": f"Failed to protect document {filename} with restricted editing",
             }
     except Exception as e:
-        return {
-            "status": "error",
-            "error": f"Failed to add restricted editing: {str(e)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to add restricted editing: {str(e)}"),
+            filename=filename,
+            operation="add restricted editing",
+        )
 
 
 @validate_docx_file("filename")
@@ -190,10 +177,11 @@ async def add_digital_signature(
                 "error": f"Failed to add digital signature to document {filename}",
             }
     except Exception as e:
-        return {
-            "status": "error",
-            "error": f"Failed to add digital signature: {str(e)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to add digital signature: {str(e)}"),
+            filename=filename,
+            operation="add digital signature",
+        )
 
 
 @validate_docx_file("filename")
@@ -256,7 +244,11 @@ async def verify_document(filename: str, password: str | None = None) -> dict[st
 
         return {"status": "success", "message": message}
     except Exception as e:
-        return {"status": "error", "error": f"Failed to verify document: {str(e)}"}
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to verify document: {str(e)}"),
+            filename=filename,
+            operation="verify document",
+        )
 
 
 @validate_docx_file("filename")
@@ -303,22 +295,8 @@ async def unprotect_document(filename: str, password: str) -> dict[str, Any]:
             "error": f"Failed to decrypt document {filename}: File is not encrypted or is not a supported Office format.",
         }
     except Exception as e:
-        # Attempt to restore encrypted file content on failure
-        try:
-            if "encrypted_data" in locals():
-                with open(filename, "wb") as outfile:
-                    outfile.write(encrypted_data)
-                return {
-                    "status": "error",
-                    "error": f"Failed to decrypt document {filename}: {str(e)}. Encrypted file restored.",
-                }
-            else:
-                return {
-                    "status": "error",
-                    "error": f"Failed to decrypt document {filename}: {str(e)}. Could not restore encrypted file.",
-                }
-        except Exception as restore_e:
-            return {
-                "status": "error",
-                "error": f"Failed to decrypt document {filename}: {str(e)}. Also failed to restore encrypted file: {str(restore_e)}",
-            }
+        return ExceptionTool.handle_error(
+            FileOperationError(f"Failed to decrypt document {filename}: {str(e)}"),
+            filename=filename,
+            operation="unprotect document",
+        )

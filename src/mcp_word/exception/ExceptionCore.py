@@ -1,6 +1,6 @@
-"""Custom exceptions for the MCP Word Server application.
+"""Core exceptions for MCP Word Server.
 
-This module defines custom exceptions used throughout the application
+This module defines all custom exceptions used throughout the application
 for better error handling and more informative error messages.
 """
 

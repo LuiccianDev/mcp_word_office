@@ -1,5 +1,5 @@
 {
-  "dxt_version": "0.1",
+  "manifest_version": "0.2",
   "name": "mcp_word",
   "version": "1.0.1",
   "description": "mcp word office",

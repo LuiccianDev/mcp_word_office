@@ -4,18 +4,19 @@ This module provides functions for creating, reading, and manipulating
 Word documents with security checks for file system access.
 """
 
-# modulos estandar
 import os
 from typing import Any
 
-# modulos de terceros
 from docx import Document
 from docx.document import Document as DocumentType
 
 from mcp_word.core.styles import ensure_heading_style, ensure_table_style
-
-# modulos propios
 from mcp_word.core.tables import copy_table
+from mcp_word.exception import (
+    DocumentProcessingError,
+    ExceptionTool,
+    FileOperationError,
+)
 from mcp_word.utils.document_utils import (
     create_document_copy,
     ensure_docx_extension,
@@ -97,25 +98,23 @@ async def create_document(
         try:
             os.makedirs(directory, exist_ok=True)
         except OSError as e:
-            return {
-                "status": "error",
-                "message": f"Cannot create directory '{directory}': {str(e)}",
-            }
+            return ExceptionTool.handle_error(
+                FileOperationError(f"Cannot create directory '{directory}': {str(e)}"),
+                filename=filename,
+                operation="create directory",
+            )
 
     try:
         doc: DocumentType = Document()
 
-        # Set properties if provided
         if title:
             doc.core_properties.title = title
         if author:
             doc.core_properties.author = author
 
-        # Ensure necessary styles exist
         ensure_heading_style(doc)
         ensure_table_style(doc)
 
-        # Save the document
         doc.save(filename)
 
         return {
@@ -123,62 +122,102 @@ async def create_document(
             "message": f"Document {filename} created successfully",
         }
     except Exception as e:
-        return {"status": "error", "message": f"Failed to create document: {str(e)}"}
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to create document: {str(e)}"),
+            filename=filename,
+            operation="create document",
+        )
 
 
 @validate_docx_file("filename")
-async def get_document_info(filename: str) -> dict[str, Any]:
+async def get_document_info(
+    filename: str, response_format: str = "markdown"
+) -> dict[str, Any]:
     """Get information about a Word document.
 
     Args:
         filename: Path to the Word document
+        response_format: Format of response - 'markdown' for human-readable or 'json' for structured data
     """
     try:
         properties: dict[str, Any] = get_document_properties(filename)
         return properties
     except Exception as e:
-        return {"status": "error", "message": f"Failed to get document info: {str(e)}"}
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to get document info: {str(e)}"),
+            filename=filename,
+            operation="get document info",
+        )
 
 
 @validate_docx_file("filename")
-async def get_document_text(filename: str) -> dict[str, Any]:
+async def get_document_text(
+    filename: str, response_format: str = "markdown"
+) -> dict[str, Any]:
     """Extract all text from a Word document.
 
     Args:
         filename: Path to the Word document
+        response_format: Format of response - 'markdown' for human-readable or 'json' for structured data
     """
     try:
         result: dict[str, Any] = extract_document_text(filename)
         return result
     except Exception as e:
-        return {"status": "error", "message": f"Failed to get document text: {str(e)}"}
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to get document text: {str(e)}"),
+            filename=filename,
+            operation="get document text",
+        )
 
 
 @validate_docx_file("filename")
-async def get_document_outline(filename: str) -> dict[str, Any]:
+async def get_document_outline(
+    filename: str, response_format: str = "markdown"
+) -> dict[str, Any]:
     """Get the structure of a Word document.
 
     Args:
         filename: Path to the Word document
+        response_format: Format of response - 'markdown' for human-readable or 'json' for structured data
     """
     try:
         structure: dict[str, Any] = get_document_structure(filename)
         return structure
     except Exception as e:
-        return {
-            "status": "error",
-            "message": f"Failed to get document outline: {str(e)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to get document outline: {str(e)}"),
+            filename=filename,
+            operation="get document outline",
+        )
 
 
-async def list_available_documents() -> dict[str, Any]:
-    """
-    List all .docx files in the allowed directories.
+async def list_available_documents(
+    directory: str | None = None,
+    page: int = 1,
+    page_size: int = 20,
+    response_format: str = "markdown",
+) -> dict[str, Any]:
+    """List all .docx files in the allowed directories with pagination support.
+
+    Args:
+        directory: Optional specific directory to search (defaults to all allowed directories)
+        page: Page number for pagination (1-based, default: 1)
+        page_size: Number of documents per page (default: 20, max: 100)
+        response_format: Format of response - 'markdown' for human-readable or 'json' for structured data
 
     Returns:
-        dict[str, Any]: Dictionary with status, message, and list of found documents.
+        Dictionary with status, message, pagination info, and list of found documents.
     """
     try:
+        # Validate pagination parameters
+        if page < 1:
+            page = 1
+        if page_size < 1:
+            page_size = 20
+        if page_size > 100:
+            page_size = 100
+
         search_directories = _get_allowed_directories()
         if not search_directories:
             return {
@@ -186,6 +225,13 @@ async def list_available_documents() -> dict[str, Any]:
                 "message": "No accessible directories found in MCP configuration.",
                 "allowed_directories": search_directories,
                 "documents": [],
+                "pagination": {
+                    "page": page,
+                    "page_size": page_size,
+                    "total": 0,
+                    "has_more": False,
+                    "next_offset": None,
+                },
             }
 
         all_documents = []
@@ -198,8 +244,7 @@ async def list_available_documents() -> dict[str, Any]:
             docx_files = [
                 f
                 for f in os.listdir(search_dir)
-                if f.lower().endswith(".docx")
-                and not f.startswith("~$")  # Exclude temporary files
+                if f.lower().endswith(".docx") and not f.startswith("~$")
             ]
 
             for file in sorted(docx_files):
@@ -216,26 +261,39 @@ async def list_available_documents() -> dict[str, Any]:
 
             total_found += len(docx_files)
 
+        # Apply pagination
+        total_documents = len(all_documents)
+        offset = (page - 1) * page_size
+        paginated_documents = all_documents[offset : offset + page_size]
+        has_more = offset + page_size < total_documents
+        next_offset = page + 1 if has_more else None
+
+        message = f"Found {total_found} Word document(s)"
+        if len(search_directories) > 1:
+            message += f" across {len(search_directories)} directories"
+        message += f". Showing page {page} of {((total_documents - 1) // page_size) + 1 if total_documents > 0 else 1}"
+
         return {
             "status": "success",
-            "message": f"Found {total_found} Word document(s)"
-            + (
-                f" across {len(search_directories)} directories"
-                if len(search_directories) > 1
-                else ""
-            )
-            + ".",
+            "message": message,
             "directories_searched": search_directories,
             "total": total_found,
-            "documents": all_documents,
+            "documents": paginated_documents,
+            "pagination": {
+                "page": page,
+                "page_size": page_size,
+                "total": total_documents,
+                "has_more": has_more,
+                "next_offset": next_offset,
+            },
+            "response_format": response_format,
         }
 
     except Exception as e:
-        return {
-            "status": "error",
-            "message": f"Failed to list documents: {str(e)}",
-            "documents": [],
-        }
+        return ExceptionTool.handle_error(
+            FileOperationError(f"Failed to list documents: {str(e)}"),
+            operation="list documents",
+        )
 
 
 @validate_docx_file("source_filename")
@@ -256,13 +314,20 @@ async def copy_document(
     success, message, _ = create_document_copy(source_filename, destination_filename)
     if success:
         return {"status": "success", "message": message}
-    return {"status": "error", "message": f"Failed to copy document: {message}"}
+    return ExceptionTool.handle_error(
+        FileOperationError(f"Failed to copy document: {message}"),
+        filename=source_filename,
+        operation="copy document",
+    )
 
 
 @validate_docx_file("target_filename")
 @check_file_writeable("target_filename")
 async def merge_documents(
-    target_filename: str, source_filenames: list[str], add_page_breaks: bool = True
+    target_filename: str,
+    source_filenames: list[str],
+    add_page_breaks: bool = True,
+    response_format: str = "markdown",
 ) -> dict[str, Any]:
     """Merge multiple Word documents into a single document.
 
@@ -270,6 +335,10 @@ async def merge_documents(
         target_filename: Path to the target document (will be created or overwritten)
         source_filenames: List of paths to source documents to merge
         add_page_breaks: If True, add page breaks between documents
+        response_format: Format of response - 'markdown' for human-readable or 'json' for structured data
+
+    Returns:
+        Dictionary with status, message, and details about merged documents
     """
     # Validate all source documents exist
     missing_files = []
@@ -333,4 +402,8 @@ async def merge_documents(
             "message": f"Successfully merged {len(source_filenames)} documents into {target_filename}",
         }
     except Exception as e:
-        return {"status": "error", "message": f"Failed to merge documents: {str(e)}"}
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to merge documents: {str(e)}"),
+            filename=target_filename,
+            operation="merge documents",
+        )

@@ -1,7 +1,7 @@
 """Tests for the format_tools module."""
 
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import pytest
 from docx import Document

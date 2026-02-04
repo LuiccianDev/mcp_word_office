@@ -1,6 +1,10 @@
-# MCP Office Word - Tools Reference
+# MCP Word Office - Tools Reference
 
-This document provides a comprehensive reference for all tools available in the MCP Office Word server. These tools allow you to create, modify, and manage Word documents programmatically.
+This document provides a comprehensive reference for all tools available in the MCP Word Office server. These tools allow you to create, modify, and manage Word documents programmatically.
+
+> **Note:** All tools support two naming conventions:
+> - **New naming** (recommended): Tools use the `word_` prefix (e.g., `word_create_document`)
+> - **Legacy naming**: Original names without prefix for backward compatibility (e.g., `create_document`)
 
 ## Table of Contents
 
@@ -11,9 +15,11 @@ This document provides a comprehensive reference for all tools available in the 
 - [Footnote Tools](#footnote-tools)
 - [Extended Document Tools](#extended-document-tools)
 
+---
+
 ## Document Tools
 
-### `create_document`
+### `word_create_document` / `create_document`
 
 Create a new Word document with optional metadata.
 
@@ -25,11 +31,11 @@ Create a new Word document with optional metadata.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status` ("success" or "error") and `message`
 
 ---
 
-### `copy_document`
+### `word_copy_document` / `copy_document`
 
 Create a copy of an existing Word document.
 
@@ -40,83 +46,97 @@ Create a copy of an existing Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status` and `message`
 
 ---
 
-### `get_document_info`
+### `word_get_document_info` / `get_document_info`
 
 Get metadata and properties of a Word document.
 
 **Parameters:**
 
 - `filename` (str): Path to the Word document
+- `response_format` (str, optional): Format of response - "markdown" for human-readable or "json" for structured data (default: "markdown")
 
 **Returns:**
 
-- str: JSON string containing document properties
+- dict: Document properties including title, author, word_count, page_count, created/modified dates, etc.
 
 ---
 
-### `get_document_text`
+### `word_get_document_text` / `get_document_text`
 
 Extract all text from a Word document.
 
 **Parameters:**
 
 - `filename` (str): Path to the Word document
+- `response_format` (str, optional): Format of response - "markdown" for human-readable or "json" for structured data (default: "markdown")
 
 **Returns:**
 
-- str: Extracted text content
+- dict: Contains `full_text`, `paragraph_count`, and `paragraphs` list
 
 ---
 
-### `get_document_outline`
+### `word_get_document_outline` / `get_document_outline`
 
-Get the structure/outline of a Word document.
+Get the structure/outline of a Word document including headings and tables.
 
 **Parameters:**
 
 - `filename` (str): Path to the Word document
+- `response_format` (str, optional): Format of response - "markdown" for human-readable or "json" for structured data (default: "markdown")
 
 **Returns:**
 
-- str: JSON string containing document structure
+- dict: Contains `headings` (list with level, text, position) and `tables` (list with index, row_count, column_count)
 
 ---
 
-### `list_available_documents`
+### `word_list_documents` / `list_available_documents`
 
-List all .docx files in the specified or allowed directories.
+List all .docx files in the specified or allowed directories with pagination support.
 
 **Parameters:**
 
 - `directory` (str, optional): Directory to search (default: all allowed directories)
+- `page` (int, optional): Page number for pagination (1-based, default: 1)
+- `page_size` (int, optional): Number of documents per page (default: 20, max: 100)
+- `response_format` (str, optional): Format of response - "markdown" or "json" (default: "markdown")
 
 **Returns:**
 
-- dict: Dictionary containing list of documents and search information
+- dict: Contains:
+  - `status`: Operation status
+  - `message`: Human-readable message
+  - `documents`: List of documents with name, path, size_kb, source_directory
+  - `pagination`: Object with page, page_size, total, has_more, next_offset
+  - `directories_searched`: List of directories that were searched
 
 ---
 
-### `merge_documents`
+### `word_merge_documents` / `merge_documents`
 
 Merge multiple Word documents into a single document.
 
 **Parameters:**
 
 - `target_filename` (str): Path to the target document
-- `source_filenames` (List[str]): List of source document paths to merge
+- `source_filenames` (list[str]): List of source document paths to merge
 - `add_page_breaks` (bool, optional): Add page breaks between documents (default: True)
+- `response_format` (str, optional): Format of response - "markdown" or "json" (default: "markdown")
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and details about merged documents
+
+---
 
 ## Content Tools
 
-### `add_paragraph`
+### `word_add_paragraph` / `add_paragraph`
 
 Add a paragraph to a Word document.
 
@@ -128,11 +148,11 @@ Add a paragraph to a Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status` and `message`
 
 ---
 
-### `add_heading`
+### `word_add_heading` / `add_heading`
 
 Add a heading to a Word document.
 
@@ -140,15 +160,15 @@ Add a heading to a Word document.
 
 - `filename` (str): Path to the Word document
 - `text` (str): Heading text
-- `level` (int, optional): Heading level (1-9, default: 1)
+- `level` (int, optional): Heading level (1-9, where 1 is highest, default: 1)
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and heading details
 
 ---
 
-### `add_page_break`
+### `word_add_page_break` / `add_page_break`
 
 Add a page break to a Word document.
 
@@ -158,11 +178,11 @@ Add a page break to a Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status` and `message`
 
 ---
 
-### `add_picture`
+### `word_add_picture` / `add_picture`
 
 Add an image to a Word document.
 
@@ -174,11 +194,11 @@ Add an image to a Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and image details
 
 ---
 
-### `add_table`
+### `word_add_table` / `add_table`
 
 Add a table to a Word document.
 
@@ -187,18 +207,17 @@ Add a table to a Word document.
 - `filename` (str): Path to the Word document
 - `rows` (int): Number of rows
 - `cols` (int): Number of columns
-- `data` (List[List[str]], optional): 2D list of cell values
-- `style` (str, optional): Table style name
+- `data` (list[list[str]], optional): 2D list of cell values
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, table dimensions, and row count
 
 ---
 
-### `add_table_of_contents`
+### `word_add_table_of_contents` / `add_table_of_contents`
 
-Add a table of contents to a Word document.
+Add a table of contents to a Word document based on heading styles.
 
 **Parameters:**
 
@@ -208,11 +227,26 @@ Add a table of contents to a Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and entry count
 
 ---
 
-### `search_and_replace`
+### `word_delete_paragraph` / `delete_paragraph`
+
+Delete a paragraph from a Word document by index.
+
+**Parameters:**
+
+- `filename` (str): Path to the Word document
+- `paragraph_index` (int): Index of the paragraph to delete (0-based)
+
+**Returns:**
+
+- dict: Contains `status` and `message`
+
+---
+
+### `word_search_and_replace` / `search_and_replace`
 
 Search for text and replace all occurrences in a Word document.
 
@@ -224,11 +258,13 @@ Search for text and replace all occurrences in a Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and number of replacements made
+
+---
 
 ## Format Tools
 
-### `format_text`
+### `word_format_text` / `format_text`
 
 Format a specific range of text within a paragraph.
 
@@ -241,53 +277,122 @@ Format a specific range of text within a paragraph.
 - `bold` (bool, optional): Apply bold formatting
 - `italic` (bool, optional): Apply italic formatting
 - `underline` (bool, optional): Apply underline
-- `color` (str, optional): Text color (hex or color name)
+- `color` (str, optional): Text color (e.g., "red", "blue", "green")
 - `font_size` (int, optional): Font size in points
-- `font_name` (str, optional): Font name
+- `font_name` (str, optional): Font name/family
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and formatting details
 
 ---
 
-### `format_table`
+### `word_create_custom_style` / `create_custom_style`
 
-Format a table in a Word document.
+Create a custom style in a Word document.
+
+**Parameters:**
+
+- `filename` (str): Path to the Word document
+- `style_name` (str): Name for the new style
+- `bold` (bool, optional): Set text bold
+- `italic` (bool, optional): Set text italic
+- `font_size` (int, optional): Font size in points
+- `font_name` (str, optional): Font name/family
+- `color` (str, optional): Text color
+- `base_style` (str, optional): Existing style to base this on
+
+**Returns:**
+
+- dict: Contains `status`, `message`, and style details
+
+---
+
+### `word_format_table` / `format_table`
+
+Format a table with borders, shading, and structure options.
 
 **Parameters:**
 
 - `filename` (str): Path to the Word document
 - `table_index` (int): Index of the table (0-based)
-- `style` (str, optional): Table style name
-- `alignment` (str, optional): Table alignment ('left', 'center', 'right')
-- `width` (float, optional): Table width in inches
+- `has_header_row` (bool, optional): Format first row as header
+- `border_style` (str, optional): Border style ("none", "single", "double", "thick")
+- `shading` (list[list[str]], optional): 2D list of cell background colors
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and formatting details
+
+---
 
 ## Protection Tools
 
-### `protect_document`
+### `word_protect_document` / `protect_document`
 
-Protect a Word document with a password.
+Add password protection to a Word document using encryption.
 
 **Parameters:**
 
 - `filename` (str): Path to the Word document
-- `password` (str): Password for protection
-- `protection_type` (str, optional): Type of protection ('read_only', 'comments', 'tracked_changes', 'forms')
+- `password` (str): Password to protect the document with
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status` and `message`
 
 ---
 
-### `unprotect_document`
+### `word_unprotect_document` / `unprotect_document`
 
-Remove protection from a Word document.
+Remove password protection from a Word document.
+
+**Parameters:**
+
+- `filename` (str): Path to the Word document
+- `password` (str): Password that was used to protect the document
+
+**Returns:**
+
+- dict: Contains `status` and `message`
+
+---
+
+### `word_add_restricted_editing` / `add_restricted_editing`
+
+Add restricted editing to allow editing only in specified sections.
+
+**Parameters:**
+
+- `filename` (str): Path to the Word document
+- `password` (str): Password to protect the document with
+- `editable_sections` (list[str]): List of section names that can be edited
+
+**Returns:**
+
+- dict: Contains `status`, `message`, and editable sections
+
+---
+
+### `word_add_digital_signature` / `add_digital_signature`
+
+Add a digital signature to a Word document.
+
+**Parameters:**
+
+- `filename` (str): Path to the Word document
+- `signer_name` (str): Name of the person signing
+- `reason` (str, optional): Reason for signing
+
+**Returns:**
+
+- dict: Contains `status`, `message`, and signature details
+
+---
+
+### `word_verify_document` / `verify_document`
+
+Verify document protection and/or digital signature.
 
 **Parameters:**
 
@@ -296,28 +401,13 @@ Remove protection from a Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and verification details
 
 ---
 
-### `add_digital_signature`
-
-Add a digital signature to a Word document.
-
-**Parameters:**
-
-- `filename` (str): Path to the Word document
-- `certificate_path` (str): Path to the certificate file
-- `reason` (str, optional): Reason for signing
-- `location` (str, optional): Location of signing
-
-**Returns:**
-
-- str: Success or error message
-
 ## Footnote Tools
 
-### `add_footnote_to_document`
+### `word_add_footnote` / `add_footnote_to_document`
 
 Add a footnote to a specific paragraph in a Word document.
 
@@ -326,14 +416,15 @@ Add a footnote to a specific paragraph in a Word document.
 - `filename` (str): Path to the Word document
 - `paragraph_index` (int): Index of the paragraph (0-based)
 - `footnote_text` (str): Text content of the footnote
+- `reference_mark` (str, optional): Custom reference mark
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and footnote ID
 
 ---
 
-### `add_endnote_to_document`
+### `word_add_endnote` / `add_endnote_to_document`
 
 Add an endnote to a specific paragraph in a Word document.
 
@@ -345,11 +436,11 @@ Add an endnote to a specific paragraph in a Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and endnote ID
 
 ---
 
-### `convert_footnotes_to_endnotes_in_document`
+### `word_convert_footnotes` / `convert_footnotes_to_endnotes_in_document`
 
 Convert all footnotes to endnotes in a Word document.
 
@@ -359,28 +450,32 @@ Convert all footnotes to endnotes in a Word document.
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and count of converted notes
 
 ---
 
-### `customize_footnote_style`
+### `word_customize_footnote_style` / `customize_footnote_style`
 
 Customize the appearance of footnotes in a Word document.
 
 **Parameters:**
 
 - `filename` (str): Path to the Word document
-- `number_format` (str, optional): Number format ('decimal', 'lowerRoman', 'upperRoman', 'lowerLetter', 'upperLetter')
+- `number_format` (str, optional): Number format ("decimal", "lowerRoman", "upperRoman", "lowerLetter", "upperLetter")
 - `start_at` (int, optional): Starting number for footnotes
 - `restart_each_page` (bool, optional): Restart numbering on each page
+- `font_size` (int, optional): Font size in points
+- `font_name` (str, optional): Font name
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `message`, and applied settings
+
+---
 
 ## Extended Document Tools
 
-### `get_paragraph_text_from_document`
+### `word_get_paragraph_text` / `get_paragraph_text_from_document`
 
 Get text from a specific paragraph in a Word document.
 
@@ -391,11 +486,11 @@ Get text from a specific paragraph in a Word document.
 
 **Returns:**
 
-- str: Paragraph text or error message
+- dict: Contains `status`, `message`, `text`, and `character_count`
 
 ---
 
-### `find_text_in_document`
+### `word_find_text` / `find_text_in_document`
 
 Search for text in a Word document and return matching locations.
 
@@ -403,24 +498,86 @@ Search for text in a Word document and return matching locations.
 
 - `filename` (str): Path to the Word document
 - `search_text` (str): Text to search for
-- `match_case` (bool, optional): Case-sensitive search (default: False)
-- `match_whole_word` (bool, optional): Match whole words only (default: False)
+- `match_case` (bool, optional): Case-sensitive search (default: True)
+- `whole_word` (bool, optional): Match whole words only (default: False)
 
 **Returns:**
 
-- str: JSON string containing match information or error message
+- dict: Contains `status`, `message`, `match_count`, and `matches` list
 
 ---
 
-### `convert_to_pdf`
+### `word_convert_to_pdf` / `convert_to_pdf`
 
 Convert a Word document to PDF format.
 
 **Parameters:**
 
 - `filename` (str): Path to the Word document
-- `output_path` (str, optional): Output path for the PDF (default: same as input with .pdf extension)
+- `output_filename` (str, optional): Output path for the PDF (default: same as input with .pdf extension)
 
 **Returns:**
 
-- str: Success or error message
+- dict: Contains `status`, `success`, `pdf_path`, and `message`
+
+---
+
+## Response Format
+
+All tools that return data support a `response_format` parameter:
+
+- `"markdown"` (default): Human-readable formatted text with headers and lists
+- `"json"`: Machine-readable structured data for programmatic processing
+
+Example:
+
+```json
+{
+  "status": "success",
+  "message": "Document created successfully",
+  "response_format": "json"
+}
+```
+
+---
+
+## Error Handling
+
+All tools return a consistent error format:
+
+```json
+{
+  "status": "error",
+  "message": "Descriptive error message",
+  "error_type": "FileNotFoundError",
+  "suggestion": "Suggested solution if available",
+  "recoverable": true
+}
+```
+
+---
+
+## Pagination
+
+The `word_list_documents` tool supports pagination:
+
+```json
+{
+  "status": "success",
+  "documents": [...],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total": 45,
+    "has_more": true,
+    "next_offset": 2
+  }
+}
+```
+
+To get the next page, call the tool again with `page = 2`.
+
+---
+
+*Last updated: February 2026*
+*Version: 1.0.1*

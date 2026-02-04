@@ -4,19 +4,19 @@ This module provides functions to add and manipulate various types of content
 in Word documents, including headings, paragraphs, tables, images, and page breaks.
 """
 
-# modulos standar
 import os
 from typing import Any
 
-# modulos terceros
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.shared import Inches, Pt
 
 from mcp_word.core.styles import ensure_heading_style
+from mcp_word.exception import (
+    DocumentProcessingError,
+    ExceptionTool,
+)
 from mcp_word.utils.document_utils import find_and_replace_text
-
-# modulos propios
 from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
@@ -75,10 +75,11 @@ async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any
             }
 
     except Exception as error:
-        return {
-            "status": "error",
-            "message": f"Failed to add heading to document: {str(error)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to add heading to document: {str(error)}"),
+            filename=filename,
+            operation="add heading",
+        )
 
 
 @check_file_writeable("filename")
@@ -118,10 +119,13 @@ async def add_paragraph(
         return {"status": "success", "message": f"Paragraph added to {filename}"}
 
     except Exception as error:
-        return {
-            "status": "error",
-            "message": f"Failed to add paragraph to document: {str(error)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(
+                f"Failed to add paragraph to document: {str(error)}"
+            ),
+            filename=filename,
+            operation="add paragraph",
+        )
 
 
 def _populate_table(
@@ -192,10 +196,11 @@ async def add_table(
         }
 
     except Exception as error:
-        return {
-            "status": "error",
-            "message": f"Failed to add table to document: {str(error)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to add table to document: {str(error)}"),
+            filename=filename,
+            operation="add table",
+        )
 
 
 @check_file_writeable("filename")
@@ -241,10 +246,11 @@ async def add_picture(
         }
 
     except Exception as error:
-        return {
-            "status": "error",
-            "message": f"Failed to add picture to document: {error}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to add picture to document: {error}"),
+            filename=filename,
+            operation="add picture",
+        )
 
 
 @check_file_writeable("filename")
@@ -266,10 +272,13 @@ async def add_page_break(filename: str) -> dict[str, Any]:
         doc.add_page_break()
         return {"status": "success", "message": f"Page break added to {filename}"}
     except Exception as error:
-        return {
-            "status": "error",
-            "message": f"Failed to add page break to document: {str(error)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(
+                f"Failed to add page break to document: {str(error)}"
+            ),
+            filename=filename,
+            operation="add page break",
+        )
 
 
 @check_file_writeable("filename")
@@ -334,10 +343,13 @@ async def add_table_of_contents(
         }
 
     except Exception as error:
-        return {
-            "status": "error",
-            "message": f"Failed to add table of contents to document: {str(error)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(
+                f"Failed to add table of contents to document: {str(error)}"
+            ),
+            filename=filename,
+            operation="add table of contents",
+        )
 
 
 @check_file_writeable("filename")
@@ -379,10 +391,13 @@ async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any
         }
 
     except Exception as error:
-        return {
-            "status": "error",
-            "message": f"Failed to delete paragraph from document: {str(error)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(
+                f"Failed to delete paragraph from document: {str(error)}"
+            ),
+            filename=filename,
+            operation="delete paragraph",
+        )
 
 
 @validate_docx_file("filename")
@@ -427,10 +442,13 @@ async def search_and_replace(
         }
 
     except Exception as error:
-        return {
-            "status": "error",
-            "message": f"Failed to perform search and replace in document: {str(error)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(
+                f"Failed to perform search and replace in document: {str(error)}"
+            ),
+            filename=filename,
+            operation="search and replace",
+        )
 
 
 def _validate_heading_level(level: int) -> int:

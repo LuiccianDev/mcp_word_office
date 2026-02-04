@@ -4,14 +4,16 @@ Extended document tools for Word Document Server.
 These tools provide enhanced document content extraction and search capabilities.
 """
 
-# modulos estandar
 import os
 import platform
 import shutil
 import subprocess
 from typing import Any
 
-# modulos propios
+from mcp_word.exception import (
+    DocumentProcessingError,
+    ExceptionTool,
+)
 from mcp_word.utils.extended_document_utils import find_text, get_paragraph_text
 from mcp_word.validation.document_validators import (
     check_file_writeable,
@@ -38,7 +40,11 @@ async def get_paragraph_text_from_document(
         result: dict[str, Any] = get_paragraph_text(filename, paragraph_index)
         return result
     except Exception as e:
-        return {"error": f"Failed to get paragraph text: {str(e)}"}
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to get paragraph text: {str(e)}"),
+            filename=filename,
+            operation="get paragraph text",
+        )
 
 
 @validate_docx_file("filename")
@@ -62,7 +68,11 @@ async def find_text_in_document(
         )
         return result
     except Exception as e:
-        return {"status": "error", "message": f"Failed to search for text: {str(e)}"}
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to search for text: {str(e)}"),
+            filename=filename,
+            operation="find text",
+        )
 
 
 @validate_docx_file("filename")
@@ -226,4 +236,8 @@ async def convert_to_pdf(
             }
 
     except Exception as e:
-        return {"status": "error", "success": False, "error": str(e)}
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to convert document to PDF: {str(e)}"),
+            filename=filename,
+            operation="convert to PDF",
+        )

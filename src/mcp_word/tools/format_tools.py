@@ -5,10 +5,8 @@ These tools handle formatting operations for Word documents,
 including text formatting, table formatting, and custom styles.
 """
 
-# modulos estandar
 from typing import Any
 
-# modulos de terceros
 from docx import Document
 from docx.document import Document as DocumentType
 from docx.enum.style import WD_STYLE_TYPE
@@ -16,8 +14,11 @@ from docx.shared import Pt, RGBColor
 
 from mcp_word.core.styles import create_style
 from mcp_word.core.tables import apply_table_style
-
-# modulos propios
+from mcp_word.exception import (
+    DocumentProcessingError,
+    ExceptionTool,
+    StyleError,
+)
 from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
@@ -144,10 +145,11 @@ async def format_text(
             "message": f"Text '{target_text}' formatted successfully in paragraph {paragraph_index}.",
         }
     except Exception as e:
-        return {
-            "status": "error",
-            "error": f"Failed to format text: {str(e)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to format text: {str(e)}"),
+            filename=filename,
+            operation="format text",
+        )
 
 
 @validate_docx_file("filename")
@@ -205,10 +207,11 @@ async def create_custom_style(
             "message": f"Style '{style_name}' created successfully.",
         }
     except Exception as e:
-        return {
-            "status": "error",
-            "error": f"Failed to create style: {str(e)}",
-        }
+        return ExceptionTool.handle_error(
+            StyleError(f"Failed to create style: {str(e)}"),
+            filename=filename,
+            operation="create custom style",
+        )
 
 
 @validate_docx_file("filename")
@@ -263,7 +266,8 @@ async def format_table(
                 "error": f"Failed to format table at index {table_index}.",
             }
     except Exception as e:
-        return {
-            "status": "error",
-            "error": f"Failed to format table: {str(e)}",
-        }
+        return ExceptionTool.handle_error(
+            DocumentProcessingError(f"Failed to format table: {str(e)}"),
+            filename=filename,
+            operation="format table",
+        )
