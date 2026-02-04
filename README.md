@@ -116,7 +116,7 @@ Or use this configuration (less recommended):
 
 ### MCPB Package Deployment
 
-**Best for**: Integrated DXT ecosystem users who want seamless configuration management.
+**Best for**: Integrated MCPB ecosystem users who want seamless configuration management.
 
 1. **Package the project**:
 
