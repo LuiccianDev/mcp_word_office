@@ -24,52 +24,14 @@ from mcp_word.utils.document_utils import (
     get_document_properties,
     get_document_structure,
 )
+from mcp_word.utils.security import (
+    get_allowed_directories as _get_allowed_directories,
+    is_path_in_allowed_directories as _is_path_in_allowed_directories,
+)
 from mcp_word.validation.document_validators import (
     check_file_writeable,
     validate_docx_file,
 )
-
-
-def _get_allowed_directories() -> list[str]:
-    """Get the list of allowed directories from environment variables.
-
-    Returns:
-        List of absolute paths to directories where documents can be created/accessed.
-        Defaults to ['./documents'] if MCP_ALLOWED_DIRECTORIES is not set.
-    """
-
-    allowed_dirs_str = os.environ.get("MCP_ALLOWED_DIRECTORIES", "./documents")
-
-    allowed_dirs = [dir.strip() for dir in allowed_dirs_str.split(",")]
-
-    return [os.path.abspath(dir) for dir in allowed_dirs]
-
-
-def _is_path_in_allowed_directories(file_path: str) -> tuple[bool, str | None]:
-    """Check if the given file path is within allowed directories.
-
-    Args:
-        file_path: The file path to validate.
-
-    Returns:
-        Tuple of (is_allowed, error_message) where is_allowed is a boolean
-        indicating if the path is allowed, and error_message provides details
-        if the path is not allowed.
-    """
-    allowed_dirs = _get_allowed_directories()
-    abs_path = os.path.abspath(file_path)
-
-    for allowed_dir in allowed_dirs:
-        try:
-            if os.path.commonpath([allowed_dir, abs_path]) == allowed_dir:
-                return True, None
-        except ValueError:
-            continue
-
-    error_msg = (
-        f"Path '{file_path}' is not in allowed directories: {', '.join(allowed_dirs)}"
-    )
-    return False, error_msg
 
 
 async def create_document(
@@ -121,7 +83,7 @@ async def create_document(
             "status": "success",
             "message": f"Document {filename} created successfully",
         }
-    except Exception as e:
+    except (OSError, ValueError) as e:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to create document: {str(e)}"),
             filename=filename,
@@ -142,7 +104,7 @@ async def get_document_info(
     try:
         properties: dict[str, Any] = get_document_properties(filename)
         return properties
-    except Exception as e:
+    except (OSError, ValueError) as e:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to get document info: {str(e)}"),
             filename=filename,
@@ -163,7 +125,7 @@ async def get_document_text(
     try:
         result: dict[str, Any] = extract_document_text(filename)
         return result
-    except Exception as e:
+    except (OSError, ValueError) as e:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to get document text: {str(e)}"),
             filename=filename,
@@ -184,7 +146,7 @@ async def get_document_outline(
     try:
         structure: dict[str, Any] = get_document_structure(filename)
         return structure
-    except Exception as e:
+    except (OSError, ValueError) as e:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to get document outline: {str(e)}"),
             filename=filename,
@@ -368,15 +330,22 @@ async def merge_documents(
 
             # Copy all paragraphs
             for paragraph in source_doc.paragraphs:
-                # Create a new paragraph with the same text and style
                 new_paragraph = target_doc.add_paragraph(paragraph.text)
-                new_paragraph.style = target_doc.styles["Normal"]  # Default style
+                normal_style_name: str = "Normal"
+                if normal_style_name in target_doc.styles:
+                    style_obj = target_doc.styles[normal_style_name]
+                    if style_obj.name:
+                        new_paragraph.style = style_obj.name
 
-                # Try to match the style if possible
                 try:
-                    if paragraph.style and paragraph.style.name in target_doc.styles:
-                        new_paragraph.style = target_doc.styles[paragraph.style.name]
-                except:  # noqa: E722
+                    source_style_name: str | None = (
+                        paragraph.style.name if paragraph.style else None
+                    )
+                    if source_style_name and source_style_name in target_doc.styles:
+                        target_style = target_doc.styles[source_style_name]
+                        if target_style.name:
+                            new_paragraph.style = target_style.name
+                except (KeyError, TypeError, AttributeError):
                     pass
 
                 # Copy run formatting
@@ -401,7 +370,7 @@ async def merge_documents(
             "status": "success",
             "message": f"Successfully merged {len(source_filenames)} documents into {target_filename}",
         }
-    except Exception as e:
+    except (OSError, KeyError, ValueError) as e:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to merge documents: {str(e)}"),
             filename=target_filename,

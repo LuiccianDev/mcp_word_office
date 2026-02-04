@@ -4,7 +4,6 @@ This module provides helper functions for file system operations such as
 checking permissions, copying files, and ensuring correct file extensions.
 """
 
-import asyncio
 import functools
 import inspect
 import os
@@ -34,7 +33,7 @@ def validate_docx_file(param_name: str) -> Callable[[F], F]:
     """
 
     def decorator(func: F) -> F:
-        if asyncio.iscoroutinefunction(func):
+        if inspect.iscoroutinefunction(func):
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:

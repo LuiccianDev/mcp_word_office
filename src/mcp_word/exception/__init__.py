@@ -21,4 +21,5 @@ __all__ = [
     "StyleError",
     "ConfigurationError",
     "exception_tools",
+    "ExceptionTool",
 ]

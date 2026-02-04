@@ -17,8 +17,6 @@
     ".coverage/**": true,
     "coverage.xml": true,
     "coverage.xml/**": true,
-    ".kiro": true,
-    ".windsurf": true
   },
   "markdownlint.config": {
     "default": true,

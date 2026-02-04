@@ -7,32 +7,16 @@ to Word operations including text extraction, formatting, styles, and document s
 integration through a clean, well-documented API.
 """
 
-__version__ = "1.0.1"
+__version__ = "1.1.1"
 __author__ = "LuiccianDev"
 __description__ = (
     "MCP Word Office Server - Word document manipulation through Model Context Protocol"
 )
 __title__ = "mcp_word"
 
-from .exception import (
-    ConfigurationError,
-    DocumentProcessingError,
-    ExceptionTool,
-    FileOperationError,
-    StyleError,
-    ValidationError,
-)
-
-
 __all__ = [
     "__version__",
     "__author__",
     "__description__",
     "__title__",
-    "DocumentProcessingError",
-    "ValidationError",
-    "FileOperationError",
-    "StyleError",
-    "ConfigurationError",
-    "ExceptionTool",
 ]

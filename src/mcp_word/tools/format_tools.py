@@ -127,8 +127,7 @@ async def format_text(
                 else:
                     # Try to set color by name
                     run_target.font.color.rgb = RGBColor.from_string(color)
-            except Exception:
-                # If all else fails, default to black
+            except (ValueError, AttributeError):
                 run_target.font.color.rgb = RGBColor(0, 0, 0)
         if font_size:
             run_target.font.size = Pt(font_size)
@@ -144,7 +143,7 @@ async def format_text(
             "status": "success",
             "message": f"Text '{target_text}' formatted successfully in paragraph {paragraph_index}.",
         }
-    except Exception as e:
+    except (OSError, ValueError, KeyError) as e:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to format text: {str(e)}"),
             filename=filename,
@@ -206,7 +205,7 @@ async def create_custom_style(
             "status": "success",
             "message": f"Style '{style_name}' created successfully.",
         }
-    except Exception as e:
+    except (OSError, ValueError, KeyError) as e:
         return ExceptionTool.handle_error(
             StyleError(f"Failed to create style: {str(e)}"),
             filename=filename,
@@ -265,7 +264,7 @@ async def format_table(
                 "status": "error",
                 "error": f"Failed to format table at index {table_index}.",
             }
-    except Exception as e:
+    except (OSError, ValueError, KeyError) as e:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to format table: {str(e)}"),
             filename=filename,

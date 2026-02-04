@@ -41,40 +41,30 @@ async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any
         IOError: If there's an error processing the document.
     """
     try:
-        # Validate and normalize heading level
         heading_level: int = _validate_heading_level(level)
-
-        doc: DocumentType = Document(filename)
+        doc = Document(filename)
         ensure_heading_style(doc)
-
-        try:
-            # Try with style-based approach first
-            doc.add_heading(text, level=heading_level)
-            doc.save(filename)
-            return {
-                "status": "success",
-                "message": f"Heading '{text}' (level {heading_level}) added to {filename}",
-            }
-
-        except Exception:
-            # Fallback to direct formatting if style-based approach fails
-            paragraph = doc.add_paragraph(text)
-            paragraph.style = doc.styles["Normal"]
-            run = paragraph.runs[0]
-            run.bold = True
-
-            # Set font size based on heading level
-            font_sizes = {1: 16, 2: 14}
-            run.font.size = Pt(font_sizes.get(heading_level, 12))
-
-            doc.save(filename)
-            return {
-                "status": "success",
-                "message": f"Heading '{text}' added to {filename} with direct formatting "
-                "(style not available)",
-            }
-
-    except Exception as error:
+        doc.add_heading(text, level=heading_level)
+        doc.save(filename)
+        return {
+            "status": "success",
+            "message": f"Heading '{text}' (level {heading_level}) added to {filename}",
+        }
+    except (KeyError, AttributeError):
+        doc = Document(filename)
+        paragraph = doc.add_paragraph(text)
+        paragraph.style = doc.styles["Normal"]
+        run = paragraph.runs[0]
+        run.bold = True
+        font_sizes = {1: 16, 2: 14}
+        run.font.size = Pt(font_sizes.get(level, 12))
+        doc.save(filename)
+        return {
+            "status": "success",
+            "message": f"Heading '{text}' added to {filename} with direct formatting "
+            "(style not available)",
+        }
+    except OSError as error:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to add heading to document: {str(error)}"),
             filename=filename,
@@ -118,7 +108,7 @@ async def add_paragraph(
         doc.save(filename)
         return {"status": "success", "message": f"Paragraph added to {filename}"}
 
-    except Exception as error:
+    except (OSError, KeyError, ValueError) as error:
         return ExceptionTool.handle_error(
             DocumentProcessingError(
                 f"Failed to add paragraph to document: {str(error)}"
@@ -195,7 +185,7 @@ async def add_table(
             "message": f"Table ({rows}x{cols}) added to {filename}",
         }
 
-    except Exception as error:
+    except (OSError, ValueError, KeyError) as error:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to add table to document: {str(error)}"),
             filename=filename,
@@ -245,7 +235,7 @@ async def add_picture(
             "message": f"Picture '{os.path.basename(image_path)}' added to {filename}",
         }
 
-    except Exception as error:
+    except (OSError, FileNotFoundError, ValueError) as error:
         return ExceptionTool.handle_error(
             DocumentProcessingError(f"Failed to add picture to document: {error}"),
             filename=filename,
@@ -271,7 +261,7 @@ async def add_page_break(filename: str) -> dict[str, Any]:
         doc: DocumentType = Document(filename)
         doc.add_page_break()
         return {"status": "success", "message": f"Page break added to {filename}"}
-    except Exception as error:
+    except (OSError, KeyError) as error:
         return ExceptionTool.handle_error(
             DocumentProcessingError(
                 f"Failed to add page break to document: {str(error)}"
@@ -342,7 +332,7 @@ async def add_table_of_contents(
             "message": f"Table of contents with {len(headings)} entries added to {filename}",
         }
 
-    except Exception as error:
+    except (OSError, ValueError, KeyError) as error:
         return ExceptionTool.handle_error(
             DocumentProcessingError(
                 f"Failed to add table of contents to document: {str(error)}"
@@ -390,7 +380,7 @@ async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any
             "message": f"Paragraph at index {paragraph_index} deleted successfully.",
         }
 
-    except Exception as error:
+    except (OSError, IndexError, KeyError) as error:
         return ExceptionTool.handle_error(
             DocumentProcessingError(
                 f"Failed to delete paragraph from document: {str(error)}"
@@ -441,7 +431,7 @@ async def search_and_replace(
             "message": f"No occurrences of '{find_text}' found in {filename}",
         }
 
-    except Exception as error:
+    except (OSError, ValueError, KeyError) as error:
         return ExceptionTool.handle_error(
             DocumentProcessingError(
                 f"Failed to perform search and replace in document: {str(error)}"
