@@ -31,7 +31,7 @@
 - **Python**: 3.13 or higher
 - **UV Package Manager**: [Install UV](https://docs.astral.sh/uv/getting-started/installation/) (recommended) or use pip
 - **Git**: For cloning the repository
-- **Desktop Extensions (DXT)**: for creating .dxt packages for Claude desktop [Install DXT](https://github.com/anthropics/dxt)
+- **Desktop Extensions (MCPB)**: for creating .mcpb packages for Claude desktop [Install MCPB](https://github.com/modelcontextprotocol/mcpb)
 
 ## ⚙️ Installation
 
