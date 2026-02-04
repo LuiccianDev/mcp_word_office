@@ -1,5 +1,4 @@
 """Exception handling utilities for MCP Word Server.
-
 This module provides tools and utilities for consistent exception handling
 across all MCP tools, including decorators, error mapping, and response builders.
 """
@@ -9,7 +8,7 @@ from functools import wraps
 from typing import Any
 
 from ..models.response_models import OperationError
-from .ExceptionCore import (
+from .exception_core import (
     ConfigurationError,
     DocumentProcessingError,
     FileOperationError,

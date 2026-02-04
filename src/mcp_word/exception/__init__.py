@@ -4,14 +4,14 @@ This module provides centralized exception management for the application,
 including custom exceptions and utilities for error handling.
 """
 
-from .ExceptionCore import (
+from .exception_core import (
     ConfigurationError,
     DocumentProcessingError,
     FileOperationError,
     StyleError,
     ValidationError,
 )
-from .ExceptionTool import ExceptionTool
+from .exception_tools import ExceptionTool
 
 
 __all__ = [
@@ -20,5 +20,5 @@ __all__ = [
     "FileOperationError",
     "StyleError",
     "ConfigurationError",
-    "ExceptionTool",
+    "exception_tools",
 ]
