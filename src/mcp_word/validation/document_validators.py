@@ -270,3 +270,85 @@ def validate_docx_write(param_name: str) -> Callable[[F], F]:
             return cast(F, sync_wrapper)
 
     return decorator
+
+
+# ---------------------------------------------------------------------------
+# Shallow path validation — for encrypted / non-standard .docx files
+# ---------------------------------------------------------------------------
+
+
+def _validate_docx_path_shallow(path_str: str) -> dict[str, str] | None:
+    """Validate only existence and .docx extension, WITHOUT opening the file.
+
+    This is useful for tools that handle encrypted files (e.g. ``unprotect_document``)
+    where ``Document()`` would fail because the content is encrypted.
+    """
+    path = Path(path_str).resolve()
+
+    if not path.exists():
+        return {"error": f"File '{path}' does not exist."}
+
+    if path.suffix.lower() != ".docx":
+        return {"error": f"File '{path}' is not a .docx document."}
+
+    return None
+
+
+def validate_file_write(param_name: str) -> Callable[[F], F]:
+    """Composite decorator for tools that write to **potentially encrypted** files.
+
+    Unlike ``validate_docx_write``, this decorator does **not** attempt to open
+    the file as a Word document.  It only checks:
+      1. The parameter exists.
+      2. The file exists and has a ``.docx`` extension.
+      3. The file is writeable.
+
+    Use this for tools like ``unprotect_document`` where the file content is
+    encrypted and cannot be parsed by ``python-docx`` before decryption.
+
+    Usage::
+
+        @validate_file_write("filename")
+        async def unprotect_document(filename: str, password: str) -> dict[str, Any]:
+            ...
+    """
+
+    def decorator(func: F) -> F:
+        if inspect.iscoroutinefunction(func):
+
+            @functools.wraps(func)
+            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                path_value = _get_argument_value(func, param_name, args, kwargs)
+                if path_value is None:
+                    return {"error": f"Parameter '{param_name}' not found."}
+
+                if error := _validate_docx_path_shallow(path_value):
+                    return error
+
+                ok, error_msg = _check_file_writeable(path_value)
+                if not ok:
+                    return {"error": f"Cannot write to file: {error_msg}"}
+
+                return await func(*args, **kwargs)
+
+            return cast(F, async_wrapper)
+        else:
+
+            @functools.wraps(func)
+            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+                path_value = _get_argument_value(func, param_name, args, kwargs)
+                if path_value is None:
+                    return {"error": f"Parameter '{param_name}' not found."}
+
+                if error := _validate_docx_path_shallow(path_value):
+                    return error
+
+                ok, error_msg = _check_file_writeable(path_value)
+                if not ok:
+                    return {"error": f"Cannot write to file: {error_msg}"}
+
+                return func(*args, **kwargs)
+
+            return cast(F, sync_wrapper)
+
+    return decorator

@@ -9,6 +9,7 @@ from mcp_word.validation.document_validators import (
     validate_docx_file,
     validate_docx_read,
     validate_docx_write,
+    validate_file_write,
 )
 
 
@@ -17,4 +18,5 @@ __all__ = [
     "validate_docx_file",
     "validate_docx_read",
     "validate_docx_write",
+    "validate_file_write",
 ]

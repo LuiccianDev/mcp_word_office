@@ -28,6 +28,7 @@ from mcp_word.exception import (
 from mcp_word.validation.document_validators import (
     validate_docx_read,
     validate_docx_write,
+    validate_file_write,
 )
 
 
@@ -248,7 +249,7 @@ async def verify_document(filename: str, password: str | None = None) -> dict[st
         )
 
 
-@validate_docx_write("filename")
+@validate_file_write("filename")
 async def unprotect_document(filename: str, password: str) -> dict[str, Any]:
     """Remove password protection from a Word document.
 
