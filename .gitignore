@@ -77,3 +77,10 @@ opencode.json
 GEMINI.md
 WARP.md
 docs/
+
+
+.agent/
+.opencode/
+.openhands/
+opencode.json
+skills-lock.json
