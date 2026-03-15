@@ -29,8 +29,8 @@ from mcp_word.utils.security import (
     is_path_in_allowed_directories as _is_path_in_allowed_directories,
 )
 from mcp_word.validation.document_validators import (
-    check_file_writeable,
-    validate_docx_file,
+    validate_docx_read,
+    validate_docx_write,
 )
 
 
@@ -91,7 +91,7 @@ async def create_document(
         )
 
 
-@validate_docx_file("filename")
+@validate_docx_read("filename")
 async def get_document_info(
     filename: str, response_format: str = "markdown"
 ) -> dict[str, Any]:
@@ -112,7 +112,7 @@ async def get_document_info(
         )
 
 
-@validate_docx_file("filename")
+@validate_docx_read("filename")
 async def get_document_text(
     filename: str, response_format: str = "markdown"
 ) -> dict[str, Any]:
@@ -133,7 +133,7 @@ async def get_document_text(
         )
 
 
-@validate_docx_file("filename")
+@validate_docx_read("filename")
 async def get_document_outline(
     filename: str, response_format: str = "markdown"
 ) -> dict[str, Any]:
@@ -258,7 +258,7 @@ async def list_available_documents(
         )
 
 
-@validate_docx_file("source_filename")
+@validate_docx_read("source_filename")
 async def copy_document(
     source_filename: str, destination_filename: str | None = None
 ) -> dict[str, Any]:
@@ -283,8 +283,7 @@ async def copy_document(
     )
 
 
-@validate_docx_file("target_filename")
-@check_file_writeable("target_filename")
+@validate_docx_write("target_filename")
 async def merge_documents(
     target_filename: str,
     source_filenames: list[str],

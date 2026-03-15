@@ -17,14 +17,10 @@ from mcp_word.exception import (
     ExceptionTool,
 )
 from mcp_word.utils.document_utils import find_and_replace_text
-from mcp_word.validation.document_validators import (
-    check_file_writeable,
-    validate_docx_file,
-)
+from mcp_word.validation.document_validators import validate_docx_write
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any]:
     """Add a heading to a Word document.
 
@@ -72,8 +68,7 @@ async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_paragraph(
     filename: str, text: str, style: str | None = None
 ) -> dict[str, Any]:
@@ -141,8 +136,7 @@ def _populate_table(
             table.cell(i, j).text = str(cell_text)
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_table(
     filename: str, rows: int, cols: int, data: list[list[Any]] | None = None
 ) -> dict[str, Any]:
@@ -193,8 +187,7 @@ async def add_table(
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_picture(
     filename: str, image_path: str, width: float | None = None
 ) -> dict[str, Any]:
@@ -243,8 +236,7 @@ async def add_picture(
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_page_break(filename: str) -> dict[str, Any]:
     """Add a page break to the document.
 
@@ -271,8 +263,7 @@ async def add_page_break(filename: str) -> dict[str, Any]:
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_table_of_contents(
     filename: str, title: str = "Table of Contents", max_level: int = 3
 ) -> dict[str, Any]:
@@ -342,8 +333,7 @@ async def add_table_of_contents(
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any]:
     """Delete a paragraph from a document.
 
@@ -390,8 +380,7 @@ async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any
         )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def search_and_replace(
     filename: str, find_text: str, replace_text: str
 ) -> dict[str, Any]:

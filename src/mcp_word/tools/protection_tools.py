@@ -26,13 +26,12 @@ from mcp_word.exception import (
     FileOperationError,
 )
 from mcp_word.validation.document_validators import (
-    check_file_writeable,
-    validate_docx_file,
+    validate_docx_read,
+    validate_docx_write,
 )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def protect_document(filename: str, password: str) -> dict[str, Any]:
     """Add password protection to a Word document.
 
@@ -76,8 +75,7 @@ async def protect_document(filename: str, password: str) -> dict[str, Any]:
         )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def add_restricted_editing(
     filename: str, password: str, editable_sections: list[str]
 ) -> dict[str, Any]:
@@ -124,8 +122,7 @@ async def add_restricted_editing(
         )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def add_digital_signature(
     filename: str, signer_name: str, reason: str | None = None
 ) -> dict[str, Any]:
@@ -184,7 +181,7 @@ async def add_digital_signature(
         )
 
 
-@validate_docx_file("filename")
+@validate_docx_read("filename")
 async def verify_document(filename: str, password: str | None = None) -> dict[str, Any]:
     """Verify document protection and/or digital signature.
 
@@ -251,8 +248,7 @@ async def verify_document(filename: str, password: str | None = None) -> dict[st
         )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def unprotect_document(filename: str, password: str) -> dict[str, Any]:
     """Remove password protection from a Word document.
 

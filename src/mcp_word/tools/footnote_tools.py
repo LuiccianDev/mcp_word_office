@@ -21,14 +21,10 @@ from mcp_word.exception import (
     DocumentProcessingError,
     ExceptionTool,
 )
-from mcp_word.validation.document_validators import (
-    check_file_writeable,
-    validate_docx_file,
-)
+from mcp_word.validation.document_validators import validate_docx_write
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_footnote_to_document(
     filename: str, paragraph_index: int, footnote_text: str
 ) -> dict[str, Any]:
@@ -96,8 +92,7 @@ async def add_footnote_to_document(
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_endnote_to_document(
     filename: str, paragraph_index: int, endnote_text: str
 ) -> str:
@@ -152,8 +147,7 @@ async def add_endnote_to_document(
         return f"Failed to add endnote: {str(e)}"
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
     """Convert all footnotes to endnotes in a Word document.
 
@@ -232,8 +226,7 @@ async def convert_footnotes_to_endnotes_in_document(filename: str) -> str:
         return f"Failed to convert footnotes to endnotes: {str(e)}"
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def customize_footnote_style(
     filename: str,
     numbering_format: str = "1, 2, 3",

@@ -7,7 +7,7 @@ to Word operations including text extraction, formatting, styles, and document s
 integration through a clean, well-documented API.
 """
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 __author__ = "LuiccianDev"
 __description__ = (
     "MCP Word Office Server - Word document manipulation through Model Context Protocol"

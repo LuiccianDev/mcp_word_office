@@ -19,14 +19,10 @@ from mcp_word.exception import (
     ExceptionTool,
     StyleError,
 )
-from mcp_word.validation.document_validators import (
-    check_file_writeable,
-    validate_docx_file,
-)
+from mcp_word.validation.document_validators import validate_docx_write
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def format_text(
     filename: str,
     paragraph_index: int,
@@ -151,8 +147,7 @@ async def format_text(
         )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def create_custom_style(
     filename: str,
     style_name: str,
@@ -213,8 +208,7 @@ async def create_custom_style(
         )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def format_table(
     filename: str,
     table_index: int,

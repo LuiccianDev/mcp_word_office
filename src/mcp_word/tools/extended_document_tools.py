@@ -16,12 +16,12 @@ from mcp_word.exception import (
 )
 from mcp_word.utils.extended_document_utils import find_text, get_paragraph_text
 from mcp_word.validation.document_validators import (
-    check_file_writeable,
-    validate_docx_file,
+    validate_docx_read,
+    validate_docx_write,
 )
 
 
-@validate_docx_file("filename")
+@validate_docx_read("filename")
 async def get_paragraph_text_from_document(
     filename: str, paragraph_index: int
 ) -> dict[str, Any]:
@@ -47,7 +47,7 @@ async def get_paragraph_text_from_document(
         )
 
 
-@validate_docx_file("filename")
+@validate_docx_read("filename")
 async def find_text_in_document(
     filename: str, text_to_find: str, match_case: bool = True, whole_word: bool = False
 ) -> dict[str, Any]:
@@ -75,8 +75,7 @@ async def find_text_in_document(
         )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def convert_to_pdf(
     filename: str, output_filename: str | None = None
 ) -> dict[str, Any]:

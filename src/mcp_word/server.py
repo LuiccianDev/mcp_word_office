@@ -4,9 +4,8 @@ Main entry point for the Word Document MCP Server.
 Acts as the central controller for the MCP server that handles Word document operations.
 """
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
-from mcp_word.prompts.register_prompts import register_prompts
 from mcp_word.tools.register_tools import register_all_tools
 
 
@@ -73,12 +72,10 @@ MCP Word Server provides comprehensive Word document (.docx) manipulation capabi
 ## Tool Naming
 
 All tools use the `word_` prefix for clarity and to avoid conflicts with other MCP servers. Legacy names without the prefix are also available for backward compatibility.""",
-        dependencies=["python-docx"],
-        on_duplicate_tools="error",
+        on_duplicate="error",
     )
 
     register_all_tools(mcp)
-    register_prompts(mcp)
 
     return mcp
 

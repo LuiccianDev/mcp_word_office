@@ -159,3 +159,114 @@ def _validate_docx_path(path_str: str) -> dict[str, str] | None:
         return {"error": f"Could not open document: {e}"}
 
     return None
+
+
+# ---------------------------------------------------------------------------
+# Composite decorators — use these in tool modules instead of stacking
+# `validate_docx_file` and `check_file_writeable` manually.
+# ---------------------------------------------------------------------------
+
+
+def validate_docx_read(param_name: str) -> Callable[[F], F]:
+    """Composite decorator for **read-only** tools.
+
+    Validates that the parameter identified by *param_name*:
+      1. Exists in the function call.
+      2. Points to an existing file with a .docx extension.
+      3. Is a valid (non-corrupt) Word document.
+
+    Usage::
+
+        @validate_docx_read("filename")
+        async def get_info(filename: str) -> dict[str, Any]:
+            ...
+    """
+
+    def decorator(func: F) -> F:
+        if inspect.iscoroutinefunction(func):
+
+            @functools.wraps(func)
+            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                path_value = _get_argument_value(func, param_name, args, kwargs)
+                if path_value is None:
+                    return {"error": f"Parameter '{param_name}' not found."}
+
+                if error := _validate_docx_path(path_value):
+                    return error
+
+                return await func(*args, **kwargs)
+
+            return cast(F, async_wrapper)
+        else:
+
+            @functools.wraps(func)
+            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+                path_value = _get_argument_value(func, param_name, args, kwargs)
+                if path_value is None:
+                    return {"error": f"Parameter '{param_name}' not found."}
+
+                if error := _validate_docx_path(path_value):
+                    return error
+
+                return func(*args, **kwargs)
+
+            return cast(F, sync_wrapper)
+
+    return decorator
+
+
+def validate_docx_write(param_name: str) -> Callable[[F], F]:
+    """Composite decorator for **read-write** tools.
+
+    Validates that the parameter identified by *param_name*:
+      1. Exists in the function call.
+      2. Points to an existing file with a .docx extension.
+      3. Is a valid (non-corrupt) Word document.
+      4. The file is writeable.
+
+    Usage::
+
+        @validate_docx_write("filename")
+        async def add_heading(filename: str, text: str) -> dict[str, Any]:
+            ...
+    """
+
+    def decorator(func: F) -> F:
+        if inspect.iscoroutinefunction(func):
+
+            @functools.wraps(func)
+            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                path_value = _get_argument_value(func, param_name, args, kwargs)
+                if path_value is None:
+                    return {"error": f"Parameter '{param_name}' not found."}
+
+                if error := _validate_docx_path(path_value):
+                    return error
+
+                ok, error_msg = _check_file_writeable(path_value)
+                if not ok:
+                    return {"error": f"Cannot write to file: {error_msg}"}
+
+                return await func(*args, **kwargs)
+
+            return cast(F, async_wrapper)
+        else:
+
+            @functools.wraps(func)
+            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+                path_value = _get_argument_value(func, param_name, args, kwargs)
+                if path_value is None:
+                    return {"error": f"Parameter '{param_name}' not found."}
+
+                if error := _validate_docx_path(path_value):
+                    return error
+
+                ok, error_msg = _check_file_writeable(path_value)
+                if not ok:
+                    return {"error": f"Cannot write to file: {error_msg}"}
+
+                return func(*args, **kwargs)
+
+            return cast(F, sync_wrapper)
+
+    return decorator
