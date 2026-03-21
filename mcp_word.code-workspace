@@ -1,0 +1,148 @@
+{
+    "folders": [
+        {
+            "path": ".",
+            "name": "Root"
+        },
+        {
+            "path": "src",
+            "name": "Source"
+        },
+        {
+            "path": "tests",
+            "name": "Tests"
+        },
+        {
+            "path": "skills",
+            "name": "Skills"
+        }
+    ],
+    "settings": {
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": [
+            "tests"
+        ],
+        "[python]": {
+            "editor.defaultFormatter": "charliermarsh.ruff",
+            "editor.formatOnSave": true
+        },
+        "files.exclude": {
+            "**/__pycache__": true,
+            "**/.pytest_cache": true,
+            "**/.mypy_cache": true,
+            "**/*.egg-info": true,
+            ".venv": true,
+            "src": true,
+            "tests": true,
+            "docs": true,
+            "skills": true,
+            "dist": true,
+            "build": true
+        },
+        "search.exclude": {
+            "**/__pycache__": true,
+            "**/.pytest_cache": true,
+            "**/.mypy_cache": true,
+            "**/*.egg-info": true,
+            "**/.venv": true,
+            "src": true,
+            "tests": true,
+            "docs": true,
+            "skills": true,
+            "**/dist": true,
+            "**/build": true
+        }
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Run MCP Server",
+                "type": "shell",
+                "command": "uv",
+                "args": [
+                    "run",
+                    "mcp_word"
+                ],
+                "group": "build"
+            },
+            {
+                "label": "Run Tests",
+                "type": "shell",
+                "command": "uv",
+                "args": [
+                    "run",
+                    "pytest",
+                    "-v"
+                ],
+                "group": "test"
+            },
+            {
+                "label": "Ruff Check",
+                "type": "shell",
+                "command": "uv",
+                "args": [
+                    "run",
+                    "ruff",
+                    "check",
+                    "src/",
+                    "tests/"
+                ],
+                "group": "test"
+            },
+            {
+                "label": "Ruff Format",
+                "type": "shell",
+                "command": "uv",
+                "args": [
+                    "run",
+                    "ruff",
+                    "format",
+                    "src/",
+                    "tests/"
+                ],
+                "group": "test"
+            },
+            {
+                "label": "Mypy Check",
+                "type": "shell",
+                "command": "uv",
+                "args": [
+                    "run",
+                    "mypy",
+                    "src/"
+                ],
+                "group": "test"
+            },
+            {
+                "label": "Quality Gate",
+                "type": "shell",
+                "command": "uv run ruff check src/ tests/ && uv run mypy src/ && uv run pytest -v",
+                "group": "test"
+            }
+        ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Debug MCP Server",
+                "type": "debugpy",
+                "request": "launch",
+                "module": "mcp_word",
+                "cwd": "${workspaceFolder:Root}"
+            },
+            {
+                "name": "Debug Current Test File",
+                "type": "debugpy",
+                "request": "launch",
+                "module": "pytest",
+                "args": [
+                    "-v",
+                    "${file}"
+                ],
+                "cwd": "${workspaceFolder:Root}"
+            }
+        ]
+    }
+}
