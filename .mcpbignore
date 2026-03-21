@@ -146,5 +146,6 @@ Docker.md
 Dockerfile
 docs/
 skills/
+skills-lock.json
 
 # Project specific (add any project-specific patterns below)
