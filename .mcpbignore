@@ -139,6 +139,8 @@ cython_debug/
 opencode.json
 .opencode
 .agents/
+.agent/
+.openhands/
 .dockerignore
 Docker.md
 Dockerfile
