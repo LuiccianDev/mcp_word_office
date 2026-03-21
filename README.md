@@ -12,28 +12,70 @@
 
 **MCP Office Word Server** is a Python server implementing the Model Context Protocol (MCP) to provide advanced capabilities for manipulating Microsoft Word (`.docx`) documents. This server enables automation of complex document processing tasks programmatically.
 
-> 💡 **Note**: This project is designed to be used with MCP-compatible clients such as Claude, Cursor or others IDEs, allowing Word document manipulation via natural language instructions.
+> **Note**: This project is designed to be used with MCP-compatible clients such as Claude, Cursor or others IDEs, allowing Word document manipulation via natural language instructions.
 
-## 📑 Table of Contents
+## Features
 
-- [🖥️ System Requirements](#️-system-requirements)
-- [⚙️ Installation](#️-installation)
-- [🗂️ Project Structure](#️-project-structure)
-- [🔧 Tool API](#-tool-api)
-- [🔒 Security](#-security)
-- [🤝 Contribution](#-contribution)
-- [📜 License](#-license)
+- **Document Operations**: Create, read, copy, merge, and convert to PDF.
+- **Content Management**: Add headings, paragraphs, tables, pictures, and page breaks. Search, replace, and delete content.
+- **Formatting**: Apply text formatting, custom styles, and table formatting.
+- **Footnotes & Endnotes**: Add and convert footnotes and endnotes, and customize their styles.
+- **Security & Protection**: Add password protection, restricted editing, and digital signatures.
+- **Headers & Footers**: Add or update primary headers and footers for specific sections.
+- **Links & Bookmarks**: Insert hyperlinks and internal bookmarks for navigation.
+- **Document Properties**: Manage core metadata (author, title) and section page layouts (portrait/landscape).
 
-## 🖥️ System Requirements
+## Table of Contents
 
-### 📋 Minimum Requirements
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [System Requirements](#system-requirements)
+- [Installation](#installation)
+- [MCP Client Configuration](#mcp-client-configuration)
+- [Docker Support](#docker-support)
+- [Tool API](#tool-api)
+- [Security](#security)
+- [Contribution](#contribution)
+- [License](#license)
+
+## Project Structure
+
+```text
+src/
+│  └──📁 word_mcp/            # Main server package
+│      ├── 📁 core/           # Main Word manipulation logic
+│      ├── 📁 tools/          # Exposed MCP tools
+│      ├── 📁 utils/          # Utilities and helper functions
+│      ├── 📁 prompts/        # Prompt templates for MCP
+│      ├── 📁 validation/     # Input validation
+│      └── main.py            # Main entry point
+│
+├── 📁 tests/                  # Unit tests
+├── 📄 README.md               # This file
+└── 📄 pyproject.toml          # Project configuration
+```
+
+### Directory Description
+
+- **`word_mcp/`**: Contains all server source code.
+  - **`core/`**: Central logic for Word document manipulation.
+  - **`tools/`**: Implementation of tools exposed via MCP.
+  - **`utils/`**: Shared helper functions.
+  - **`prompts/`**: Templates for generating instructions for the language model.
+  - **`validation/`**: Input and parameter validation.
+
+- **`tests/`**: Unit and integration tests to ensure proper functionality.
+
+## System Requirements
+
+### Minimum Requirements
 
 - **Python**: 3.13 or higher
 - **UV Package Manager**: [Install UV](https://docs.astral.sh/uv/getting-started/installation/) (recommended) or use pip
 - **Git**: For cloning the repository
 - **Desktop Extensions (MCPB)**: for creating .mcpb packages for Claude desktop [Install MCPB](https://github.com/modelcontextprotocol/mcpb)
 
-## ⚙️ Installation
+## Installation
 
 ### 1. Clone the repository
 
@@ -65,9 +107,9 @@ Install project dependencies using uv:
 uv pip install -e ".[dev]"
 ```
 
-> ℹ️ The above command will install both main and development dependencies.
+> The above command will install both main and development dependencies.
 
-## 🔌 MCP Client Configuration
+## MCP Client Configuration
 
 ### Basic Configuration
 
@@ -114,104 +156,57 @@ Or use this configuration (less recommended):
 }
 ```
 
-### MCPB Package Deployment
-
-**Best for**: Integrated MCPB ecosystem users who want seamless configuration management.
-
-1. **Package the project**:
-
-   ```bash
-   mcpb pack
-   ```
-
-2. **Configuration**: The DXT package automatically handles dependencies and provides user-friendly configuration through the manifest.json:
-   - `MCP_ALLOWED_DIRECTORIES`: Base directory for file operations
-
-3. **Usage**: Once packaged, the tool integrates directly with DXT-compatible clients with automatic user configuration variable substitution.
-
-4. **Server Configuration**: This project includes the [manifest.json](manifest.json) file for building the .dxt package.
-
-For more details see [MCPB Package Documentation](https://github.com/modelcontextprotocol/mcpb).
-
-### 🔧 Key Environment Variables
+### Key Environment Variables
 
 | Variable                  | Description                                              | Example                                 |
 | ------------------------- | -------------------------------------------------------- | --------------------------------------- |
 | `MCP_ALLOWED_DIRECTORIES` | Directories accessible by the server (comma separated)   | `"\Users\User\Documents,.Projects"`     |
 
-## 📦 Docker Support
+### MCPB Package Deployment
 
-Para instrucciones detalladas sobre cómo construir y ejecutar el servidor MCP Word Office en Docker, consulta la siguiente guía:
+For detailed instructions on creating and using MCPB packages (.mcpb), please see:
 
-- [Guía Docker: Docker.md](./Docker.md)
+- [MCPB Guide: mcpb.md](docs/MCPB.md)
 
-## 🔒 Security Considerations
+## Docker Support
 
-- 🔐 **Allowed Directories**: Limit accessible directories to only those necessary.
-- 🛡️ **Virtual Environment**: Always use a virtual environment to isolate dependencies.
-- 🔄 **Updates**: Keep the server updated with the latest security patches.
-- 👥 **Permissions**: Ensure file permissions are properly set.
+For detailed instructions on building and running the MCP Word Office server in Docker, please see the following guide:
 
-## 🗂️ Project Structure
+- [Docker Guide: Docker.md](docs/Docker.md)
 
-```text
-src/
-│  └──📁 word_mcp/            # Main server package
-│      ├── 📁 core/           # Main Word manipulation logic
-│      ├── 📁 tools/          # Exposed MCP tools
-│      ├── 📁 utils/          # Utilities and helper functions
-│      ├── 📁 prompts/        # Prompt templates for MCP
-│      ├── 📁 validation/     # Input validation
-│      └── main.py            # Main entry point
-│
-├── 📁 tests/                  # Unit tests
-├── 📄 README.md               # This file
-└── 📄 pyproject.toml          # Project configuration
-```
-
-### 📋 Directory Description
-
-- **`word_mcp/`**: Contains all server source code.
-  - **`core/`**: Central logic for Word document manipulation.
-  - **`tools/`**: Implementation of tools exposed via MCP.
-  - **`utils/`**: Shared helper functions.
-  - **`prompts/`**: Templates for generating instructions for the language model.
-  - **`validation/`**: Input and parameter validation.
-
-- **`tests/`**: Unit and integration tests to ensure proper functionality.
-
-## 🔧 Tool API
+## Tool API
 
 The MCP Word server exposes a comprehensive set of tools organized into logical categories for easy Word document manipulation.
 
-> ℹ️ For detailed documentation of each tool, see [TOOLS.md](TOOLS.md).
+> For detailed documentation of each tool, see [TOOLS.md](docs/TOOLS.md).
 
-## 🔒 Security
+## Security
 
-### Security Considerations
+### Considerations & Best Practices
 
 1. **Input Validation**
-
    - All functions perform strict parameter validation
    - Strongly typed data types are used
    - File path sanitization is applied
 
 2. **File Security**
-
-   - Use of `MCP_ALLOWED_DIRECTORIES` to restrict access
+   - Use of `MCP_ALLOWED_DIRECTORIES` to restrict access (limit accessible directories to only those necessary).
    - Secure handling of temporary files
    - MIME type validation for uploaded files
+   - Ensure file permissions are properly set.
 
-3. **Best Practices**
+3. **Execution Environment**
+   - Always use a virtual environment to isolate dependencies.
+   - Keep the server updated with the latest security patches.
    - Code reviewed with `mypy` for type safety
    - Static analysis with `ruff`
    - Unit tests for security cases
 
-## 🤝 Contribution
+## Contribution
 
 Contributions are welcome. Please read the contribution guidelines before submitting pull requests.
 
-## 📜 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
@@ -221,7 +216,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <p>
     <a href="https://github.com/LuiccianDev/mcp_word_office">🏠 GitHub</a> •
     <a href="https://modelcontextprotocol.io">🔗 MCP Protocol</a> •
-    <a href="https://github.com/LuiccianDev/mcp_word_office/blob/main/TOOLS.md">📚 Tool Documentation</a>
+    <a href="https://github.com/LuiccianDev/mcp_word_office/blob/main/docs/TOOLS.md">📚 Tool Documentation</a>
   </p>
   <p><em>Created with by LuiccianDev</em></p>
 </div>
