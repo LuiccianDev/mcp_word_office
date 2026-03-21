@@ -2,7 +2,7 @@
 Register all tools with the MCP server.
 """
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 from mcp_word.tools import (
     content_tools,
@@ -10,6 +10,9 @@ from mcp_word.tools import (
     extended_document_tools,
     footnote_tools,
     format_tools,
+    header_footer_tools,
+    link_tools,
+    property_tools,
     protection_tools,
 )
 
@@ -66,6 +69,9 @@ def register_all_tools(mcp: FastMCP) -> None:
 
     # word_search_and_replace - Search and replace text
     mcp.tool()(content_tools.search_and_replace)
+
+    # word_add_table_of_contents - Add a table of contents to a document
+    mcp.tool()(content_tools.add_table_of_contents)
 
     # =====================
     # FORMAT TOOLS
@@ -127,3 +133,22 @@ def register_all_tools(mcp: FastMCP) -> None:
 
     # word_convert_to_pdf - Convert Word document to PDF
     mcp.tool()(extended_document_tools.convert_to_pdf)
+
+    # =====================
+    # HEADER FOOTER TOOLS
+    # =====================
+    mcp.tool()(header_footer_tools.add_header)
+    mcp.tool()(header_footer_tools.add_footer)
+
+    # =====================
+    # LINK TOOLS
+    # =====================
+    mcp.tool()(link_tools.add_hyperlink)
+    mcp.tool()(link_tools.add_bookmark)
+
+    # =====================
+    # PROPERTY AND LAYOUT TOOLS
+    # =====================
+    mcp.tool()(property_tools.get_core_properties)
+    mcp.tool()(property_tools.set_core_properties)
+    mcp.tool()(property_tools.set_page_layout)

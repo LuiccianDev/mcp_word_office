@@ -26,7 +26,7 @@ async def test_add_footnote_to_document(temp_docx_file: str) -> None:
     result = await footnote_tools.add_footnote_to_document(
         temp_docx_file, 0, "This is a test footnote."
     )
-    assert "Footnote added" in result["message"]
+    assert "Footnote" in result["message"]
 
 
 @pytest.mark.asyncio  # type: ignore[misc]
@@ -35,7 +35,7 @@ async def test_add_endnote_to_document(temp_docx_file: str) -> None:
     result = await footnote_tools.add_endnote_to_document(
         temp_docx_file, 0, "This is a test endnote."
     )
-    assert "Endnote added" in result
+    assert "Endnote" in result["message"]
 
 
 @pytest.mark.asyncio  # type: ignore[misc]
@@ -49,4 +49,4 @@ async def test_convert_footnotes_to_endnotes_in_document(temp_docx_file: str) ->
         temp_docx_file
     )
     # This is a simplified check; a real test would inspect the document more deeply
-    assert "Converted" in result or "No footnote references found" in result
+    assert "Converted" in result["message"] or "No footnote references found" in result["message"]

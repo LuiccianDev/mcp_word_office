@@ -1,0 +1,59 @@
+{
+  "skill_name": "mcp-word-document-workflow",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a monthly sales report in Word with executive summary, one regional table, and conclusions. Save to an allowed absolute path.",
+      "expected_output": "Report created with complete structure, included table, no unresolved placeholders, and explicit allowed-path confirmation.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Generate a formal client letter with subject line, 3 body paragraphs, and signature. Include basic metadata.",
+      "expected_output": "Formal letter with full structure and metadata, saved as .docx.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Create meeting minutes with participants, 3 agenda topics, and an action items table with owners and due dates.",
+      "expected_output": "Minutes document with expected sections and complete follow-up table.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Generate a proposal with executive summary, scope, pricing options, and timeline table.",
+      "expected_output": "Proposal with coherent section flow and at least two tables (pricing and timeline).",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Generate a university report with institutional cover, objectives, development, conclusions, and bibliography.",
+      "expected_output": "Academic report with complete university-style structure and consistent formatting.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Draft a formal request to an academic director for deadline extension with rationale and attachments.",
+      "expected_output": "Formal request with clear administrative structure and explicit attachment list.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Create a 16-week syllabus with units, grading policy, and weekly schedule table.",
+      "expected_output": "Syllabus with course metadata, weighted assessment, and weekly schedule.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Take an existing Word document, improve structure using headings, normalize formatting, and export to PDF only if requested.",
+      "expected_output": "Restructured document with clear headings and normalized style; PDF export only when explicitly requested.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "If the user provides a path outside allowed directories, stop execution and request a valid absolute path.",
+      "expected_output": "No out-of-scope file is created; clear path-validation error is returned.",
+      "files": []
+    }
+  ]
+}

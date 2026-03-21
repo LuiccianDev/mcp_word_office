@@ -15,7 +15,7 @@ from docx.document import Document
 logger = logging.getLogger(__name__)
 
 
-def add_protection_info(
+def core_add_protection_info(
     doc_path: str,
     protection_type: str,
     password_hash: str,
@@ -63,7 +63,6 @@ def add_protection_info(
         if protection_type == "password" and raw_password:
             import shutil
             import tempfile
-
             import msoffcrypto
 
             # Create a temporary file for the encrypted output
@@ -74,7 +73,6 @@ def add_protection_info(
                 # Open the document
                 with open(doc_path, "rb") as f:
                     office_file = msoffcrypto.OfficeFile(f)
-
                     # Encrypt with password
                     office_file.load_key(password=raw_password)
 
@@ -90,7 +88,7 @@ def add_protection_info(
                 with open(metadata_path, "w") as f:
                     json.dump(protection_data, f, indent=2)
 
-            except OSError as e:
+            except Exception as e:
                 logger.error(f"Encryption error: {str(e)}")
                 if os.path.exists(temp_path):
                     os.unlink(temp_path)
@@ -102,7 +100,66 @@ def add_protection_info(
         return False
 
 
-def verify_document_protection(
+def core_protect_document(filename: str, password: str) -> dict[str, Any]:
+    """Add password protection to a Word document using msoffcrypto."""
+    import io
+    import msoffcrypto
+    
+    try:
+        with open(filename, "rb") as f:
+            office_file = msoffcrypto.OfficeFile(f)
+        
+        # Check if already encrypted
+        if office_file.is_encrypted:
+            return {"status": "error", "message": "Document is already encrypted."}
+
+        # Encrypt into memory
+        encrypted_io = io.BytesIO()
+        office_file.encrypt(password=password, outfile=encrypted_io)
+        
+        # Write back
+        with open(filename, "wb") as f:
+            f.write(encrypted_io.getvalue())
+            
+        # Clear metadata if exists
+        base_path, _ = os.path.splitext(filename)
+        metadata_path = f"{base_path}.protection"
+        if os.path.exists(metadata_path):
+            os.remove(metadata_path)
+            
+        return {"status": "success", "message": "Document encrypted successfully."}
+    except Exception as e:
+        raise RuntimeError(f"Failed to encrypt document: {str(e)}")
+
+
+def core_unprotect_document(filename: str, password: str) -> dict[str, Any]:
+    """Remove password protection from a Word document."""
+    import io
+    import msoffcrypto
+    
+    try:
+        with open(filename, "rb") as f:
+            office_file = msoffcrypto.OfficeFile(f)
+            
+        if not office_file.is_encrypted:
+            return {"status": "error", "message": "Document is not encrypted."}
+            
+        office_file.load_key(password=password)
+        
+        decrypted_io = io.BytesIO()
+        office_file.decrypt(outfile=decrypted_io)
+        
+        with open(filename, "wb") as f:
+            f.write(decrypted_io.getvalue())
+            
+        return {"status": "success", "message": "Document decrypted successfully."}
+    except msoffcrypto.exceptions.InvalidKeyError:
+        return {"status": "error", "message": "Incorrect password."}
+    except Exception as e:
+        raise RuntimeError(f"Failed to decrypt document: {str(e)}")
+
+
+def core_verify_document_protection(
     doc_path: str, password: str | None = None
 ) -> tuple[bool, str]:
     """
@@ -141,7 +198,7 @@ def verify_document_protection(
         return False, f"Error verifying protection: {str(e)}"
 
 
-def is_section_editable(doc_path: str, section_name: str) -> bool:
+def core_is_section_editable(doc_path: str, section_name: str) -> bool:
     """
     Check if a specific section of a document is editable.
 
@@ -178,7 +235,7 @@ def is_section_editable(doc_path: str, section_name: str) -> bool:
         return False
 
 
-def create_signature_info(
+def core_create_signature_info(
     doc: Document, signer_name: str, reason: str | None = None
 ) -> dict[str, Any]:
     """
@@ -209,7 +266,7 @@ def create_signature_info(
     return signature_info
 
 
-def verify_signature(doc_path: str) -> tuple[bool, str]:
+def core_verify_signature(doc_path: str) -> tuple[bool, str]:
     """
     Verify a document's digital signature.
 

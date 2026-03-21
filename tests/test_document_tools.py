@@ -41,7 +41,7 @@ async def test_get_document_info(temp_docx_file: str) -> None:
     """Test getting document information."""
     result = await document_tools.get_document_info(temp_docx_file)
     assert isinstance(result, dict)
-    assert "title" in result
+    assert "title" in result["properties"]
 
 
 @pytest.mark.asyncio  # type: ignore[misc]

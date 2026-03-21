@@ -7,452 +7,245 @@ in Word documents, including headings, paragraphs, tables, images, and page brea
 import os
 from typing import Any
 
-from docx import Document
-from docx.document import Document as DocumentType
-from docx.shared import Inches, Pt
-
-from mcp_word.core.styles import ensure_heading_style
+from mcp_word.core import (
+    core_add_heading,
+    core_add_paragraph,
+    core_add_picture,
+    core_add_page_break,
+    core_delete_paragraph,
+    core_add_table_of_contents,
+    core_add_table,
+    core_find_and_replace_text,
+)
+from mcp_word.core.document_context import document_context
 from mcp_word.exception import (
     DocumentProcessingError,
     ExceptionTool,
 )
-from mcp_word.utils.document_utils import find_and_replace_text
-from mcp_word.validation.document_validators import (
-    check_file_writeable,
-    validate_docx_file,
+from mcp_word.models.response_models import (
+    HeadingResult,
+    ParagraphResult,
+    PictureResult,
+    OperationResult,
+    TableResult,
+    TableOfContentsResult,
 )
+from mcp_word.validation.document_validators import validate_docx_write
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any]:
-    """Add a heading to a Word document.
-
-    Args:
-        filename: Path to the Word document as a string.
-        text: The text content of the heading.
-        level: The heading level (1-9, where 1 is the highest level).
-
-    Returns:
-        dict[str, Any]: Success message with details of the operation.
-
-    Raises:
-        ValueError: If the heading level is invalid.
-        IOError: If there's an error processing the document.
-    """
+    """Add a heading to a Word document."""
     try:
         heading_level: int = _validate_heading_level(level)
-        doc = Document(filename)
-        ensure_heading_style(doc)
-        doc.add_heading(text, level=heading_level)
-        doc.save(filename)
-        return {
-            "status": "success",
-            "message": f"Heading '{text}' (level {heading_level}) added to {filename}",
-        }
-    except (KeyError, AttributeError):
-        doc = Document(filename)
-        paragraph = doc.add_paragraph(text)
-        paragraph.style = doc.styles["Normal"]
-        run = paragraph.runs[0]
-        run.bold = True
-        font_sizes = {1: 16, 2: 14}
-        run.font.size = Pt(font_sizes.get(level, 12))
-        doc.save(filename)
-        return {
-            "status": "success",
-            "message": f"Heading '{text}' added to {filename} with direct formatting "
-            "(style not available)",
-        }
-    except OSError as error:
+        with document_context(filename, mode="write") as doc:
+            result = core_add_heading(doc, text, level=heading_level)
+            
+        return HeadingResult(
+            status="success",
+            filename=filename,
+            heading_text=text,
+            heading_level=heading_level,
+            message=f"Heading '{text}' (level {heading_level}) added to {filename}"
+        ).model_dump()
+        
+    except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            DocumentProcessingError(f"Failed to add heading to document: {str(error)}"),
+            error if isinstance(error, DocumentProcessingError) 
+            else DocumentProcessingError(f"Failed to add heading: {str(error)}"),
             filename=filename,
             operation="add heading",
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_paragraph(
     filename: str, text: str, style: str | None = None
 ) -> dict[str, Any]:
-    """Add a paragraph to a Word document.
-
-    Args:
-        filename: Path to the Word document as a string.
-        text: The text content of the paragraph.
-        style: Optional name of the paragraph style to apply.
-
-    Returns:
-        dict[str, Any]: Success message with details of the operation.
-
-    Raises:
-        IOError: If there's an error processing the document.
-    """
+    """Add a paragraph to a Word document."""
     try:
-        doc: DocumentType = Document(filename)
-        paragraph = doc.add_paragraph(text)
+        with document_context(filename, mode="write") as doc:
+            result = core_add_paragraph(doc, text, style=style)
+            
+        return ParagraphResult(
+            status="success",
+            filename=filename,
+            paragraph_text=text,
+            style_applied=result["style_applied"],
+            message=f"Paragraph added to {filename}"
+        ).model_dump()
 
-        if style:
-            try:
-                paragraph.style = style
-            except KeyError:
-                paragraph.style = doc.styles["Normal"]
-                doc.save(filename)
-                return {
-                    "status": "error",
-                    "message": f"Style '{style}' not found. Paragraph added with default style to {filename}",
-                }
-
-        doc.save(filename)
-        return {"status": "success", "message": f"Paragraph added to {filename}"}
-
-    except (OSError, KeyError, ValueError) as error:
+    except (OSError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            DocumentProcessingError(
-                f"Failed to add paragraph to document: {str(error)}"
-            ),
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to add paragraph: {str(error)}"),
             filename=filename,
             operation="add paragraph",
         )
 
 
-def _populate_table(
-    table: Any,  # docx.table.Table type
-    data: list[list[Any]],
-    max_rows: int,
-    max_cols: int,
-) -> None:
-    """Populate a table with data.
-
-    Args:
-        table: The table to populate.
-        data: 2D array of data to fill the table.
-        max_rows: Maximum number of rows to populate.
-        max_cols: Maximum number of columns to populate.
-    """
-    for i, row_data in enumerate(data):
-        if i >= max_rows:
-            break
-        for j, cell_text in enumerate(row_data):
-            if j >= max_cols:
-                break
-            table.cell(i, j).text = str(cell_text)
-
-
-@check_file_writeable("filename")
-@validate_docx_file("filename")
-async def add_table(
-    filename: str, rows: int, cols: int, data: list[list[Any]] | None = None
-) -> dict[str, Any]:
-    """Add a table to a Word document.
-
-    Args:
-        filename: Path to the Word document as a string.
-        rows: Number of rows in the table.
-        cols: Number of columns in the table.
-        data: Optional 2D array of data to fill the table.
-
-    Returns:
-        dict[str, Any]: Success message with details of the operation.
-
-    Raises:
-        ValueError: If rows or cols are not positive integers.
-        IOError: If there's an error processing the document.
-    """
-    try:
-        # Validate dimensions
-        if rows <= 0 or cols <= 0:
-            raise ValueError(f"Table dimensions must be positive (got {rows}x{cols})")
-
-        doc: DocumentType = Document(filename)
-        table = doc.add_table(rows=rows, cols=cols)
-
-        # Apply table style if available
-        try:
-            table.style = "Table Grid"
-        except KeyError:
-            pass  # Use default table style
-
-        # Fill table with data if provided
-        if data:
-            _populate_table(table, data, rows, cols)
-
-        doc.save(filename)
-        return {
-            "status": "success",
-            "message": f"Table ({rows}x{cols}) added to {filename}",
-        }
-
-    except (OSError, ValueError, KeyError) as error:
-        return ExceptionTool.handle_error(
-            DocumentProcessingError(f"Failed to add table to document: {str(error)}"),
-            filename=filename,
-            operation="add table",
-        )
-
-
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def add_picture(
     filename: str, image_path: str, width: float | None = None
 ) -> dict[str, Any]:
-    """Add an image to a Word document.
-
-    Args:
-        filename: Path to the Word document as a string.
-        image_path: Path to the image file as a string.
-        width: Optional width in inches (proportional scaling).
-
-    Returns:
-        dict[str, Any]: Success message with details of the operation.
-
-    Raises:
-        FileNotFoundError: If the image file doesn't exist.
-        ValueError: If width is not a positive number.
-        IOError: If there's an error processing the document or image.
-    """
+    """Add an image to a Word document."""
     try:
-        # Validate image file and get absolute path
         abs_image_path = _validate_image_file(image_path)
-
-        # Validate width if provided
         if width is not None and width <= 0:
             raise ValueError(f"Width must be positive, got {width}")
 
-        doc: DocumentType = Document(filename)
+        with document_context(filename, mode="write") as doc:
+            result = core_add_picture(doc, abs_image_path, width=width)
 
-        # Add picture with optional width
-        if width is not None:
-            doc.add_picture(abs_image_path, width=Inches(width))
-        else:
-            doc.add_picture(abs_image_path)
+        return PictureResult(
+            status="success",
+            filename=filename,
+            image_name=result["image_name"],
+            image_path=abs_image_path,
+            width_inches=width,
+            message=f"Picture '{result['image_name']}' added to {filename}",
+        ).model_dump()
 
-        doc.save(filename)
-        return {
-            "status": "success",
-            "message": f"Picture '{os.path.basename(image_path)}' added to {filename}",
-        }
-
-    except (OSError, FileNotFoundError, ValueError) as error:
+    except (OSError, FileNotFoundError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            DocumentProcessingError(f"Failed to add picture to document: {error}"),
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to add picture: {error}"),
             filename=filename,
             operation="add picture",
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
-async def add_page_break(filename: str) -> dict[str, Any]:
-    """Add a page break to the document.
-
-    Args:
-        filename: Path to the Word document as a string.
-
-    Returns:
-        dict[str, Any]: Success message confirming the page break was added.
-
-    Raises:
-        IOError: If there's an error processing the document.
-    """
+@validate_docx_write("filename")
+async def add_table(
+    filename: str, rows: int, cols: int, data: list[list[Any]] | None = None
+) -> dict[str, Any]:
+    """Add a table to a Word document."""
     try:
-        doc: DocumentType = Document(filename)
-        doc.add_page_break()
-        return {"status": "success", "message": f"Page break added to {filename}"}
-    except (OSError, KeyError) as error:
+        with document_context(filename, mode="write") as doc:
+            core_add_table(doc, rows, cols, data)
+
+        return TableResult(
+            status="success",
+            filename=filename,
+            rows=rows,
+            columns=cols,
+            data_rows=len(data) if data else 0,
+            message=f"Table with {rows} rows and {cols} columns added to {filename}",
+        ).model_dump()
+
+    except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            DocumentProcessingError(
-                f"Failed to add page break to document: {str(error)}"
-            ),
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to add table: {str(error)}"),
+            filename=filename,
+            operation="add table",
+        )
+
+
+@validate_docx_write("filename")
+async def add_table_of_contents(
+    filename: str, title: str = "Table of Contents", max_level: int = 3
+) -> dict[str, Any]:
+    """Add a table of contents to a Word document."""
+    try:
+        with document_context(filename, mode="write") as doc:
+            result = core_add_table_of_contents(doc, title=title, max_level=max_level)
+
+        return TableOfContentsResult(
+            status="success",
+            filename=filename,
+            title=title,
+            entry_count=0,  # Field is created, entries depend on update
+            max_level=max_level,
+            message=result["message"],
+        ).model_dump()
+
+    except (OSError, ValueError, DocumentProcessingError) as error:
+        return ExceptionTool.handle_error(
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to add TOC: {str(error)}"),
+            filename=filename,
+            operation="add TOC",
+        )
+
+
+@validate_docx_write("filename")
+async def add_page_break(filename: str) -> dict[str, Any]:
+    """Add a page break to the document."""
+    try:
+        with document_context(filename, mode="write") as doc:
+            core_add_page_break(doc)
+            
+        return OperationResult(
+            status="success",
+            message=f"Page break added to {filename}"
+        ).model_dump()
+        
+    except (OSError, DocumentProcessingError) as error:
+        return ExceptionTool.handle_error(
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to add page break: {str(error)}"),
             filename=filename,
             operation="add page break",
         )
 
 
-@check_file_writeable("filename")
-@validate_docx_file("filename")
-async def add_table_of_contents(
-    filename: str, title: str = "Table of Contents", max_level: int = 3
-) -> dict[str, Any]:
-    """Add a table of contents to a Word document based on heading styles.
-
-    Args:
-        filename: Path to the Word document as a string.
-        title: Title for the table of contents.
-        max_level: Maximum heading level to include (1-9).
-
-    Returns:
-        dict[str, Any]: Success message with details of the operation.
-
-    Raises:
-        ValueError: If max_level is not between 1 and 9.
-        IOError: If there's an error processing the document.
-    """
-    try:
-        # Validate max_level
-        if not 1 <= max_level <= 9:
-            raise ValueError(f"max_level must be between 1 and 9, got {max_level}")
-
-        doc: DocumentType = Document(filename)
-
-        # Extract headings
-        headings = _extract_headings(doc, max_level)
-
-        if not headings:
-            return {
-                "status": "error",
-                "message": f"No headings found in document {filename}. Table of contents not created.",
-            }
-
-        # Create a new document for TOC
-        toc_doc = Document()
-
-        # Add title if provided
-        if title:
-            toc_doc.add_heading(title, level=1)
-
-        # Add TOC entries with proper indentation
-        for heading in headings:
-            indent = "    " * (heading["level"] - 1)
-            toc_doc.add_paragraph(f"{indent}{heading['text']}")
-
-        # Add page break after TOC
-        toc_doc.add_page_break()
-
-        # Copy original document content
-        _copy_document_content(doc, toc_doc)
-
-        # Save the document with TOC
-        toc_doc.save(filename)
-
-        return {
-            "status": "success",
-            "message": f"Table of contents with {len(headings)} entries added to {filename}",
-        }
-
-    except (OSError, ValueError, KeyError) as error:
-        return ExceptionTool.handle_error(
-            DocumentProcessingError(
-                f"Failed to add table of contents to document: {str(error)}"
-            ),
-            filename=filename,
-            operation="add table of contents",
-        )
-
-
-@check_file_writeable("filename")
-@validate_docx_file("filename")
+@validate_docx_write("filename")
 async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any]:
-    """Delete a paragraph from a document.
-
-    Args:
-        filename: Path to the Word document as a string.
-        paragraph_index: Index of the paragraph to delete (0-based).
-
-    Returns:
-        dict[str, Any]: Success message with details of the operation.
-
-    Raises:
-        IndexError: If paragraph_index is out of range.
-        IOError: If there's an error processing the document.
-    """
+    """Delete a paragraph from a document."""
     try:
-        doc: DocumentType = Document(filename)
-        total_paragraphs = len(doc.paragraphs)
+        with document_context(filename, mode="write") as doc:
+            core_delete_paragraph(doc, paragraph_index)
 
-        # Validate paragraph index
-        if paragraph_index < 0 or paragraph_index >= total_paragraphs:
-            raise IndexError(
-                f"Paragraph index {paragraph_index} is out of range. "
-                f"Document has {total_paragraphs} paragraphs (0-{total_paragraphs - 1})."
-            )
+        return OperationResult(
+            status="success",
+            message=f"Paragraph at index {paragraph_index} deleted successfully."
+        ).model_dump()
 
-        # Remove the paragraph by removing its XML element
-        paragraph = doc.paragraphs[paragraph_index]
-        paragraph_element = paragraph._p
-        paragraph_element.getparent().remove(paragraph_element)
-
-        doc.save(filename)
-        return {
-            "status": "success",
-            "message": f"Paragraph at index {paragraph_index} deleted successfully.",
-        }
-
-    except (OSError, IndexError, KeyError) as error:
+    except (OSError, IndexError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            DocumentProcessingError(
-                f"Failed to delete paragraph from document: {str(error)}"
-            ),
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to delete paragraph: {str(error)}"),
             filename=filename,
             operation="delete paragraph",
         )
 
 
-@validate_docx_file("filename")
-@check_file_writeable("filename")
+@validate_docx_write("filename")
 async def search_and_replace(
     filename: str, find_text: str, replace_text: str
 ) -> dict[str, Any]:
-    """Search for text and replace all occurrences in a Word document.
-
-    Args:
-        filename: Path to the Word document as a string.
-        find_text: Text to search for.
-        replace_text: Text to replace with.
-
-    Returns:
-        dict[str, Any]: Success message with details of the operation.
-
-    Raises:
-        ValueError: If find_text is empty.
-        IOError: If there's an error processing the document.
-    """
+    """Search for text and replace all occurrences in a Word document."""
     try:
-        # Validate input
         if not find_text:
             raise ValueError("Search text cannot be empty")
 
-        doc: DocumentType = Document(filename)
-
-        # Perform find and replace
-        replacement_count = find_and_replace_text(doc, find_text, replace_text)
-
+        with document_context(filename, mode="write") as doc:
+            replacement_count = core_find_and_replace_text(doc, find_text, replace_text)
+            
         if replacement_count > 0:
-            doc.save(filename)
-            return {
-                "status": "success",
-                "message": f"Replaced {replacement_count} occurrence(s) of '{find_text}' with '{replace_text}' in {filename}",
-            }
+            return OperationResult(
+                status="success",
+                message=f"Replaced {replacement_count} occurrence(s) of '{find_text}' with '{replace_text}' in {filename}",
+                details={"replacements_made": replacement_count}
+            ).model_dump()
 
-        return {
-            "status": "error",
-            "message": f"No occurrences of '{find_text}' found in {filename}",
-        }
+        return OperationResult(
+            status="error",
+            message=f"No occurrences of '{find_text}' found in {filename}"
+        ).model_dump()
 
-    except (OSError, ValueError, KeyError) as error:
+    except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            DocumentProcessingError(
-                f"Failed to perform search and replace in document: {str(error)}"
-            ),
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to perform search and replace: {str(error)}"),
             filename=filename,
             operation="search and replace",
         )
 
 
 def _validate_heading_level(level: int) -> int:
-    """Validate and normalize heading level.
-
-    Args:
-        level: The heading level to validate.
-
-    Returns:
-        int: The validated heading level.
-
-    Raises:
-        ValueError: If the level is not a valid integer between 1 and 9.
-    """
+    """Validate and normalize heading level."""
     try:
         level_int = int(level)
         if not 1 <= level_int <= 9:
@@ -464,81 +257,9 @@ def _validate_heading_level(level: int) -> int:
         ) from error
 
 
-def _copy_document_content(source_doc: Any, target_doc: Any) -> None:
-    """Copy content from source document to target document.
-
-    Args:
-        source_doc: Source document to copy from.
-        target_doc: Target document to copy to.
-    """
-    # Copy paragraphs
-    for paragraph in source_doc.paragraphs:
-        new_paragraph = target_doc.add_paragraph(paragraph.text)
-        if paragraph.style:
-            try:
-                new_paragraph.style = paragraph.style.name
-            except KeyError:
-                pass  # Use default style
-
-    # Copy tables
-    for table in source_doc.tables:
-        new_table = target_doc.add_table(rows=len(table.rows), cols=len(table.columns))
-        for i, row in enumerate(table.rows):
-            for j, cell in enumerate(row.cells):
-                new_table.cell(i, j).text = "\n".join(p.text for p in cell.paragraphs)
-
-
-def _extract_headings(
-    doc: Any,
-    max_level: int,  # docx.document.Document type
-) -> list[dict[str, Any]]:
-    """Extract headings from a document.
-
-    Args:
-        doc: The document to extract headings from.
-        max_level: Maximum heading level to include.
-
-    Returns:
-        List of dictionaries containing heading information.
-    """
-    headings = []
-    for i, paragraph in enumerate(doc.paragraphs):
-        if paragraph.style and paragraph.style.name.startswith("Heading "):
-            try:
-                level = int(paragraph.style.name.split(" ")[1])
-                if level <= max_level:
-                    headings.append(
-                        {"level": level, "text": paragraph.text, "position": i}
-                    )
-            except (ValueError, IndexError):
-                continue
-    return headings
-
-
 def _validate_image_file(image_path: str) -> str:
-    """Validate an image file and return its absolute path.
-
-    Args:
-        image_path: Path to the image file to validate.
-
-    Returns:
-        str: Absolute path to the image file.
-
-    Raises:
-        FileNotFoundError: If the image file doesn't exist.
-        IOError: If there's an error accessing the image file.
-    """
+    """Validate an image file and return its absolute path."""
     abs_image_path = os.path.abspath(image_path)
-
     if not os.path.exists(abs_image_path):
         raise FileNotFoundError(f"Image file not found: {abs_image_path}")
-
-    # Check file size
-    try:
-        image_size_kb = os.path.getsize(abs_image_path) / 1024
-        if image_size_kb <= 0:
-            raise OSError(f"Image file is empty: {abs_image_path}")
-        return abs_image_path
-
-    except OSError as error:
-        raise OSError(f"Error accessing image file: {error}") from error
+    return abs_image_path
