@@ -1,0 +1,37 @@
+# LETTER TEMPLATE
+
+## Metadata
+- City: [CITY]
+- Date: [DATE]
+- Sender: [SENDER_NAME]
+- Sender role: [SENDER_ROLE]
+- Recipient: [RECIPIENT_NAME]
+- Recipient role: [RECIPIENT_ROLE]
+- Subject: [SUBJECT]
+
+## Structure
+
+[CITY], [DATE]
+
+[RECIPIENT_NAME]
+[RECIPIENT_ROLE]
+[ORGANIZATION]
+
+Subject: [SUBJECT]
+
+Dear [RECIPIENT_LAST_NAME],
+
+[INTRO_PARAGRAPH]
+
+[MAIN_BODY]
+
+[CLOSING_PARAGRAPH]
+
+Sincerely,
+
+[SENDER_NAME]
+[SENDER_ROLE]
+[CONTACT_INFO]
+
+## Output
+- Suggested path: [ABSOLUTE_OUTPUT_PATH]
