@@ -43,13 +43,15 @@
 
 ```text
 src/
-│  └──📁 word_mcp/            # Main server package
+│  └── 📁 mcp_word/           # Main server package
 │      ├── 📁 core/           # Main Word manipulation logic
 │      ├── 📁 tools/          # Exposed MCP tools
+│      ├── 📁 exception/      # Centralized exception and unprotect handling
+│      ├── 📁 models/         # Response models and schemas
 │      ├── 📁 utils/          # Utilities and helper functions
-│      ├── 📁 prompts/        # Prompt templates for MCP
 │      ├── 📁 validation/     # Input validation
-│      └── main.py            # Main entry point
+│      ├── 📄 server.py       # Main entry point
+│      └── 📄 __main__.py     # Alternative module entry point
 │
 ├── 📁 tests/                  # Unit tests
 ├── 📄 README.md               # This file
@@ -58,12 +60,15 @@ src/
 
 ### Directory Description
 
-- **`word_mcp/`**: Contains all server source code.
+- **`mcp_word/`**: Contains all server source code.
   - **`core/`**: Central logic for Word document manipulation.
   - **`tools/`**: Implementation of tools exposed via MCP.
+  - **`exception/`**: Exception handling and protection-related exception tools.
+  - **`models/`**: Shared response models used across MCP tools.
   - **`utils/`**: Shared helper functions.
-  - **`prompts/`**: Templates for generating instructions for the language model.
   - **`validation/`**: Input and parameter validation.
+  - **`server.py`**: Main MCP server entry point.
+  - **`__main__.py`**: Alternative entry point for module execution.
 
 - **`tests/`**: Unit and integration tests to ensure proper functionality.
 

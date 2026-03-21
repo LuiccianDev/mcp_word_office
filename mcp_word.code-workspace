@@ -34,7 +34,7 @@
             ".venv": true,
             "src": true,
             "tests": true,
-            "docs": true,
+            "docs": false,
             "skills": true,
             "dist": true,
             "build": true
@@ -47,7 +47,7 @@
             "**/.venv": true,
             "src": true,
             "tests": true,
-            "docs": true,
+            "docs": false,
             "skills": true,
             "**/dist": true,
             "**/build": true
