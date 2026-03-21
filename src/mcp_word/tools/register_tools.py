@@ -70,6 +70,9 @@ def register_all_tools(mcp: FastMCP) -> None:
     # word_search_and_replace - Search and replace text
     mcp.tool()(content_tools.search_and_replace)
 
+    # word_add_table_of_contents - Add a table of contents to a document
+    mcp.tool()(content_tools.add_table_of_contents)
+
     # =====================
     # FORMAT TOOLS
     # =====================

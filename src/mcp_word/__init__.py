@@ -14,9 +14,24 @@ __description__ = (
 )
 __title__ = "mcp_word"
 
+from mcp_word.exception import (
+    ConfigurationError,
+    DocumentProcessingError,
+    ExceptionTool,
+    FileOperationError,
+    StyleError,
+    ValidationError,
+)
+
 __all__ = [
     "__version__",
     "__author__",
     "__description__",
     "__title__",
+    "ConfigurationError",
+    "DocumentProcessingError",
+    "ExceptionTool",
+    "FileOperationError",
+    "StyleError",
+    "ValidationError",
 ]

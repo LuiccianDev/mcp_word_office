@@ -3,74 +3,93 @@ Footnote and endnote functionality for Word Document Server.
 """
 
 import string
+from typing import Any
 
 from docx.document import Document
 from docx.text.paragraph import Paragraph
 
 
-def add_footnote(doc: Document, paragraph: Paragraph, text: str) -> Paragraph:
-    """
-    Add a footnote to a paragraph.
-    Note: python-docx doesn't directly support footnotes, so this is a placeholder implementation.
+def core_add_footnote(doc: Document, paragraph_index: int, text: str) -> dict[str, Any]:
+    """Add a footnote to a specific paragraph.
 
     Args:
-        doc: Document object
-        paragraph: Paragraph to add footnote to
-        text: Text content of the footnote
+        doc: Document object.
+        paragraph_index: Index of the paragraph.
+        text: Text content of the footnote.
 
     Returns:
-        The paragraph containing the footnote reference
+        dict: Details of the added footnote.
     """
-    # Since python-docx doesn't support footnotes directly, add a superscript reference
+    if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
+        raise IndexError(f"Paragraph index {paragraph_index} out of range.")
+
+    paragraph = doc.paragraphs[paragraph_index]
+    
+    # Superscript reference
     run = paragraph.add_run()
-    run.text = "¹"  # Using Unicode superscript as placeholder
+    run.text = "¹"
     run.font.superscript = True
 
-    # Add footnote text at the end of the document
+    # Add footnote section at the end if it doesn't exist
+    found = False
+    for p in doc.paragraphs:
+        if p.text.startswith("Footnotes:"):
+            found = True
+            break
+    if not found:
+        doc.add_paragraph("\n")
+        doc.add_paragraph().add_run("Footnotes:").bold = True
+
     doc.add_paragraph(f"¹ {text}")
 
-    return paragraph
+    return {
+        "footnote_id": 1, # Placeholder as docx doesn't support real IDs easily
+        "footnote_text": text,
+        "paragraph_index": paragraph_index
+    }
 
 
-def add_endnote(doc: Document, paragraph: Paragraph, text: str) -> Paragraph:
-    """
-    Add an endnote to a paragraph.
-    This is a custom implementation since python-docx doesn't directly support endnotes.
+def core_add_endnote(doc: Document, paragraph_index: int, text: str) -> dict[str, Any]:
+    """Add an endnote to a specific paragraph.
 
     Args:
-        doc: Document object
-        paragraph: Paragraph to add endnote to
-        text: Text content of the endnote
+        doc: Document object.
+        paragraph_index: Index of the paragraph.
+        text: Text content of the endnote.
 
     Returns:
-        The paragraph containing the endnote reference
+        dict: Details of the added endnote.
     """
+    if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
+        raise IndexError(f"Paragraph index {paragraph_index} out of range.")
 
+    paragraph = doc.paragraphs[paragraph_index]
+    
     run = paragraph.add_run()
     run.text = "*"
     run.font.superscript = True
 
-    # Add endnote text at the end of the document
-    # create a section for endnotes if it doesn't exist
-    endnotes_found = False
+    # Endnotes section
+    found = False
     for para in doc.paragraphs:
         if para.text == "Endnotes:":
-            endnotes_found = True
+            found = True
             break
 
-    if not endnotes_found:
-        # Add a page break before endnotes section
+    if not found:
         doc.add_page_break()
         doc.add_heading("Endnotes:", level=1)
 
-    # Add the endnote text
-    endnote_text = f"* {text}"
-    doc.add_paragraph(endnote_text)
+    doc.add_paragraph(f"* {text}")
 
-    return paragraph
+    return {
+        "endnote_id": 1,
+        "endnote_text": text,
+        "paragraph_index": paragraph_index
+    }
 
 
-def convert_footnotes_to_endnotes(doc: Document) -> int:
+def core_convert_footnotes_to_endnotes(doc: Document) -> int:
     """
     Convert all footnotes to endnotes in a document.
 
@@ -180,7 +199,7 @@ def get_format_symbols(numbering_format: str, count: int) -> list[str]:
         return [str(i) for i in range(1, count + 1)]
 
 
-def customize_footnote_formatting(
+def core_customize_footnote_formatting(
     doc: Document,
     footnote_refs: list[tuple[int, int, str]],
     format_symbols: list[str],

@@ -13,14 +13,19 @@ from docx.text.paragraph import Paragraph
 from docx.text.run import Run
 
 
-def add_bookmark(paragraph: Paragraph, name: str) -> None:
+def core_add_bookmark(doc: Document, paragraph_index: int, name: str) -> None:
     """Add a bookmark to the end of a paragraph.
 
     Args:
-        paragraph: The paragraph to append the bookmark to.
-        name: The name of the bookmark. Must be unique in the document.
-              Should not contain spaces.
+        doc: The Word document object.
+        paragraph_index: Index of the paragraph.
+        name: The name of the bookmark.
     """
+    if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
+        raise IndexError(f"Paragraph index {paragraph_index} out of range.")
+    
+    paragraph = doc.paragraphs[paragraph_index]
+    
     # Clean the name to be a valid xml id (no spaces)
     name = name.replace(" ", "_")
     
@@ -37,20 +42,23 @@ def add_bookmark(paragraph: Paragraph, name: str) -> None:
     paragraph._p.append(bookmark_end)
 
 
-def add_hyperlink(
-    paragraph: Paragraph, text: str, url: str | None = None, bookmark: str | None = None
+def core_add_hyperlink(
+    doc: Document, paragraph_index: int, text: str, url: str | None = None, bookmark: str | None = None
 ) -> None:
     """Add a hyperlink into a paragraph.
 
     Args:
-        paragraph: The paragraph where the hyperlink will be added.
+        doc: The Word document object.
+        paragraph_index: Index of the paragraph.
         text: The clickable text of the hyperlink.
-        url: The external URL. Provide this OR bookmark, not both.
+        url: The external URL.
         bookmark: The internal bookmark name to link to.
-
-    Raises:
-        ValueError: If neither url nor bookmark is provided, or both are.
     """
+    if paragraph_index < 0 or paragraph_index >= len(doc.paragraphs):
+        raise IndexError(f"Paragraph index {paragraph_index} out of range.")
+        
+    paragraph = doc.paragraphs[paragraph_index]
+
     if bool(url) == bool(bookmark):
         raise ValueError("Must provide exactly one of 'url' or 'bookmark'")
 
@@ -81,4 +89,3 @@ def add_hyperlink(
     
     # Append the hyperlink to the paragraph xml
     paragraph._p.append(hyperlink)
-

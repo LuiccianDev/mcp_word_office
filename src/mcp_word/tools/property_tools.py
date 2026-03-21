@@ -2,33 +2,37 @@
 
 from typing import Any
 
-from docx import Document
-
-from mcp_word.core import properties
+from mcp_word.core import (
+    core_get_core_properties,
+    core_set_core_properties,
+    core_set_page_layout,
+)
+from mcp_word.core.document_context import document_context
+from mcp_word.exception import (
+    DocumentProcessingError,
+    ExceptionTool,
+)
 from mcp_word.validation.document_validators import validate_docx_read, validate_docx_write
 
 
 @validate_docx_read("file_path")
 async def get_core_properties(file_path: str) -> dict[str, Any]:
-    """Get the core metadata properties of the document (author, title, etc.).
-
-    Args:
-        file_path: Path to the .docx file
-
-    Returns:
-        A dictionary containing the document properties
-    """
+    """Get the core metadata properties of the document (author, title, etc.)."""
     try:
-        doc = Document(file_path)
-        
-        props = properties.get_core_properties(doc)
+        with document_context(file_path, mode="read") as doc:
+            props = core_get_core_properties(doc)
         
         return {
             "status": "success",
             "properties": props,
         }
-    except Exception as e:
-        return {"status": "error", "message": f"Failed to get properties: {e!s}"}
+    except (DocumentProcessingError, OSError) as error:
+        return ExceptionTool.handle_error(
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to get properties: {str(error)}"),
+            filename=file_path,
+            operation="get core properties",
+        )
 
 
 @validate_docx_write("file_path")
@@ -41,23 +45,8 @@ async def set_core_properties(
     comments: str | None = None,
     category: str | None = None
 ) -> dict[str, Any]:
-    """Set the core metadata properties of the document.
-
-    Args:
-        file_path: Path to the .docx file
-        author: Optional author name
-        title: Optional document title
-        subject: Optional document subject
-        keywords: Optional document keywords/tags
-        comments: Optional document comments
-        category: Optional document category
-
-    Returns:
-        A dictionary containing the status and a message or error details
-    """
+    """Set the core metadata properties of the document."""
     try:
-        doc = Document(file_path)
-        
         # Build kwargs dictionary excluding None values
         kwargs = {}
         if author is not None: kwargs["author"] = author
@@ -70,44 +59,39 @@ async def set_core_properties(
         if not kwargs:
             return {"status": "error", "message": "No properties provided to update."}
             
-        properties.set_core_properties(doc, **kwargs)
-        doc.save(file_path)
+        with document_context(file_path, mode="write") as doc:
+            core_set_core_properties(doc, **kwargs)
         
         return {
             "status": "success",
             "message": f"Successfully updated properties: {list(kwargs.keys())}",
             "file_path": str(file_path)
         }
-    except Exception as e:
-        return {"status": "error", "message": f"Failed to set properties: {e!s}"}
+    except (DocumentProcessingError, OSError) as error:
+        return ExceptionTool.handle_error(
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to set properties: {str(error)}"),
+            filename=file_path,
+            operation="set core properties",
+        )
 
 
 @validate_docx_write("file_path")
 async def set_page_layout(file_path: str, section_index: int = 0, orientation: str = "portrait") -> dict[str, Any]:
-    """Set the page layout orientation (portrait or landscape) for a specific section.
-
-    Args:
-        file_path: Path to the .docx file
-        section_index: The index of the section (0-based). Default is 0.
-        orientation: Must be either "portrait" or "landscape".
-
-    Returns:
-        A dictionary containing the status and a message or error details
-    """
+    """Set the page layout orientation (portrait or landscape) for a specific section."""
     try:
-        doc = Document(file_path)
-        
-        properties.set_page_layout(doc, section_idx=section_index, orientation=orientation)
-        doc.save(file_path)
+        with document_context(file_path, mode="write") as doc:
+            core_set_page_layout(doc, section_idx=section_index, orientation=orientation)
         
         return {
             "status": "success",
             "message": f"Successfully set section {section_index} layout to {orientation}",
             "file_path": str(file_path)
         }
-    except ValueError as e:
-        return {"status": "error", "message": str(e)}
-    except IndexError as e:
-        return {"status": "error", "message": str(e)}
-    except Exception as e:
-        return {"status": "error", "message": f"Failed to set page layout: {e!s}"}
+    except (ValueError, IndexError, DocumentProcessingError, OSError) as error:
+        return ExceptionTool.handle_error(
+            error if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(f"Failed to set page layout: {str(error)}"),
+            filename=file_path,
+            operation="set page layout",
+        )

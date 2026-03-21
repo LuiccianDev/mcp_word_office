@@ -9,7 +9,7 @@ from docx.document import Document
 from docx.enum.section import WD_HEADER_FOOTER
 
 
-def set_section_header(
+def core_set_section_header(
     doc: Document, text: str, section_idx: int = 0, is_primary: bool = True
 ) -> None:
     """Set the header text for a specific section.
@@ -43,7 +43,7 @@ def set_section_header(
         header.add_paragraph(text)
 
 
-def set_section_footer(
+def core_set_section_footer(
     doc: Document, text: str, section_idx: int = 0, is_primary: bool = True
 ) -> None:
     """Set the footer text for a specific section.

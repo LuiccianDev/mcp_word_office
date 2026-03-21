@@ -12,7 +12,7 @@ from docx.enum.section import WD_ORIENTATION
 from docx.shared import Inches
 
 
-def get_core_properties(doc: Document) -> dict[str, str | None]:
+def core_get_core_properties(doc: Document) -> dict[str, str | None]:
     """Get the core properties of the document.
 
     Args:
@@ -35,7 +35,7 @@ def get_core_properties(doc: Document) -> dict[str, str | None]:
     }
 
 
-def set_core_properties(doc: Document, **kwargs: str) -> None:
+def core_set_core_properties(doc: Document, **kwargs: str) -> None:
     """Set the core properties of the document.
 
     Args:
@@ -52,7 +52,7 @@ def set_core_properties(doc: Document, **kwargs: str) -> None:
             setattr(props, key, value)
 
 
-def set_page_layout(
+def core_set_page_layout(
     doc: Document, section_idx: int = 0, orientation: str = "portrait"
 ) -> None:
     """Set the page layout orientation for a specific section.

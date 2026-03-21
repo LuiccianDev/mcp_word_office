@@ -13,6 +13,7 @@ from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls, qn
 from docx.oxml.parser import OxmlElement
 from docx.table import Table, _Cell, _Row
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
 # Type aliases for better code readability
@@ -142,6 +143,38 @@ def copy_table(source_table: Table, target_doc: Document) -> Table:
                 _copy_table_cell_contents(cell, new_table.cell(i, j))
 
     return new_table
+
+
+def core_add_table(
+    doc: Document, rows: int, cols: int, data: list[list[Any]] | None = None
+) -> Table:
+    """Add a table to a Word document.
+
+    Args:
+        doc: The Word document.
+        rows: Number of rows in the table.
+        cols: Number of columns in the table.
+        data: Optional 2D array of data to fill the table.
+
+    Returns:
+        Table: The newly created table.
+    """
+    if rows <= 0 or cols <= 0:
+        raise ValueError("Rows and columns must be positive integers")
+
+    table = doc.add_table(rows=rows, cols=cols)
+    table.style = "Table Grid"
+
+    if data:
+        for i, row_data in enumerate(data):
+            if i >= rows:
+                break
+            for j, cell_value in enumerate(row_data):
+                if j >= cols:
+                    break
+                table.cell(i, j).text = str(cell_value)
+
+    return table
 
 
 def _format_header_row(header_row: _Row) -> None:

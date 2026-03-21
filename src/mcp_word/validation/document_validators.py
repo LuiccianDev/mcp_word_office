@@ -104,15 +104,21 @@ def check_file_writeable(param_name: str) -> Callable[[F], F]:
     return decorator
 
 
-# helper function to check if a file is writeable
 def _check_file_writeable(path_value: str | Path) -> tuple[bool, str]:
-    """Checks if a file is writeable."""
+    """Checks if a file is writeable or can be created."""
     try:
         path = Path(path_value).resolve()
-        if not path.exists():
-            return False, f"File '{path}' does not exist."
-        if not os.access(path, os.W_OK):
-            return False, f"File '{path}' is not writeable."
+        if path.exists():
+            if not os.access(path, os.W_OK):
+                return False, f"File '{path}' is not writeable."
+            return True, ""
+        
+        # If file doesn't exist, check parent directory
+        parent = path.parent
+        if not parent.exists():
+            return False, f"Parent directory '{parent}' does not exist."
+        if not os.access(parent, os.W_OK):
+            return False, f"Parent directory '{parent}' is not writeable."
         return True, ""
     except Exception as e:
         return False, str(e)

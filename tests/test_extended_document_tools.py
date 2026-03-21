@@ -29,7 +29,7 @@ async def test_get_paragraph_text_from_document(temp_docx_file: str) -> None:
         temp_docx_file, 1
     )
     assert result["status"] == "success"
-    assert "second paragraph" in result["text"]
+    assert "second paragraph" in result["paragraph"]["text"]
 
 
 @pytest.mark.asyncio  # type: ignore[misc]
@@ -51,5 +51,5 @@ async def test_convert_to_pdf_windows(
         temp_docx_file, str(output_file)
     )
     mock_convert.assert_called_once_with(temp_docx_file, str(output_file))
-    assert result["success"]
+    assert result["status"] == "success"
     assert "successfully converted" in result["message"]
