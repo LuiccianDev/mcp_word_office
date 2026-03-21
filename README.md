@@ -35,6 +35,7 @@
 - [Docker Support](#docker-support)
 - [Tool API](#tool-api)
 - [Security](#security)
+- [Changelog](#changelog)
 - [Contribution](#contribution)
 - [License](#license)
 
@@ -205,6 +206,15 @@ The MCP Word server exposes a comprehensive set of tools organized into logical 
 ## Contribution
 
 Contributions are welcome. Please read the contribution guidelines before submitting pull requests.
+
+## Changelog
+
+For detailed information about changes, improvements, and bug fixes in each version, please see the [CHANGELOG.md](CHANGELOG.md) file.
+
+Key information:
+- **Current Version**: 1.1.2
+- **Latest Features**: FastMCP3 integration, Pydantic v2 support, MCP Word Document Workflow Skill
+- **Unreleased**: See the [Unreleased] section in CHANGELOG.md for upcoming features
 
 ## License
 
