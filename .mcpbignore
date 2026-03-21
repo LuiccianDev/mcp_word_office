@@ -142,6 +142,7 @@ opencode.json
 .dockerignore
 Docker.md
 Dockerfile
-
+docs/
+skills/
 
 # Project specific (add any project-specific patterns below)
