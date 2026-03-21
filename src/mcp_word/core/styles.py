@@ -8,21 +8,12 @@ consistent formatting.
 
 # Standard library imports
 from enum import Enum
-from typing import Any
+from typing import Any, Dict, Optional, Union
 
 # Third-party imports
 from docx.document import Document
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Length, Pt, RGBColor
-
-
-# Constants for default values
-DEFAULT_HEADING_1_SIZE = Pt(16)
-DEFAULT_HEADING_2_SIZE = Pt(14)
-DEFAULT_HEADING_SIZE = Pt(12)
-DEFAULT_FONT_NAME = "Calibri"
-DEFAULT_FONT_SIZE = Pt(11)
-DEFAULT_COLOR = RGBColor(0, 0, 0)  # Black
 
 
 class StyleType(str, Enum):
@@ -34,14 +25,38 @@ class StyleType(str, Enum):
     NUMBERING = "numbering"
 
 
-def _parse_color(value: Any) -> RGBColor:
-    """Parse color value to RGBColor."""
-    if value is None:
-        return DEFAULT_COLOR
-    if isinstance(value, RGBColor):
-        return value
-    if isinstance(value, str):
-        color_map = {
+class StyleSettings:
+    """Configuration for document styles and default values."""
+
+    def __init__(
+        self,
+        font_name: str = "Calibri",
+        font_size: Union[int, Length] = Pt(11),
+        heading_sizes: Optional[Dict[int, Length]] = None,
+        colors: Optional[Dict[str, RGBColor]] = None,
+        default_color: RGBColor = RGBColor(0, 0, 0),
+    ):
+        self.font_name = font_name
+        self.font_size = font_size
+        self.default_color = default_color
+
+        # Default heading sizes mapping level -> size
+        self.heading_sizes = {
+            1: Pt(16),
+            2: Pt(14),
+            3: Pt(12),
+            4: Pt(12),
+            5: Pt(12),
+            6: Pt(12),
+            7: Pt(12),
+            8: Pt(12),
+            9: Pt(12),
+        }
+        if heading_sizes:
+            self.heading_sizes.update(heading_sizes)
+
+        # Extensible color map
+        self.colors = {
             "red": RGBColor(255, 0, 0),
             "blue": RGBColor(0, 0, 255),
             "green": RGBColor(0, 128, 0),
@@ -52,14 +67,33 @@ def _parse_color(value: Any) -> RGBColor:
             "purple": RGBColor(128, 0, 128),
             "orange": RGBColor(255, 165, 0),
         }
-        color_lower = value.lower()
-        if color_lower in color_map:
-            return color_map[color_lower]
-        try:
-            return RGBColor.from_string(value)
-        except (ValueError, AttributeError):
-            pass
-    return DEFAULT_COLOR
+        if colors:
+            self.colors.update(colors)
+
+    def get_heading_size(self, level: int) -> Length:
+        """Get the font size for a specific heading level."""
+        return self.heading_sizes.get(level, self.heading_sizes.get(3, Pt(12)))
+
+    def parse_color(self, value: Any) -> RGBColor:
+        """Parse color value to RGBColor using the defined color map."""
+        if value is None:
+            return self.default_color
+        if isinstance(value, RGBColor):
+            return value
+        if isinstance(value, str):
+            color_lower = value.lower()
+            if color_lower in self.colors:
+                return self.colors[color_lower]
+            try:
+                # Attempt to parse from hex string or similar
+                return RGBColor.from_string(value)
+            except (ValueError, AttributeError):
+                pass
+        return self.default_color
+
+
+# Global default settings
+DEFAULT_SETTINGS = StyleSettings()
 
 
 class FontProperties:
@@ -67,17 +101,18 @@ class FontProperties:
 
     def __init__(
         self,
-        name: str = DEFAULT_FONT_NAME,
-        size: int | Length | None = DEFAULT_FONT_SIZE,
+        name: Optional[str] = None,
+        size: Optional[Union[int, Length]] = None,
         bold: bool = False,
         italic: bool = False,
-        color: str | RGBColor | None = None,
+        color: Optional[Union[str, RGBColor]] = None,
+        settings: StyleSettings = DEFAULT_SETTINGS,
     ):
-        self.name = name
-        self.size = size
+        self.name = name or settings.font_name
+        self.size = size if size is not None else settings.font_size
         self.bold = bold
         self.italic = italic
-        self.color = _parse_color(color)
+        self.color = settings.parse_color(color)
 
 
 class ParagraphProperties:
@@ -85,10 +120,10 @@ class ParagraphProperties:
 
     def __init__(
         self,
-        alignment: int | None = None,
-        spacing: float | None = None,
-        space_before: Length | None = None,
-        space_after: Length | None = None,
+        alignment: Optional[int] = None,
+        spacing: Optional[float] = None,
+        space_before: Optional[Length] = None,
+        space_after: Optional[Length] = None,
     ):
         self.alignment = alignment
         self.spacing = spacing
@@ -96,32 +131,29 @@ class ParagraphProperties:
         self.space_after = space_after
 
 
-def ensure_heading_style(doc: Document) -> None:
+def ensure_heading_style(doc: Document, settings: StyleSettings = DEFAULT_SETTINGS) -> None:
     """
-    Ensure default heading styles exist in the document.
+    Ensure default heading styles exist in the document and match settings.
 
     Args:
         doc: The document to ensure styles for.
+        settings: Style settings to use for formatting.
     """
     for level in range(1, 10):
         style_name = f"Heading {level}"
-        if style_name not in doc.styles:
-            try:
+        try:
+            if style_name not in doc.styles:
                 style = doc.styles.add_style(style_name, WD_STYLE_TYPE.PARAGRAPH)
-                font = style.font
-                font.name = "Calibri"
-                font.bold = True
+            else:
+                style = doc.styles[style_name]
 
-                # Set appropriate font size based on heading level
-                if level == 1:
-                    font.size = DEFAULT_HEADING_1_SIZE
-                elif level == 2:
-                    font.size = DEFAULT_HEADING_2_SIZE
-                else:
-                    font.size = DEFAULT_HEADING_SIZE
-            except Exception as e:
-                # Log error but continue with other styles
-                print(f"Warning: Failed to create {style_name} style: {e}")
+            font = style.font
+            font.name = settings.font_name
+            font.bold = True
+            font.size = settings.get_heading_size(level)
+        except Exception as e:
+            # Log error but continue with other styles
+            print(f"Warning: Failed to ensure {style_name} style: {e}")
 
 
 def ensure_table_style(doc: Document) -> None:
@@ -143,9 +175,10 @@ def create_style(
     doc: Document,
     style_name: str,
     style_type: WD_STYLE_TYPE = WD_STYLE_TYPE.PARAGRAPH,
-    base_style: str | None = None,
-    font_props: dict[str, Any] | None = None,
-    paragraph_props: dict[str, Any] | None = None,
+    base_style: Optional[str] = None,
+    font_props: Optional[Dict[str, Any]] = None,
+    paragraph_props: Optional[Dict[str, Any]] = None,
+    settings: StyleSettings = DEFAULT_SETTINGS,
 ) -> Any:
     """
     Create or update a style in the document.
@@ -157,6 +190,7 @@ def create_style(
         base_style: Optional name of the base style to inherit from.
         font_props: Dictionary of font properties.
         paragraph_props: Dictionary of paragraph properties.
+        settings: Style settings to use for defaults.
 
     Returns:
         The created or existing style.
@@ -175,7 +209,8 @@ def create_style(
         # Apply font properties if provided
         if font_props:
             font = style.font
-            font_props_obj = FontProperties(**font_props)
+            # Pass settings to FontProperties
+            font_props_obj = FontProperties(**font_props, settings=settings)
 
             if font_props_obj.name:
                 font.name = font_props_obj.name

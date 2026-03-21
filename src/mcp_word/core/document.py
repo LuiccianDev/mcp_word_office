@@ -17,7 +17,12 @@ from docx import Document
 from docx.document import Document as DocumentType
 from docx.text.paragraph import Paragraph
 
-from mcp_word.core.styles import ensure_heading_style, ensure_table_style
+from mcp_word.core.styles import (
+    DEFAULT_SETTINGS,
+    StyleSettings,
+    ensure_heading_style,
+    ensure_table_style,
+)
 from mcp_word.core.tables import copy_table
 from mcp_word.utils.document_utils import (
     create_document_copy,
@@ -26,7 +31,10 @@ from mcp_word.utils.document_utils import (
 
 
 def core_create_document(
-    filename: str, title: str | None = None, author: str | None = None
+    filename: str,
+    title: str | None = None,
+    author: str | None = None,
+    style_settings: dict[str, Any] | StyleSettings | None = None,
 ) -> str:
     """Create a new Word document with optional metadata.
 
@@ -45,7 +53,15 @@ def core_create_document(
     if author:
         doc.core_properties.author = author
 
-    ensure_heading_style(doc)
+    # Initialize style settings
+    if isinstance(style_settings, dict):
+        settings = StyleSettings(**style_settings)
+    elif isinstance(style_settings, StyleSettings):
+        settings = style_settings
+    else:
+        settings = DEFAULT_SETTINGS
+
+    ensure_heading_style(doc, settings=settings)
     ensure_table_style(doc)
 
     doc.save(filename)
