@@ -28,7 +28,7 @@
         "src/mcp_word/server.py"
       ],
       "env": {
-        "MCP_ALLOWED_DIRECTORIES": "${user_config.directory}"
+        "MCP_ALLOWED_DIRECTORIES": "${user_config:directory}"
       }
     }
   },
@@ -209,8 +209,9 @@
       "type": "directory",
       "title": "Allowed directories",
       "description": "Select directories where this server can read and write Word files.",
-      "multiple": true,
-      "required": true
+      "multiple": false,
+      "required": true,
+      "sensitive": false
     }
   },
   "_meta": {
