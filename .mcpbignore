@@ -148,4 +148,7 @@ docs/
 skills/
 skills-lock.json
 
+CHANGELOG.md
+CONTRIBUTING.md
+
 # Project specific (add any project-specific patterns below)

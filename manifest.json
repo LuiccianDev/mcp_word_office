@@ -1,47 +1,275 @@
 {
-  "manifest_version": "0.2",
+  "manifest_version": "0.4",
   "name": "mcp_word",
+  "display_name": "MCP Word Office",
   "version": "1.1.2",
-  "description": "mcp word office",
+  "description": "MCP server for Microsoft Word document automation.",
+  "long_description": "MCP Word Office provides tools to create, edit, format, secure, inspect, and export Word documents. It includes document creation and merge workflows, content editing, styles and formatting, headers/footers, links, metadata, protection features, footnotes/endnotes, and PDF conversion.",
   "author": {
     "name": "LuiccianDev",
-    "email": "LuiccianDev@gmail.com",
     "url": "https://github.com/LuiccianDev/mcp_word_office"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/LuiccianDev/mcp_word_office"
   },
-  "homepage": "https://github.com/LuiccianDev",
+  "homepage": "https://github.com/LuiccianDev/mcp_word_office",
   "documentation": "https://github.com/LuiccianDev/mcp_word_office/blob/master/README.md",
   "support": "https://github.com/LuiccianDev/mcp_word_office/issues",
   "server": {
-    "type": "python",
+    "type": "uv",
     "entry_point": "src/mcp_word/server.py",
     "mcp_config": {
       "command": "uv",
-      "args": ["--directory",
-        "${__dirname}","run","src/mcp_word/server.py"
+      "args": [
+        "--directory",
+        "${__dirname}",
+        "run",
+        "src/mcp_word/server.py"
       ],
       "env": {
-        "MCP_ALLOWED_DIRECTORIES" : "${user_config:directory}"
+        "MCP_ALLOWED_DIRECTORIES": "${user_config.directory}"
       }
     }
   },
+  "tools": [
+    {
+      "name": "create_document",
+      "description": "Create a new Word document with optional metadata."
+    },
+    {
+      "name": "copy_document",
+      "description": "Create a copy of an existing Word document."
+    },
+    {
+      "name": "get_document_info",
+      "description": "Get document metadata and properties."
+    },
+    {
+      "name": "get_document_text",
+      "description": "Extract all text from a Word document."
+    },
+    {
+      "name": "get_document_outline",
+      "description": "Get outline information such as headings and tables."
+    },
+    {
+      "name": "list_available_documents",
+      "description": "List available .docx documents with pagination support."
+    },
+    {
+      "name": "merge_documents",
+      "description": "Merge multiple Word documents into one file."
+    },
+    {
+      "name": "add_heading",
+      "description": "Add a heading to a document."
+    },
+    {
+      "name": "add_paragraph",
+      "description": "Add a paragraph to a document."
+    },
+    {
+      "name": "add_picture",
+      "description": "Insert an image into a document."
+    },
+    {
+      "name": "add_table",
+      "description": "Add a table to a document."
+    },
+    {
+      "name": "add_page_break",
+      "description": "Insert a page break in a document."
+    },
+    {
+      "name": "delete_paragraph",
+      "description": "Delete a paragraph from a document by index."
+    },
+    {
+      "name": "search_and_replace",
+      "description": "Search for text and replace matches in a document."
+    },
+    {
+      "name": "add_table_of_contents",
+      "description": "Generate and insert a table of contents."
+    },
+    {
+      "name": "format_text",
+      "description": "Apply text formatting to selected content."
+    },
+    {
+      "name": "create_custom_style",
+      "description": "Create a custom reusable style."
+    },
+    {
+      "name": "format_table",
+      "description": "Format table appearance including borders and shading."
+    },
+    {
+      "name": "protect_document",
+      "description": "Protect a document with a password."
+    },
+    {
+      "name": "unprotect_document",
+      "description": "Remove password protection from a document."
+    },
+    {
+      "name": "add_restricted_editing",
+      "description": "Enable restricted editing for document sections."
+    },
+    {
+      "name": "add_digital_signature",
+      "description": "Add a digital signature marker to a document."
+    },
+    {
+      "name": "verify_document",
+      "description": "Verify document protection and signature status."
+    },
+    {
+      "name": "add_footnote_to_document",
+      "description": "Add a footnote to a document."
+    },
+    {
+      "name": "add_endnote_to_document",
+      "description": "Add an endnote to a document."
+    },
+    {
+      "name": "convert_footnotes_to_endnotes_in_document",
+      "description": "Convert footnotes to endnotes in a document."
+    },
+    {
+      "name": "customize_footnote_style",
+      "description": "Customize footnote numbering and visual style."
+    },
+    {
+      "name": "get_paragraph_text_from_document",
+      "description": "Extract text from a specific paragraph index."
+    },
+    {
+      "name": "find_text_in_document",
+      "description": "Find text occurrences in a document."
+    },
+    {
+      "name": "convert_to_pdf",
+      "description": "Convert a Word document to PDF format."
+    },
+    {
+      "name": "add_header",
+      "description": "Add or update a document header."
+    },
+    {
+      "name": "add_footer",
+      "description": "Add or update a document footer."
+    },
+    {
+      "name": "add_hyperlink",
+      "description": "Insert a hyperlink into a document."
+    },
+    {
+      "name": "add_bookmark",
+      "description": "Insert a bookmark anchor in a document."
+    },
+    {
+      "name": "get_core_properties",
+      "description": "Read core document properties such as title and author."
+    },
+    {
+      "name": "set_core_properties",
+      "description": "Update core document metadata properties."
+    },
+    {
+      "name": "set_page_layout",
+      "description": "Set page orientation and layout options."
+    }
+  ],
+  "tools_generated": true,
+  "prompts_generated": false,
+  "keywords": [
+    "mcp",
+    "word",
+    "docx",
+    "office",
+    "document-automation",
+    "formatting",
+    "editing",
+    "pdf"
+  ],
   "compatibility": {
     "platforms": [
       "darwin",
       "win32",
       "linux"
-    ]
+    ],
+    "runtimes": {
+      "python": ">=3.13"
+    }
   },
   "user_config": {
     "directory": {
       "type": "directory",
-      "title": "directory work",
-      "description": "directory work",
-      "required": true,
-      "sensitive": false
+      "title": "Allowed directories",
+      "description": "Select directories where this server can read and write Word files.",
+      "multiple": true,
+      "required": true
+    }
+  },
+  "_meta": {
+    "com.luicciandev.mcp_word_office": {
+      "tool_sections": {
+        "creation": [
+          "create_document",
+          "copy_document",
+          "merge_documents"
+        ],
+        "document_reading": [
+          "get_document_info",
+          "get_document_text",
+          "get_document_outline",
+          "list_available_documents",
+          "get_paragraph_text_from_document",
+          "find_text_in_document"
+        ],
+        "content_editing": [
+          "add_heading",
+          "add_paragraph",
+          "add_picture",
+          "add_table",
+          "add_page_break",
+          "delete_paragraph",
+          "search_and_replace",
+          "add_table_of_contents"
+        ],
+        "styles_and_formatting": [
+          "format_text",
+          "create_custom_style",
+          "format_table",
+          "set_page_layout"
+        ],
+        "headers_footers_and_links": [
+          "add_header",
+          "add_footer",
+          "add_hyperlink",
+          "add_bookmark"
+        ],
+        "footnotes_endnotes": [
+          "add_footnote_to_document",
+          "add_endnote_to_document",
+          "convert_footnotes_to_endnotes_in_document",
+          "customize_footnote_style"
+        ],
+        "protection_and_security": [
+          "protect_document",
+          "unprotect_document",
+          "add_restricted_editing",
+          "add_digital_signature",
+          "verify_document"
+        ],
+        "metadata_and_export": [
+          "get_core_properties",
+          "set_core_properties",
+          "convert_to_pdf"
+        ]
+      }
     }
   },
   "license": "MIT"
