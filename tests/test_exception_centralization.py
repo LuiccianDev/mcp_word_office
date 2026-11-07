@@ -2,7 +2,7 @@
 
 import pytest
 
-from mcp_word.exception import (
+from office_mcp.exception import (
     ConfigurationError,
     DocumentProcessingError,
     ExceptionTool,
@@ -145,9 +145,9 @@ class TestExceptionTool:
 class TestExceptionImportFromPackage:
     """Tests for importing exceptions from package level."""
 
-    def test_import_from_mcp_word(self):
-        """Test exceptions can be imported from mcp_word package."""
-        from mcp_word import (
+    def test_import_from_office_mcp(self):
+        """Test exceptions can be imported from office_mcp package."""
+        from office_mcp import (
             ConfigurationError,
             DocumentProcessingError,
             ExceptionTool,
@@ -168,8 +168,8 @@ class TestExceptionCentralization:
     """Tests to verify exception centralization works correctly."""
 
     def test_exceptions_available_from_exception_module(self):
-        """Test all exceptions are available from mcp_word.exception."""
-        from mcp_word.exception import (
+        """Test all exceptions are available from office_mcp.exception."""
+        from office_mcp.exception import (
             ConfigurationError,
             DocumentProcessingError,
             FileOperationError,
@@ -197,6 +197,6 @@ class TestExceptionCentralization:
         import importlib
         import sys
 
-        assert "mcp_word.core.exceptions" not in sys.modules
+        assert "office_mcp.core.exceptions" not in sys.modules
         with pytest.raises(ModuleNotFoundError):
-            importlib.import_module("mcp_word.core.exceptions")
+            importlib.import_module("office_mcp.core.exceptions")

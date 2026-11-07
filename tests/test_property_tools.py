@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from docx import Document
 
-from mcp_word.tools import property_tools
+from office_mcp.tools import property_tools
 
 
 @pytest.fixture
