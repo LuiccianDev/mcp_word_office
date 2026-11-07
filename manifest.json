@@ -1,31 +1,31 @@
 {
   "manifest_version": "0.4",
-  "name": "office_mcp",
-  "display_name": "Office MCP",
-  "version": "1.1.2",
-  "description": "Office MCP server for Microsoft Word document automation.",
-  "long_description": "Office MCP provides tools to create, edit, format, secure, inspect, and export Word documents. It includes document creation and merge workflows, content editing, styles and formatting, headers/footers, links, metadata, protection features, footnotes/endnotes, and PDF conversion.",
+  "name": "word_mcp",
+  "display_name": "Word MCP",
+  "version": "2.0.0",
+  "description": "Word MCP server for Microsoft Word (.docx) document automation and generation.",
+  "long_description": "Word MCP provides high-performance tools to create, edit, format, secure, inspect, and export Word documents. Features single-pass document construction (saving >90% tokens), markdown-to-docx compilation, visual presets, outline inspection, and PDF export.",
   "author": {
     "name": "LuiccianDev",
-    "url": "https://github.com/LuiccianDev/mcp_word_office"
+    "url": "https://github.com/LuiccianDev/word-mcp"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LuiccianDev/mcp_word_office"
+    "url": "https://github.com/LuiccianDev/word-mcp"
   },
-  "homepage": "https://github.com/LuiccianDev/mcp_word_office",
-  "documentation": "https://github.com/LuiccianDev/mcp_word_office/blob/master/README.md",
-  "support": "https://github.com/LuiccianDev/mcp_word_office/issues",
+  "homepage": "https://github.com/LuiccianDev/word-mcp",
+  "documentation": "https://github.com/LuiccianDev/word-mcp/blob/master/README.md",
+  "support": "https://github.com/LuiccianDev/word-mcp/issues",
   "server": {
     "type": "uv",
-    "entry_point": "src/office_mcp/server.py",
+    "entry_point": "src/word_mcp/server.py",
     "mcp_config": {
       "command": "uv",
       "args": [
         "--directory",
         "${__dirname}",
         "run",
-        "src/office_mcp/server.py"
+        "src/word_mcp/server.py"
       ],
       "env": {
         "MCP_ALLOWED_DIRECTORIES": "${user_config:directory}"
@@ -213,7 +213,7 @@
       "linux"
     ],
     "runtimes": {
-      "python": ">=3.13"
+      "python": ">=3.11"
     }
   },
   "user_config": {
@@ -227,7 +227,7 @@
     }
   },
   "_meta": {
-    "com.luicciandev.mcp_word_office": {
+    "com.luicciandev.word_mcp": {
       "tool_sections": {
         "creation": [
           "create_document",

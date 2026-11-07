@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from docx import Document
 
-from office_mcp.tools import link_tools
+from word_mcp.tools import link_tools
 
 
 @pytest.fixture

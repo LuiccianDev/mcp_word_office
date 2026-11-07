@@ -1,9 +1,10 @@
 <div align="center">
-  <h1>Office MCP Server</h1>
+  <h1>Word MCP Server</h1>
   <p>
     <em>High-performance Model Context Protocol (MCP) server for programmatic Word (.docx) document generation and manipulation</em>
   </p>
 
+  [![PyPI Version](https://img.shields.io/pypi/v/luiccian-word-mcp.svg)](https://pypi.org/project/luiccian-word-mcp/)
   [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
   [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -11,9 +12,9 @@
 
 </div>
 
-**Office MCP Server** (`office-mcp`) is a Python server implementing the Model Context Protocol (MCP) to provide advanced, token-optimized Word document (`.docx`) creation and editing capabilities for AI assistants (Claude, Cursor, Copilot, Cline).
+**Word MCP Server** (`word-mcp`, PyPI: [`luiccian-word-mcp`](https://pypi.org/project/luiccian-word-mcp/)) is a Python server implementing the Model Context Protocol (MCP) to provide advanced, token-optimized Word document (`.docx`) creation and editing capabilities for AI assistants (Claude, Cursor, Copilot, Cline).
 
-Designed from the ground up for high token efficiency, it replaces chatty micro-iterations with single-pass document construction—saving over 90% of model tokens and conversational turns.
+Designed from the ground up for maximum token efficiency, it replaces chatty micro-iterations with single-pass document construction—saving over 90% of model tokens and conversational turns.
 
 ---
 
@@ -25,7 +26,7 @@ Designed from the ground up for high token efficiency, it replaces chatty micro-
 - **🔍 Lightweight Outline Inspection**: Extract heading hierarchies and document stats without dumping full body text (`word_get_document_outline`), saving context tokens.
 - **📦 Batch Content Ingestion**: Append multiple sections, tables, and lists to existing documents in a single operation (`word_batch_add_content`).
 - **🔒 Protection & Security**: Password protection, editing restrictions, file integrity checks, and PDF conversion.
-- **🚀 Zero-Install Execution**: Instant launch with `uvx office-mcp`.
+- **🚀 Zero-Install Execution**: Instant launch with `uvx luiccian-word-mcp`.
 
 ---
 
@@ -35,10 +36,10 @@ No manual clone or installation required. You can run the server directly using 
 
 ```bash
 # Run with stdio transport (default for AI IDEs)
-uvx office-mcp
+uvx luiccian-word-mcp
 
 # Or run with SSE transport
-uvx office-mcp --transport sse --host 127.0.0.1 --port 8000
+uvx luiccian-word-mcp --transport sse --host 127.0.0.1 --port 8000
 ```
 
 ---
@@ -52,9 +53,9 @@ Add this configuration to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "office-mcp": {
+    "word-mcp": {
       "command": "uvx",
-      "args": ["office-mcp"],
+      "args": ["luiccian-word-mcp"],
       "env": {
         "MCP_ALLOWED_DIRECTORIES": "/path/to/your/documents"
       }
@@ -63,13 +64,13 @@ Add this configuration to your `claude_desktop_config.json`:
 }
 ```
 
-> **Tip (Local clone)**: If running from a local checkout:
+> **Tip (Local checkout)**: If running from a local clone:
 > ```json
 > {
 >   "mcpServers": {
->     "office-mcp": {
+>     "word-mcp": {
 >       "command": "uv",
->       "args": ["run", "--directory", "/path/to/mcp_word_office", "office-mcp"],
+>       "args": ["run", "--directory", "/path/to/word-mcp", "word-mcp"],
 >       "env": {
 >         "MCP_ALLOWED_DIRECTORIES": "/path/to/your/documents"
 >       }
@@ -83,9 +84,9 @@ Add this configuration to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "office-mcp": {
+    "word-mcp": {
       "command": "uvx",
-      "args": ["office-mcp"],
+      "args": ["luiccian-word-mcp"],
       "env": {
         "MCP_ALLOWED_DIRECTORIES": "${workspaceFolder}"
       }
@@ -100,14 +101,14 @@ Add this configuration to your `claude_desktop_config.json`:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/LuiccianDev/mcp_word_office.git
-cd mcp_word_office
+git clone https://github.com/LuiccianDev/word-mcp.git
+cd word-mcp
 
 # 2. Sync virtual environment and dependencies
 uv sync --all-groups
 
 # 3. Run server
-uv run office-mcp
+uv run word-mcp
 
 # 4. Run tests and linter
 uv run pytest
@@ -118,7 +119,7 @@ uv run ruff check .
 
 ## Token Optimization: Single-Pass vs. Legacy
 
-| Metric | Legacy Micro-Calls | Office MCP Single-Pass |
+| Metric | Legacy Micro-Calls | Word MCP Single-Pass |
 | :--- | :--- | :--- |
 | **Tool Calls** | 15 – 35 calls per document | **1 single call** (`word_build_document`) |
 | **Token Usage** | ~15,000 – 30,000 tokens | **~800 – 1,500 tokens** (90%+ savings) |
@@ -142,9 +143,9 @@ uv run ruff check .
 
 The repository provides 3 modular, specialized skills in `skills/` for LLMs:
 
-- **`office-document-creator`**: Instructs the model to build complete documents in 1 single pass with headers, footers, pagination, tables, and presets.
-- **`office-document-editor`**: Focuses on lightweight outline inspection, batch mutations, search & replace, and document merging.
-- **`office-document-security`**: Handles password locking, editing restrictions, and PDF export for distribution.
+- **`word-document-creator`**: Instructs the model to build complete documents in 1 single pass with headers, footers, pagination, tables, and presets.
+- **`word-document-editor`**: Focuses on lightweight outline inspection, batch mutations, search & replace, and document merging.
+- **`word-document-security`**: Handles password locking, editing restrictions, and PDF export for distribution.
 
 ---
 
@@ -152,7 +153,7 @@ The repository provides 3 modular, specialized skills in `skills/` for LLMs:
 
 ```text
 src/
-└── office_mcp/
+└── word_mcp/
     ├── core/               # Word document manipulation engines
     │   ├── batch.py        # High-performance single-pass builder & markdown parser
     │   ├── document.py     # Document lifecycle & outline extraction
@@ -186,5 +187,5 @@ src/
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 <div align="center">
-  <p><strong>Office MCP Server</strong> • Created by <a href="https://github.com/LuiccianDev">LuiccianDev</a></p>
+  <p><strong>Word MCP Server</strong> • Created by <a href="https://github.com/LuiccianDev">LuiccianDev</a></p>
 </div>

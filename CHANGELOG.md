@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2026-11-07
 
 ### Added
-- **Single-Pass Batch Document Builder**: High-performance engine in `office_mcp.core.batch` capable of generating complete Word documents with headers, footers, page numbering (`PAGE`), margins, typography, headings, paragraphs with markdown formatting, and tables in **1 single MCP call** (`word_build_document`).
+- **Single-Pass Batch Document Builder**: High-performance engine in `word_mcp.core.batch` capable of generating complete Word documents with headers, footers, page numbering (`PAGE`), margins, typography, headings, paragraphs with markdown formatting, and tables in **1 single MCP call** (`word_build_document`).
 - **Markdown Direct Generation**: `word_create_from_markdown` for immediate styled Word document generation directly from raw markdown strings.
 - **Batch Content Ingestion**: `word_batch_add_content` to append multi-element sections into existing documents without conversational round-trips.
 - **Visual Design Presets**: Native layout presets (`modern`, `formal`, `academic`, `compact`) standardizing font families, sizes, line spacing (1.15, 1.5, 2.0), paragraph spacing, and margins.
@@ -29,8 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Automation Scripts**: `scripts/extract-release-notes.py` and `scripts/bump-version.py`.
 
 ### Changed
-- **Package Renaming**: Renamed core package to `office_mcp` and project to `office-mcp`.
-- **Dynamic Version Resolution**: `office_mcp.__version__` resolves dynamically via `importlib.metadata` with clean fallback.
+- **Package Renaming**: Renamed core package to `word_mcp` and project to `word-mcp`.
+- **Dynamic Version Resolution**: `word_mcp.__version__` resolves dynamically via `importlib.metadata` with clean fallback.
 - **Tool Architecture Consolidation**: Consolidated tools into 5 cohesive modules (`document_tools`, `content_tools`, `format_tools`, `batch_tools`, `protection_tools`).
 - **Zero Circular Imports**: Clean dependency tree using PEP 562 lazy loading in `tools/__init__.py`.
 - **Backward-Compatible Shims**: `extended_document_tools`, `header_footer_tools`, `link_tools`, and `property_tools` preserved as zero-cost delegators to ensure 100% backward compatibility for existing MCP clients.
