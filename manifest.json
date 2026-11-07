@@ -1,10 +1,10 @@
 {
   "manifest_version": "0.4",
-  "name": "mcp_word",
-  "display_name": "MCP Word Office",
+  "name": "office_mcp",
+  "display_name": "Office MCP",
   "version": "1.1.2",
-  "description": "MCP server for Microsoft Word document automation.",
-  "long_description": "MCP Word Office provides tools to create, edit, format, secure, inspect, and export Word documents. It includes document creation and merge workflows, content editing, styles and formatting, headers/footers, links, metadata, protection features, footnotes/endnotes, and PDF conversion.",
+  "description": "Office MCP server for Microsoft Word document automation.",
+  "long_description": "Office MCP provides tools to create, edit, format, secure, inspect, and export Word documents. It includes document creation and merge workflows, content editing, styles and formatting, headers/footers, links, metadata, protection features, footnotes/endnotes, and PDF conversion.",
   "author": {
     "name": "LuiccianDev",
     "url": "https://github.com/LuiccianDev/mcp_word_office"
@@ -18,14 +18,14 @@
   "support": "https://github.com/LuiccianDev/mcp_word_office/issues",
   "server": {
     "type": "uv",
-    "entry_point": "src/mcp_word/server.py",
+    "entry_point": "src/office_mcp/server.py",
     "mcp_config": {
       "command": "uv",
       "args": [
         "--directory",
         "${__dirname}",
         "run",
-        "src/mcp_word/server.py"
+        "src/office_mcp/server.py"
       ],
       "env": {
         "MCP_ALLOWED_DIRECTORIES": "${user_config:directory}"
@@ -33,6 +33,18 @@
     }
   },
   "tools": [
+    {
+      "name": "build_document",
+      "description": "Build a complete Word document with typography, margins, header/footer, tables, and content in a single pass."
+    },
+    {
+      "name": "create_from_markdown",
+      "description": "Create a styled Word document directly from Markdown content in a single pass."
+    },
+    {
+      "name": "batch_add_content",
+      "description": "Append multiple content blocks (headings, paragraphs, tables, lists) to an existing document in one pass."
+    },
     {
       "name": "create_document",
       "description": "Create a new Word document with optional metadata."

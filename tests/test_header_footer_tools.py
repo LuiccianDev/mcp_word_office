@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from docx import Document
 
-from mcp_word.tools import header_footer_tools
+from office_mcp.tools import header_footer_tools
 
 
 @pytest.fixture

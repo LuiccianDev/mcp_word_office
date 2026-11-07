@@ -7,7 +7,7 @@ import pytest
 from docx import Document
 
 # Assuming format_tools.py is in src/word_mcp/tools
-from mcp_word.tools import format_tools
+from office_mcp.tools import format_tools
 
 
 @pytest.fixture  # type: ignore[misc]

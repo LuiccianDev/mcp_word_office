@@ -1,8 +1,8 @@
 import pytest
 from docx import Document
 from docx.shared import Pt, RGBColor
-from mcp_word.core.styles import StyleSettings, ensure_heading_style, DEFAULT_SETTINGS
-from mcp_word.core.document import core_create_document
+from office_mcp.core.styles import StyleSettings, ensure_heading_style, DEFAULT_SETTINGS
+from office_mcp.core.document import core_create_document
 import os
 
 def test_style_settings_defaults():

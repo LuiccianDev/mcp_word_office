@@ -1,16 +1,16 @@
 <div align="center">
-  <h1> MCP Office Word Server</h1>
+  <h1>Office MCP Server</h1>
   <p>
-    <em>Powerful server for programmatic manipulation of Word documents (.docx) via MCP</em>
+    <em>Powerful Model Context Protocol (MCP) server for programmatic manipulation of Word documents (.docx)</em>
   </p>
 
-  [![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/)
+  [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-brightgreen)](https://modelcontextprotocol.io)
 
 </div>
 
-**MCP Office Word Server** is a Python server implementing the Model Context Protocol (MCP) to provide advanced capabilities for manipulating Microsoft Word (`.docx`) documents. This server enables automation of complex document processing tasks programmatically.
+**Office MCP Server** is a Python server implementing the Model Context Protocol (MCP) to provide advanced capabilities for manipulating Microsoft Word (`.docx`) documents. This server enables automation of complex document processing tasks programmatically.
 
 > **Note**: This project is designed to be used with MCP-compatible clients such as Claude, Cursor or others IDEs, allowing Word document manipulation via natural language instructions.
 
@@ -43,7 +43,7 @@
 
 ```text
 src/
-│  └── 📁 mcp_word/           # Main server package
+│  └── 📁 office_mcp/         # Main server package
 │      ├── 📁 core/           # Main Word manipulation logic
 │      ├── 📁 tools/          # Exposed MCP tools
 │      ├── 📁 exception/      # Centralized exception and unprotect handling
@@ -51,7 +51,7 @@ src/
 │      ├── 📁 utils/          # Utilities and helper functions
 │      ├── 📁 validation/     # Input validation
 │      ├── 📄 server.py       # Main entry point
-│      └── 📄 __main__.py     # Alternative module entry point
+│      └── 📄 __main__.py     # CLI and module entry point
 │
 ├── 📁 tests/                  # Unit tests
 ├── 📄 README.md               # This file
@@ -60,7 +60,7 @@ src/
 
 ### Directory Description
 
-- **`mcp_word/`**: Contains all server source code.
+- **`office_mcp/`**: Contains all server source code.
   - **`core/`**: Central logic for Word document manipulation.
   - **`tools/`**: Implementation of tools exposed via MCP.
   - **`exception/`**: Exception handling and protection-related exception tools.
@@ -76,7 +76,7 @@ src/
 
 ### Minimum Requirements
 
-- **Python**: 3.13 or higher
+- **Python**: 3.11 or higher
 - **UV Package Manager**: [Install UV](https://docs.astral.sh/uv/getting-started/installation/) (recommended) or use pip
 - **Git**: For cloning the repository
 - **Desktop Extensions (MCPB)**: for creating .mcpb packages for Claude desktop [Install MCPB](https://github.com/modelcontextprotocol/mcpb)
@@ -135,9 +135,9 @@ The next steps are configurations in MCP
 
 ```json
 {
-  "mcp-word": {
-      "command": "uv",
-      "args": ["run", "mcp_word"],
+  "office-mcp": {
+    "command": "uv",
+    "args": ["run", "office_mcp"],
     "env": {
       "MCP_ALLOWED_DIRECTORIES": "Users/path/to/your/documents"
     }
@@ -145,20 +145,20 @@ The next steps are configurations in MCP
 }
 ```
 
-Or use this configuration (less recommended):
+Or use this configuration:
 
 ```json
 {
-   "mcp-word": {
-      "command": "/Users/user/to/repo/.venv/Scripts/python",
+   "office-mcp": {
+      "command": "/Users/user/to/repo/.venv/bin/python",
       "args": [
-        "/Users/user/to/repo/src/mcp_word/server.py"
+        "/Users/user/to/repo/src/office_mcp/server.py"
       ],
    "env": {
       "MCP_ALLOWED_DIRECTORIES": "/Users/user/to/WorksPath"
    },
    "type": "stdio"
-  },
+  }
 }
 ```
 
