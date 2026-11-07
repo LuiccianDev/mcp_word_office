@@ -16,8 +16,8 @@ from office_mcp import __version__
 def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        prog="office_mcp",
-        description="Office MCP Server - Word document manipulation via MCP",
+        prog="office-mcp",
+        description="Office MCP Server - High-performance Word document manipulation via MCP",
     )
     parser.add_argument(
         "-v", "--version",

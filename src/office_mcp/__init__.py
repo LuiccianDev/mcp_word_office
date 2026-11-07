@@ -7,10 +7,16 @@ to Word operations including text extraction, formatting, styles, and document s
 integration through a clean, well-documented API.
 """
 
-__version__ = "1.1.2"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("office-mcp")
+except PackageNotFoundError:
+    __version__ = "2.0.0"
+
 __author__ = "LuiccianDev"
 __description__ = (
-    "Office MCP Server - Word document manipulation through Model Context Protocol"
+    "Office MCP Server - High-performance Word document manipulation via Model Context Protocol"
 )
 __title__ = "office_mcp"
 

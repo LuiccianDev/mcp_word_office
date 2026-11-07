@@ -8,6 +8,7 @@ This document provides a comprehensive reference for all tools available in the 
 
 ## Table of Contents
 
+- [Single-Pass & Batch Tools (Recommended)](#single-pass--batch-tools-recommended)
 - [Document Tools](#document-tools)
 - [Content Tools](#content-tools)
 - [Format Tools](#format-tools)
@@ -17,6 +18,75 @@ This document provides a comprehensive reference for all tools available in the 
 - [Header & Footer Tools](#header--footer-tools)
 - [Link Tools](#link-tools)
 - [Property & Layout Tools](#property--layout-tools)
+
+---
+
+## Single-Pass & Batch Tools (Recommended)
+
+These high-performance tools generate or modify documents in **1 single MCP call**, saving over 90% of model tokens and conversational turns compared to legacy micro-calls.
+
+### `word_build_document` / `build_document`
+
+Build a complete, professionally styled Word document in a single tool call with typography, margins, headers, footers, page numbers, headings, paragraphs, and tables.
+
+**Parameters:**
+
+- `filename` (str): Output document file path (accepts `filename` or `file_path`).
+- `title` (str, optional): Document title metadata and core properties.
+- `author` (str, optional): Document author metadata.
+- `preset` (str, optional): Visual style preset (`"modern"`, `"formal"`, `"academic"`, `"compact"`). Default: `"modern"`.
+- `margins` (dict, optional): Custom margins `{"top_cm": float, "bottom_cm": float, "left_cm": float, "right_cm": float}`.
+- `font_name` (str, optional): Base body font family (e.g. `"Calibri"`, `"Times New Roman"`, `"Arial"`).
+- `font_size` (float, optional): Base body font size in points (e.g. 11.0, 12.0).
+- `line_spacing` (float, optional): Line spacing multiplier (e.g. 1.15, 1.5, 2.0).
+- `header_text` (str, optional): Running header text for document pages.
+- `footer_text` (str, optional): Running footer text for document pages.
+- `page_numbers` (bool, optional): If `True`, injects automatic Word dynamic page numbering (`PAGE`) in the footer. Default: `True`.
+- `elements` (list of dict): Ordered list of document elements to render:
+  - `{"type": "heading", "text": "...", "level": 1-4}`
+  - `{"type": "paragraph", "text": "...", "alignment": "left|center|right|justify", "space_after": 6}` (supports `**bold**`, `*italic*`)
+  - `{"type": "table", "headers": ["Col1", "Col2"], "rows": [["A", "B"]], "style": "Table Grid"}`
+  - `{"type": "bullet_list", "items": ["Item 1", "Item 2"]}`
+  - `{"type": "numbered_list", "items": ["Step 1", "Step 2"]}`
+  - `{"type": "callout", "text": "...", "title": "NOTE"}`
+  - `{"type": "page_break"}`
+
+**Returns:**
+- `BuildDocumentResult`: Structured summary including `status`, `filename`, `total_elements`, and elements breakdown.
+
+---
+
+### `word_create_from_markdown` / `create_from_markdown`
+
+Quickly draft and format a Word document from structured markdown text in a single pass.
+
+**Parameters:**
+
+- `filename` (str): Output document file path.
+- `markdown_content` (str): Markdown text containing headings (`#`, `##`), bullet lists (`-`), numbered lists (`1.`), tables (`| Col1 | Col2 |`), callouts (`>`), and inline formatting (`**bold**`, `*italic*`).
+- `preset` (str, optional): Visual style preset (`"modern"`, `"formal"`, `"academic"`, `"compact"`).
+- `title` (str, optional): Document title.
+- `author` (str, optional): Document author.
+- `header_text` (str, optional): Running header text.
+- `footer_text` (str, optional): Running footer text.
+- `page_numbers` (bool, optional): If `True`, injects dynamic page numbers.
+
+**Returns:**
+- `BuildDocumentResult`: Structured generation summary.
+
+---
+
+### `word_batch_add_content` / `batch_add_content`
+
+Append multiple structured elements (headings, paragraphs, tables, lists) to an existing Word document in 1 call without reloading between steps.
+
+**Parameters:**
+
+- `filename` (str): Target existing `.docx` file path.
+- `elements` (list of dict): List of elements to append (same format as `word_build_document`).
+
+**Returns:**
+- `BuildDocumentResult`: Structured summary of appended elements.
 
 ---
 
