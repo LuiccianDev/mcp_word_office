@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 
 from docx import Document
 
-from office_mcp.tools import batch_tools, header_footer_tools, link_tools
+from word_mcp.tools import batch_tools, header_footer_tools, link_tools
 
 
 class TestBatchTools(unittest.IsolatedAsyncioTestCase):

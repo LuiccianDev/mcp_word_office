@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from office_mcp.models.response_models import (
+from word_mcp.models.response_models import (
     DocumentInfo,
     DocumentListItem,
     DocumentOutline,

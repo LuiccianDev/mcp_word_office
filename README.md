@@ -1,237 +1,213 @@
 <div align="center">
-  <h1>Office MCP Server</h1>
+  <h1>Word MCP Server</h1>
   <p>
-    <em>Powerful Model Context Protocol (MCP) server for programmatic manipulation of Word documents (.docx)</em>
+    <em>High-performance Model Context Protocol (MCP) server for programmatic Word (.docx) document generation and manipulation</em>
   </p>
 
+  [![PyPI Version](https://img.shields.io/pypi/v/luiccian-word-mcp.svg)](https://pypi.org/project/luiccian-word-mcp/)
   [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+  [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-brightgreen)](https://modelcontextprotocol.io)
 
 </div>
 
-**Office MCP Server** is a Python server implementing the Model Context Protocol (MCP) to provide advanced capabilities for manipulating Microsoft Word (`.docx`) documents. This server enables automation of complex document processing tasks programmatically.
+**Word MCP Server** (`word-mcp`, PyPI: [`luiccian-word-mcp`](https://pypi.org/project/luiccian-word-mcp/)) is a Python server implementing the Model Context Protocol (MCP) to provide advanced, token-optimized Word document (`.docx`) creation and editing capabilities for AI assistants (Claude, Cursor, Copilot, Cline).
 
-> **Note**: This project is designed to be used with MCP-compatible clients such as Claude, Cursor or others IDEs, allowing Word document manipulation via natural language instructions.
+Designed from the ground up for maximum token efficiency, it replaces chatty micro-iterations with single-pass document construction—saving over 90% of model tokens and conversational turns.
 
-## Features
+---
 
-- **Document Operations**: Create, read, copy, merge, and convert to PDF.
-- **Content Management**: Add headings, paragraphs, tables, pictures, and page breaks. Search, replace, and delete content.
-- **Formatting**: Apply text formatting, custom styles, and table formatting.
-- **Footnotes & Endnotes**: Add and convert footnotes and endnotes, and customize their styles.
-- **Security & Protection**: Add password protection, restricted editing, and digital signatures.
-- **Headers & Footers**: Add or update primary headers and footers for specific sections.
-- **Links & Bookmarks**: Insert hyperlinks and internal bookmarks for navigation.
-- **Document Properties**: Manage core metadata (author, title) and section page layouts (portrait/landscape).
+## Key Highlights
 
-## Table of Contents
+- **⚡ Single-Pass Document Builder**: Create complete, publication-ready documents (headers, footers, page numbers, margins, headings, paragraphs with markdown styling, tables, lists) in **1 single MCP call** (`word_build_document`).
+- **📝 Markdown Direct Generation**: Instantly turn structured markdown text into professionally styled Word documents (`word_create_from_markdown`).
+- **🎨 Visual Design Presets**: Built-in typography and spacing standards (`modern`, `formal`, `academic`, `compact`).
+- **🔍 Lightweight Outline Inspection**: Extract heading hierarchies and document stats without dumping full body text (`word_get_document_outline`), saving context tokens.
+- **📦 Batch Content Ingestion**: Append multiple sections, tables, and lists to existing documents in a single operation (`word_batch_add_content`).
+- **🔒 Protection & Security**: Password protection, editing restrictions, file integrity checks, and PDF conversion.
+- **🚀 Zero-Install Execution**: Instant launch with `uvx luiccian-word-mcp`.
 
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [System Requirements](#system-requirements)
-- [Installation](#installation)
-- [MCP Client Configuration](#mcp-client-configuration)
-- [Docker Support](#docker-support)
-- [Tool API](#tool-api)
-- [Security](#security)
-- [Changelog](#changelog)
-- [Contribution](#contribution)
-- [License](#license)
+---
 
-## Project Structure
+## Quick Start with `uvx` (Recommended)
 
-```text
-src/
-│  └── 📁 office_mcp/         # Main server package
-│      ├── 📁 core/           # Main Word manipulation logic
-│      ├── 📁 tools/          # Exposed MCP tools
-│      ├── 📁 exception/      # Centralized exception and unprotect handling
-│      ├── 📁 models/         # Response models and schemas
-│      ├── 📁 utils/          # Utilities and helper functions
-│      ├── 📁 validation/     # Input validation
-│      ├── 📄 server.py       # Main entry point
-│      └── 📄 __main__.py     # CLI and module entry point
-│
-├── 📁 tests/                  # Unit tests
-├── 📄 README.md               # This file
-└── 📄 pyproject.toml          # Project configuration
-```
-
-### Directory Description
-
-- **`office_mcp/`**: Contains all server source code.
-  - **`core/`**: Central logic for Word document manipulation.
-  - **`tools/`**: Implementation of tools exposed via MCP.
-  - **`exception/`**: Exception handling and protection-related exception tools.
-  - **`models/`**: Shared response models used across MCP tools.
-  - **`utils/`**: Shared helper functions.
-  - **`validation/`**: Input and parameter validation.
-  - **`server.py`**: Main MCP server entry point.
-  - **`__main__.py`**: Alternative entry point for module execution.
-
-- **`tests/`**: Unit and integration tests to ensure proper functionality.
-
-## System Requirements
-
-### Minimum Requirements
-
-- **Python**: 3.11 or higher
-- **UV Package Manager**: [Install UV](https://docs.astral.sh/uv/getting-started/installation/) (recommended) or use pip
-- **Git**: For cloning the repository
-- **Desktop Extensions (MCPB)**: for creating .mcpb packages for Claude desktop [Install MCPB](https://github.com/modelcontextprotocol/mcpb)
-
-## Installation
-
-### 1. Clone the repository
+No manual clone or installation required. You can run the server directly using [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-git clone https://github.com/LuiccianDev/mcp_office_word.git
-cd mcp_office_word
+# Run with stdio transport (default for AI IDEs)
+uvx luiccian-word-mcp
+
+# Or run with SSE transport
+uvx luiccian-word-mcp --transport sse --host 127.0.0.1 --port 8000
 ```
 
-### 2. Set up virtual environment with uv
-
-uv is the recommended package manager for this project. It automatically creates and activates a virtual environment:
-
-```bash
-# Create and activate virtual environment
-uv venv
-
-# On Windows:
-.venv\Scripts\activate
-
-# On macOS/Linux:
-source .venv/bin/activate
-```
-
-### 3. Install dependencies
-
-Install project dependencies using uv:
-
-```bash
-uv pip install -e ".[dev]"
-```
-
-> The above command will install both main and development dependencies.
+---
 
 ## MCP Client Configuration
 
-### Basic Configuration
+### 1. Claude Desktop
 
-To integrate the MCP Office Word server with compatible clients like Claude, follow these steps:
-
-1. **Start the server** following the instructions in the section
-2. **Configure your MCP client** with the following parameters:
-
-```bash
-# create packages
-uv build
-#install packages
-pip install dist/file*.whl
-```
-
-The next steps are configurations in MCP
+Add this configuration to your `claude_desktop_config.json`:
 
 ```json
 {
-  "office-mcp": {
-    "command": "uv",
-    "args": ["run", "office_mcp"],
-    "env": {
-      "MCP_ALLOWED_DIRECTORIES": "Users/path/to/your/documents"
+  "mcpServers": {
+    "word-mcp": {
+      "command": "uvx",
+      "args": ["luiccian-word-mcp"],
+      "env": {
+        "MCP_ALLOWED_DIRECTORIES": "/path/to/your/documents"
+      }
     }
   }
 }
 ```
 
-Or use this configuration:
+> **Tip (Local checkout)**: If running from a local clone:
+> ```json
+> {
+>   "mcpServers": {
+>     "word-mcp": {
+>       "command": "uv",
+>       "args": ["run", "--directory", "/path/to/word-mcp", "word-mcp"],
+>       "env": {
+>         "MCP_ALLOWED_DIRECTORIES": "/path/to/your/documents"
+>       }
+>     }
+>   }
+> }
+> ```
+
+### 2. Cursor (.cursor/mcp.json)
 
 ```json
 {
-   "office-mcp": {
-      "command": "/Users/user/to/repo/.venv/bin/python",
-      "args": [
-        "/Users/user/to/repo/src/office_mcp/server.py"
-      ],
-   "env": {
-      "MCP_ALLOWED_DIRECTORIES": "/Users/user/to/WorksPath"
-   },
-   "type": "stdio"
+  "mcpServers": {
+    "word-mcp": {
+      "command": "uvx",
+      "args": ["luiccian-word-mcp"],
+      "env": {
+        "MCP_ALLOWED_DIRECTORIES": "${workspaceFolder}"
+      }
+    }
   }
 }
 ```
 
-### Key Environment Variables
+---
 
-| Variable                  | Description                                              | Example                                 |
-| ------------------------- | -------------------------------------------------------- | --------------------------------------- |
-| `MCP_ALLOWED_DIRECTORIES` | Directories accessible by the server (comma separated)   | `"\Users\User\Documents,.Projects"`     |
+## Local Development with `uv`
 
-### MCPB Package Deployment
+```bash
+# 1. Clone repository
+git clone https://github.com/LuiccianDev/word-mcp.git
+cd word-mcp
 
-For detailed instructions on creating and using MCPB packages (.mcpb), please see:
+# 2. Sync virtual environment and dependencies
+uv sync --all-groups
 
-- [MCPB Guide: mcpb.md](docs/MCPB.md)
+# 3. Run server
+uv run word-mcp
 
-## Docker Support
+# 4. Run tests and linter
+uv run pytest
+uv run ruff check .
+```
 
-For detailed instructions on building and running the MCP Word Office server in Docker, please see the following guide:
+---
 
-- [Docker Guide: Docker.md](docs/Docker.md)
+## CI/CD & PyPI Trusted Publishing
 
-## Tool API
+The repository includes GitHub Actions workflows powered by Astral `uv`:
 
-The MCP Word server exposes a comprehensive set of tools organized into logical categories for easy Word document manipulation.
+- **CI (`.github/workflows/ci.yml`)**: Runs tests & lint across Python 3.11, 3.12, and 3.13 on Ubuntu. Uses `paths-ignore` and concurrency cancellation to preserve GitHub Actions minutes.
+- **Releases (`.github/workflows/release.yml`)**: Triggered on `v*` tags or manually via workflow dispatch. Builds wheel & sdist with `uv build`, auto-extracts release notes from `CHANGELOG.md`, and creates a GitHub Release.
+- **PyPI Publishing (`.github/workflows/publish-pypi.yml`)**: Automated PyPI deployment using **Trusted Publishing (OIDC)** and PEP 740 cryptographic build provenance attestation (`actions/attest-build-provenance@v2`).
 
-> For detailed documentation of each tool, see [TOOLS.md](docs/TOOLS.md).
+### PyPI Trusted Publisher Configuration
+
+To set up or verify Trusted Publishing on [PyPI.org](https://pypi.org/manage/account/publishing/):
+
+| Setting | Value |
+| :--- | :--- |
+| **PyPI Project Name** | `luiccian-word-mcp` |
+| **Owner** | `LuiccianDev` |
+| **Repository name** | `word-mcp` |
+| **Workflow name** | `publish-pypi.yml` |
+| **Environment name** | `pypi` |
+
+---
+
+## Token Optimization: Single-Pass vs. Legacy
+
+| Metric | Legacy Micro-Calls | Word MCP Single-Pass |
+| :--- | :--- | :--- |
+| **Tool Calls** | 15 – 35 calls per document | **1 single call** (`word_build_document`) |
+| **Token Usage** | ~15,000 – 30,000 tokens | **~800 – 1,500 tokens** (90%+ savings) |
+| **Disk Operations** | Multiple file writes | Single in-memory assembly & write |
+| **Generation Time** | 30 – 60 seconds | **< 0.25 seconds** |
+
+---
+
+## Visual Design Presets
+
+| Preset | Font Family | Body Size | Line Spacing | Margins | Best For |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `modern` (Default) | Calibri | 11.0 pt | 1.15 | 2.5 cm | Executive summaries, business proposals, corporate reports |
+| `formal` | Times New Roman | 12.0 pt | 1.50 | Top/Bottom 2.5cm, Left 3.0cm | Legal contracts, official letters, meeting minutes |
+| `academic` | Times New Roman | 12.0 pt | 2.00 (Double) | 2.54 cm (1 inch) | University papers, research articles, theses (APA/MLA) |
+| `compact` | Arial | 10.0 pt | 1.00 (Single) | 2.0 cm | Invoices, datasheets, internal memos |
+
+---
+
+## Modular Skills Ecosystem
+
+The repository provides 3 modular, specialized skills in `skills/` for LLMs:
+
+- **`word-document-creator`**: Instructs the model to build complete documents in 1 single pass with headers, footers, pagination, tables, and presets.
+- **`word-document-editor`**: Focuses on lightweight outline inspection, batch mutations, search & replace, and document merging.
+- **`word-document-security`**: Handles password locking, editing restrictions, and PDF export for distribution.
+
+---
+
+## Project Structure
+
+```text
+src/
+└── word_mcp/
+    ├── core/               # Word document manipulation engines
+    │   ├── batch.py        # High-performance single-pass builder & markdown parser
+    │   ├── document.py     # Document lifecycle & outline extraction
+    │   ├── content.py      # Paragraphs, headings, and lists
+    │   ├── tables.py       # Table styling & cell manipulation
+    │   └── protection.py   # Password hashing & editing locks
+    ├── tools/              # Exposed MCP tools (consolidated)
+    │   ├── batch_tools.py  # word_build_document, word_create_from_markdown
+    │   ├── document_tools.py # Lifecycle, text, outline, info, PDF
+    │   ├── content_tools.py  # Paragraphs, headings, links, bookmarks
+    │   ├── format_tools.py   # Styles, headers, footers, page layout
+    │   └── protection_tools.py # Protect, unprotect, verify
+    ├── models/             # Pydantic response models
+    ├── validation/         # Input validators & parameter alias tolerance
+    ├── server.py           # FastMCP server registration
+    └── __main__.py         # Server entry point
+```
+
+---
 
 ## Security
 
-### Considerations & Best Practices
+- **Restricted Directory Access**: Set `MCP_ALLOWED_DIRECTORIES` to restrict file access to specific folders.
+- **Path Resolution**: Secure path canonicalization prevents path traversal outside allowed directories.
+- **Non-destructive Defaults**: Shims maintain full backward compatibility for existing scripts and configurations.
 
-1. **Input Validation**
-   - All functions perform strict parameter validation
-   - Strongly typed data types are used
-   - File path sanitization is applied
-
-2. **File Security**
-   - Use of `MCP_ALLOWED_DIRECTORIES` to restrict access (limit accessible directories to only those necessary).
-   - Secure handling of temporary files
-   - MIME type validation for uploaded files
-   - Ensure file permissions are properly set.
-
-3. **Execution Environment**
-   - Always use a virtual environment to isolate dependencies.
-   - Keep the server updated with the latest security patches.
-   - Code reviewed with `mypy` for type safety
-   - Static analysis with `ruff`
-   - Unit tests for security cases
-
-## Contribution
-
-Contributions are welcome. Please read the contribution guidelines before submitting pull requests.
-
-## Changelog
-
-For detailed information about changes, improvements, and bug fixes in each version, please see the [CHANGELOG.md](CHANGELOG.md) file.
-
-Key information:
-- **Current Version**: 1.1.2
-- **Latest Features**: FastMCP3 integration, Pydantic v2 support, MCP Word Document Workflow Skill
-- **Unreleased**: See the [Unreleased] section in CHANGELOG.md for upcoming features
+---
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 <div align="center">
-  <p><strong>MCP Word Office Server</strong></p>
-  <p>Empowering AI assistants with comprehensive Word manipulation capabilities</p>
-  <p>
-    <a href="https://github.com/LuiccianDev/mcp_word_office">🏠 GitHub</a> •
-    <a href="https://modelcontextprotocol.io">🔗 MCP Protocol</a> •
-    <a href="https://github.com/LuiccianDev/mcp_word_office/blob/main/docs/TOOLS.md">📚 Tool Documentation</a>
-  </p>
-  <p><em>Created with by LuiccianDev</em></p>
+  <p><strong>Word MCP Server</strong> • Created by <a href="https://github.com/LuiccianDev">LuiccianDev</a></p>
 </div>

@@ -8,7 +8,7 @@ import pytest
 from docx import Document
 
 # Assuming document_tools.py is in src/word_mcp/tools
-from office_mcp.tools import document_tools
+from word_mcp.tools import document_tools
 
 
 @pytest.fixture  # type: ignore[misc]

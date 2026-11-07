@@ -9,24 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.0.0] - 2026-11-07
+
 ### Added
-- **MCP Document Workflow Skill**: Comprehensive skill for creating and improving high-quality .docx files through a 5-step workflow (brief capture, structure planning, iterative content build, formatting pass, final QA)
-- **MCP Word Document Workflow Skill Templates**: Templates for common document types including acta, carta, informe-universitario, propuesta, reporte, solicitud-formal, and syllabus
-- **Comprehensive Skill Documentation**: Added detailed SKILL.md, README.md, and reference documentation for the MCP Word Document Workflow
-- **PROJECT_SPECIFIC.mcpbignore patterns**: Improved project-specific exclusions for better build optimization
-- **Project License File**: Added comprehensive LICENSE file for project licensing information
+- **Single-Pass Batch Document Builder**: High-performance engine in `word_mcp.core.batch` capable of generating complete Word documents with headers, footers, page numbering (`PAGE`), margins, typography, headings, paragraphs with markdown formatting, and tables in **1 single MCP call** (`word_build_document`).
+- **Markdown Direct Generation**: `word_create_from_markdown` for immediate styled Word document generation directly from raw markdown strings.
+- **Batch Content Ingestion**: `word_batch_add_content` to append multi-element sections into existing documents without conversational round-trips.
+- **Visual Design Presets**: Native layout presets (`modern`, `formal`, `academic`, `compact`) standardizing font families, sizes, line spacing (1.15, 1.5, 2.0), paragraph spacing, and margins.
+- **Modular Skills Ecosystem**: 3 focused skills in `skills/`:
+  - `office-document-creator`: Single-pass creation patterns and block element cheatsheets.
+  - `office-document-editor`: Lightweight outline inspection, batch mutations, search & replace, and document merging.
+  - `office-document-security`: Document protection, passwords, editing restrictions, and PDF conversion.
+- **Astral `uv` Automated Workflows**:
+  - `ci.yml`: Fast multi-version testing and linting with cache and `paths-ignore` (skipping documentation edits to save runner minutes).
+  - `release.yml`: Automated GitHub release generation with binary artifacts (.whl, .tar.gz) and automatic changelog note extraction.
+  - `publish-pypi.yml`: Trusted Publishing OIDC deployment to PyPI with PEP 740 cryptographic attestation.
+- **Automation Scripts**: `scripts/extract-release-notes.py` and `scripts/bump-version.py`.
 
 ### Changed
-- **FastMCP3 Integration**: Upgraded to FastMCP3 with enhanced Pydantic v2 support
-- **Pydantic v2 Migration**: Updated all Pydantic models and validators for Pydantic v2 compatibility
-- **Server Implementation**: Refactored `server.py` for better modularity and enhanced tool registration
+- **Package Renaming**: Renamed core package to `word_mcp` and project to `word-mcp`.
+- **Dynamic Version Resolution**: `word_mcp.__version__` resolves dynamically via `importlib.metadata` with clean fallback.
+- **Tool Architecture Consolidation**: Consolidated tools into 5 cohesive modules (`document_tools`, `content_tools`, `format_tools`, `batch_tools`, `protection_tools`).
+- **Zero Circular Imports**: Clean dependency tree using PEP 562 lazy loading in `tools/__init__.py`.
+- **Backward-Compatible Shims**: `extended_document_tools`, `header_footer_tools`, `link_tools`, and `property_tools` preserved as zero-cost delegators to ensure 100% backward compatibility for existing MCP clients.
+- **Parameter Alias Tolerance**: Validation decorators and tools accept either `filename` or `file_path` transparently.
+- **Unified Configuration**: Centralized all project metadata and tools (`ruff`, `pytest`, `mypy`) into `pyproject.toml`.
 
-### Fixed
-- Improved handling of file exclusions in `.mcpbignore` configuration
-
-### Repository Structure
-- Enhanced documentation and templates in `skills/mcp-word-document-workflow/`
-- Updated `.mcpbignore` to include `docs/` and `skills/` directories
+### Removed
+- Removed legacy monolithic skill `skills/mcp-word-document-workflow/` (all 23 files).
+- Removed redundant configuration files (`ruff.toml`, `pytest.ini`, `mypy.ini`).
 
 ---
 
