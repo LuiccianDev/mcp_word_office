@@ -9,26 +9,27 @@
   [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
   [![CodeQL](https://github.com/LuiccianDev/word-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/LuiccianDev/word-mcp/actions/workflows/codeql.yml)
   [![Security Policy](https://img.shields.io/badge/security-policy-blue.svg)](SECURITY.md)
+  [![Rules for AI](https://img.shields.io/badge/rules-AGENTS.md-blue.svg)](AGENTS.md)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-brightgreen)](https://modelcontextprotocol.io)
 
 </div>
 
-**Word MCP Server** (`word-mcp`, PyPI: [`luiccian-word-mcp`](https://pypi.org/project/luiccian-word-mcp/)) is a Python server implementing the Model Context Protocol (MCP) to provide advanced, token-optimized Word document (`.docx`) creation and editing capabilities for AI assistants (Claude, Cursor, Copilot, Cline).
+**Word MCP Server** (`word-mcp`, PyPI: [`luiccian-word-mcp`](https://pypi.org/project/luiccian-word-mcp/)) is a high-performance Python server implementing the Model Context Protocol (MCP) to provide advanced, token-optimized Word document (`.docx`) creation, batch synthesis, and inspection capabilities for AI assistants (Claude, Cursor, Copilot, Cline).
 
 Designed from the ground up for maximum token efficiency, it replaces chatty micro-iterations with single-pass document construction—saving over 90% of model tokens and conversational turns.
 
 ---
 
-## Key Highlights
+## Key Architectural Highlights
 
-- **⚡ Single-Pass Document Builder**: Create complete, publication-ready documents (headers, footers, page numbers, margins, headings, paragraphs with markdown styling, tables, lists) in **1 single MCP call** (`word_build_document`).
-- **📝 Markdown Direct Generation**: Instantly turn structured markdown text into professionally styled Word documents (`word_create_from_markdown`).
-- **🎨 Visual Design Presets**: Built-in typography and spacing standards (`modern`, `formal`, `academic`, `compact`).
-- **🔍 Lightweight Outline Inspection**: Extract heading hierarchies and document stats without dumping full body text (`word_get_document_outline`), saving context tokens.
-- **📦 Batch Content Ingestion**: Append multiple sections, tables, and lists to existing documents in a single operation (`word_batch_add_content`).
-- **🔒 Protection & Security**: Password protection, editing restrictions, file integrity checks, and PDF conversion.
-- **🚀 Zero-Install Execution**: Instant launch with `uvx luiccian-word-mcp`.
+- **Single-Pass Document Builder**: Create complete, publication-ready documents (headers, footers, page numbers, margins, headings, paragraphs with markdown styling, tables, lists) in **one single MCP call** (`word_build_document`).
+- **Markdown Direct Generation**: Instantly turn structured markdown text into professionally styled Word documents (`word_create_from_markdown`).
+- **Visual Design Presets**: Built-in typography and spacing standards (`modern`, `formal`, `academic`, `compact`).
+- **Lightweight Outline Inspection**: Extract heading hierarchies and document stats without dumping full body text (`word_get_document_outline`), saving context tokens.
+- **Batch Content Ingestion**: Append multiple sections, tables, and lists to existing documents in a single atomic operation (`word_batch_add_content`).
+- **Protection & Security**: Password protection, editing restrictions, file integrity checks, and headless PDF conversion.
+- **Zero-Install Execution**: Instant launch with `uvx luiccian-word-mcp`.
 
 ---
 
@@ -200,11 +201,23 @@ src/
 
 ---
 
-## Security
+## Package Distribution & Repository Scope
 
-- **Restricted Directory Access**: Set `MCP_ALLOWED_DIRECTORIES` to restrict file access to specific folders.
-- **Path Resolution**: Secure path canonicalization prevents path traversal outside allowed directories.
-- **Non-destructive Defaults**: Shims maintain full backward compatibility for existing scripts and configurations.
+The distribution boundary between the PyPI package and the repository is strictly defined:
+
+- **PyPI Package (`luiccian-word-mcp`)**: Bundles **exclusively** the runtime code located in [`src/word_mcp/`](file://src/word_mcp/), accompanied by `README.md`, `LICENSE`, and `pyproject.toml`.
+- **Repository Scope**: Test suites (`tests/`), automation scripts (`scripts/`), agent skills (`skills/`), documentation manuals (`docs/`), and GitHub Actions workflows (`.github/`) belong solely to repository infrastructure and are explicitly excluded from the PyPI wheel and sdist distributions via Hatchling build targets.
+
+> [!NOTE]
+> Installing via `uvx luiccian-word-mcp` or `pip install luiccian-word-mcp` downloads only the core library and runtime dependencies, ensuring zero overhead and rapid startup.
+
+---
+
+## Security & Guidelines
+
+- **Security Policy**: See [`SECURITY.md`](SECURITY.md) for vulnerability disclosure, OOXML hash verification, and threat modeling.
+- **Rules for AI Assistants**: See [`AGENTS.md`](AGENTS.md) for official development directives, coding standards, and token optimization rules.
+- **Directory Isolation**: Set `MCP_ALLOWED_DIRECTORIES` to restrict document operations strictly to designated folders. Path canonicalization prevents directory traversal.
 
 ---
 
@@ -213,5 +226,5 @@ src/
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 <div align="center">
-  <p><strong>Word MCP Server</strong> • Created by <a href="https://github.com/LuiccianDev">LuiccianDev</a></p>
+  <p><strong>Word MCP Server</strong> • Maintained by <a href="https://github.com/LuiccianDev">LuiccianDev</a></p>
 </div>

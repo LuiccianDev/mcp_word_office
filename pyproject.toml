@@ -53,6 +53,23 @@ word_mcp = "word_mcp.__main__:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/word_mcp"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src/word_mcp",
+    "/README.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]
+exclude = [
+    "/tests",
+    "/scripts",
+    "/docs",
+    "/skills",
+    "/.github",
+    "/scratch",
+    "/.vscode",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
