@@ -7,6 +7,8 @@
   [![PyPI Version](https://img.shields.io/pypi/v/luiccian-word-mcp.svg)](https://pypi.org/project/luiccian-word-mcp/)
   [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
   [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+  [![CodeQL](https://github.com/LuiccianDev/word-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/LuiccianDev/word-mcp/actions/workflows/codeql.yml)
+  [![Security Policy](https://img.shields.io/badge/security-policy-blue.svg)](SECURITY.md)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-brightgreen)](https://modelcontextprotocol.io)
 
@@ -119,9 +121,11 @@ uv run ruff check .
 
 ## CI/CD & PyPI Trusted Publishing
 
-The repository includes GitHub Actions workflows powered by Astral `uv`:
+The repository includes automated GitHub Actions workflows powered by Astral `uv`:
 
 - **CI (`.github/workflows/ci.yml`)**: Runs tests & lint across Python 3.11, 3.12, and 3.13 on Ubuntu. Uses `paths-ignore` and concurrency cancellation to preserve GitHub Actions minutes.
+- **CodeQL Security (`.github/workflows/codeql.yml`)**: Continuous automated security analysis and vulnerability scanning for Python code with GitHub Advanced Security.
+- **Automated Version Bump & PyPI Release (`.github/workflows/bump-and-release.yml`)**: 1-click semantic version bump (`patch`, `minor`, `major`). Automatically updates `pyproject.toml`, promotes `CHANGELOG.md`, creates git commit & tag `v*`, builds with `uv build`, attests cryptographic provenance (PEP 740), generates GitHub Release, and publishes to PyPI.
 - **Releases (`.github/workflows/release.yml`)**: Triggered on `v*` tags or manually via workflow dispatch. Builds wheel & sdist with `uv build`, auto-extracts release notes from `CHANGELOG.md`, and creates a GitHub Release.
 - **PyPI Publishing (`.github/workflows/publish-pypi.yml`)**: Automated PyPI deployment using **Trusted Publishing (OIDC)** and PEP 740 cryptographic build provenance attestation (`actions/attest-build-provenance@v2`).
 
