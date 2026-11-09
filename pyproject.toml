@@ -43,13 +43,6 @@ dev = [
 
 [project.scripts]
 luiccian-word-mcp = "word_mcp.__main__:main"
-word-mcp = "word_mcp.__main__:main"
-word_mcp = "word_mcp.__main__:main"
-mcp-word = "word_mcp.__main__:main"
-
-[project.entry-points."mcp.servers"]
-word-mcp = "word_mcp.__main__:main"
-word_mcp = "word_mcp.__main__:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/word_mcp"]
