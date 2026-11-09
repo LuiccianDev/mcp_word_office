@@ -73,7 +73,7 @@ Add this configuration to your `claude_desktop_config.json`:
 >   "mcpServers": {
 >     "word-mcp": {
 >       "command": "uv",
->       "args": ["run", "--directory", "/path/to/word-mcp", "word-mcp"],
+>     "args": ["run", "--directory", "/path/to/word-mcp", "luiccian-word-mcp"],
 >       "env": {
 >         "MCP_ALLOWED_DIRECTORIES": "/path/to/your/documents"
 >       }
@@ -111,7 +111,7 @@ cd word-mcp
 uv sync --all-groups
 
 # 3. Run server
-uv run word-mcp
+uv run luiccian-word-mcp
 
 # 4. Run tests and linter
 uv run pytest

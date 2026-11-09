@@ -37,7 +37,12 @@ def calculate_next_version(current: str, bump_type: str, custom_version: str | N
     if bump_type == "custom":
         if not custom_version:
             raise ValueError("custom_version must be provided when bump_type is 'custom'")
-        return custom_version.lstrip("v").strip()
+        next_version = custom_version.lstrip("v").strip()
+        if not re.fullmatch(r"\d+\.\d+\.\d+", next_version):
+            raise ValueError(
+                f"Custom version '{custom_version}' must use MAJOR.MINOR.PATCH format"
+            )
+        return next_version
 
     # Parse semver (e.g., 2.0.0)
     match = re.match(r"^(\d+)\.(\d+)\.(\d+)(.*)$", current)
@@ -88,6 +93,8 @@ def bump_files(new_version: str, repo_root: Path, dry_run: bool = False) -> None
         content = changelog_path.read_text(encoding="utf-8")
         target_header = f"## [{new_version}] - {today_str}"
         if f"[{new_version}]" not in content:
+            if "## [Unreleased]" not in content:
+                raise ValueError("CHANGELOG.md must contain an '## [Unreleased]' section")
             updated = content.replace(
                 "## [Unreleased]",
                 f"## [Unreleased]\n\n---\n\n{target_header}",

@@ -5,6 +5,10 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
+      tag_name:
+        description: "Tag to publish (required for manual TestPyPI publishing)"
+        required: true
+        type: string
       target_env:
         description: 'Target repository'
         required: true
@@ -19,8 +23,8 @@ jobs:
     name: Build, Attest & Publish to PyPI
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.event.inputs.target_env || 'pypi' }}
-      url: ${{ (github.event.inputs.target_env == 'testpypi') && 'https://test.pypi.org/p/luiccian-word-mcp' || 'https://pypi.org/p/luiccian-word-mcp' }}
+      name: ${{ inputs.target_env || 'pypi' }}
+      url: ${{ (inputs.target_env == 'testpypi') && 'https://test.pypi.org/p/luiccian-word-mcp' || 'https://pypi.org/p/luiccian-word-mcp' }}
     permissions:
       id-token: write        # Mandatory for Trusted Publishing (OIDC)
       attestations: write    # Mandatory for PEP 740 Cryptographic Attestation
@@ -29,6 +33,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag_name }}
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
@@ -44,9 +50,9 @@ jobs:
           subject-path: "dist/*"
 
       - name: Publish to PyPI (Production)
-        if: ${{ (github.event.inputs.target_env || 'pypi') == 'pypi' }}
+        if: ${{ (inputs.target_env || 'pypi') == 'pypi' }}
         run: uv publish
 
       - name: Publish to TestPyPI
-        if: ${{ github.event.inputs.target_env == 'testpypi' }}
+        if: ${{ inputs.target_env == 'testpypi' }}
         run: uv publish --publish-url https://test.pypi.org/legacy/

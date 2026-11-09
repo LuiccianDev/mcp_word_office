@@ -18,7 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
+      id-token: write
+      attestations: write
 
     steps:
       - name: Checkout repository
@@ -52,6 +53,11 @@ jobs:
       - name: Build Python Package (Wheel & Sdist)
         run: uv build
 
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*"
+
       - name: Extract Release Notes from CHANGELOG
         run: |
           python3 scripts/extract-release-notes.py --tag "${{ steps.tag_info.outputs.tag }}" --output release_body.md
@@ -67,10 +73,3 @@ jobs:
             dist/*.tar.gz
           generate_release_notes: true
           make_latest: true
-
-      - name: Trigger PyPI Publication Workflow
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ">>> Triggering PyPI publication workflow..."
-          gh workflow run publish-pypi.yml --ref master -f target_env=pypi || echo "Note: Workflow run dispatched if permissions permit."

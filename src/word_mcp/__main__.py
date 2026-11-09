@@ -16,7 +16,7 @@ from word_mcp import __version__
 def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        prog="word-mcp",
+        prog="luiccian-word-mcp",
         description="Word MCP Server - High-performance Word document manipulation via MCP",
     )
     parser.add_argument(

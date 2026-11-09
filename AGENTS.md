@@ -33,7 +33,7 @@ When assisting users or configuring clients (Claude Desktop, Cursor, Cline, Copi
 - **Tier 2 (Advanced / Local Development):** For contributors developing features or modifying tools locally, use Astral `uv`:
   ```bash
   uv sync --all-groups
-  uv run word-mcp
+  uv run luiccian-word-mcp
   ```
 
 ---
@@ -65,7 +65,7 @@ To guarantee consistency, cleanliness, and maintainability across the project:
 ### 1. Root & Module Hierarchy
 - **Source Module:** Python source resides strictly in `src/word_mcp/`.
 - **Package Name on PyPI:** `luiccian-word-mcp`.
-- **Command-line Scripts:** `word-mcp`, `word_mcp`, `mcp-word` registered in `pyproject.toml` pointing to `word_mcp.__main__:main`.
+- **Command-line Script:** `luiccian-word-mcp` is registered in `pyproject.toml` and points to `word_mcp.__main__:main`.
 - **Support Folders (Lowercase):**
   - `docs/` (technical documentation and tool specifications)
   - `scripts/` (release, versioning, and build automation)
