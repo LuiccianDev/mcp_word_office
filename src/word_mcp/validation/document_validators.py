@@ -1,7 +1,7 @@
-"""File utility functions for the Word Document Server.
+"""Validation decorators for Word document tool parameters.
 
-This module provides helper functions for file system operations such as
-checking permissions, copying files, and ensuring correct file extensions.
+This module provides decorators and helpers that verify file existence,
+extension, readability, and write access before a tool executes.
 """
 
 import functools
@@ -66,7 +66,7 @@ def validate_docx_file(param_name: str) -> Callable[[F], F]:
 
 
 def check_file_writeable(param_name: str) -> Callable[[F], F]:
-    """Decorador que verifica si el archivo indicado es escribible."""
+    """Decorator that verifies whether the given file is writable."""
 
     def decorator(func: F) -> F:
         if inspect.iscoroutinefunction(func):
@@ -112,7 +112,7 @@ def _check_file_writeable(path_value: str | Path) -> tuple[bool, str]:
             if not os.access(path, os.W_OK):
                 return False, f"File '{path}' is not writeable."
             return True, ""
-        
+
         # If file doesn't exist, check parent directory
         parent = path.parent
         if not parent.exists():

@@ -2,7 +2,7 @@
 Document utility functions for Word Document Server.
 
 This module provides utility functions for working with Word documents,
-including extracting properties, text, and structure from .docx files.
+including extracting text, structure, and copying documents.
 """
 
 import os
@@ -11,47 +11,8 @@ from typing import Any
 
 from docx import Document
 from docx.document import Document as DocumentType
-from docx.oxml.coreprops import CT_CoreProperties
 
 from word_mcp.validation.document_validators import validate_docx_file
-
-
-@validate_docx_file("filename")
-def get_document_properties(filename: str) -> dict[str, Any]:
-    """Get properties of a Word document.
-
-    Args:
-        filename: Path to the Word document.
-
-    Returns:
-        Dict containing document properties including title, author, subject, etc.
-        On error, returns a dict with an 'error' key.
-    """
-    try:
-        doc: DocumentType = Document(filename)
-        core_props: CT_CoreProperties = doc.core_properties
-        sections = doc.sections
-
-        word_count: int = sum(
-            len(paragraph.text.split()) for paragraph in doc.paragraphs
-        )
-
-        return {
-            "title": core_props.title or "",
-            "author": core_props.author or "",
-            "subject": core_props.subject or "",
-            "keywords": core_props.keywords or "",
-            "created": str(core_props.created) if core_props.created else "",
-            "modified": str(core_props.modified) if core_props.modified else "",
-            "last_modified_by": core_props.last_modified_by or "",
-            "revision": core_props.revision or 0,
-            "page_count": len(sections),
-            "word_count": word_count,
-            "paragraph_count": len(doc.paragraphs),
-            "table_count": len(doc.tables),
-        }
-    except Exception as e:
-        return {"error": f"Failed to get document properties: {str(e)}"}
 
 
 @validate_docx_file("filename")
@@ -156,80 +117,6 @@ def get_document_structure(filename: str) -> dict[str, Any]:
         }
 
 
-def find_paragraph_by_text(
-    doc: DocumentType, text: str, partial_match: bool = False
-) -> list[int]:
-    """Find paragraphs containing specific text.
-
-    Args:
-        doc: Document object to search within.
-        text: Text to search for in paragraphs.
-        partial_match:  If True, matches paragraphs containing the text.
-                        If False, matches paragraphs with exact text.
-
-    Returns:
-        List of paragraph indices (0-based) that match the search criteria.
-    """
-    if not text or not hasattr(doc, "paragraphs"):
-        return []
-
-    matching_paragraphs: list[int] = []
-
-    for para_idx, paragraph in enumerate(doc.paragraphs):
-        if not paragraph.text:
-            continue
-
-        if (partial_match and text in paragraph.text) or (
-            not partial_match and paragraph.text == text
-        ):
-            matching_paragraphs.append(para_idx)
-
-    return matching_paragraphs
-
-
-def find_and_replace_text(doc: DocumentType, old_text: str, new_text: str) -> int:
-    """Find and replace text throughout the document.
-
-    Args:
-        doc: Document object to search and modify.
-        old_text: Text to find in the document.
-        new_text: Text to replace the found text with.
-    Returns:
-        int: Number of replacements made.
-    Raises:
-        AttributeError: If the document object is invalid.
-        ValueError: If old_text is empty.
-    """
-    if not old_text:
-        raise ValueError("Search text cannot be empty")
-
-    if not hasattr(doc, "paragraphs") or not hasattr(doc, "tables"):
-        raise AttributeError("Invalid document object provided")
-
-    replacement_count: int = 0
-
-    # Search and replace in paragraphs
-    for paragraph in doc.paragraphs:
-        if old_text in paragraph.text:
-            for run in paragraph.runs:
-                if old_text in run.text:
-                    run.text = run.text.replace(old_text, new_text)
-                    replacement_count += 1
-
-    # Search and replace in tables
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    if old_text in paragraph.text:
-                        for run in paragraph.runs:
-                            if old_text in run.text:
-                                run.text = run.text.replace(old_text, new_text)
-                                replacement_count += 1
-
-    return replacement_count
-
-
 def create_document_copy(
     source_path: str, dest_path: str | None = None
 ) -> tuple[bool, str, str | None]:
@@ -260,7 +147,6 @@ def create_document_copy(
         return False, f"Failed to copy document: {e}", None
 
 
-#! Observe that this function is not used in the code, it is left for future use
 def ensure_docx_extension(filename: str) -> str:
     """Ensures a filename has a .docx extension.
 

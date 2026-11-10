@@ -8,13 +8,13 @@ import os
 from typing import Any
 
 from word_mcp.core import (
-    core_create_document,
-    core_copy_document,
-    core_merge_documents,
     core_convert_to_pdf,
+    core_copy_document,
+    core_create_document,
     core_find_text,
-    core_get_paragraph_text,
     core_get_core_properties,
+    core_get_paragraph_text,
+    core_merge_documents,
 )
 from word_mcp.core.document_context import document_context
 from word_mcp.exception import (
@@ -23,9 +23,8 @@ from word_mcp.exception import (
     FileOperationError,
 )
 from word_mcp.utils.document_utils import (
-    get_document_properties,
-    get_document_structure,
     extract_document_text,
+    get_document_structure,
 )
 from word_mcp.utils.security import (
     get_allowed_directories as _get_allowed_directories,
@@ -79,17 +78,14 @@ async def get_document_info(
 ) -> dict[str, Any]:
     """Get information about a Word document."""
     try:
-        # Properties usually doesn't need full doc open via DocumentContext 
-        # but for consistency we could, however document_utils.get_document_properties 
-        # might be optimized. Let's stick to core if we had one for properties.
-        # We have core_get_core_properties but it takes doc.
+        # Core properties are read from the open document context.
         with document_context(filename, mode="read") as doc:
-            properties = core_get_core_properties(doc)
+            properties: dict[str, Any] = core_get_core_properties(doc)
             # Add some extra info
             properties["filename"] = os.path.basename(filename)
             properties["path"] = os.path.abspath(filename)
             properties["size_kb"] = round(os.path.getsize(filename) / 1024, 2)
-            
+
         return {
             "status": "success",
             "properties": properties,
@@ -257,7 +253,7 @@ async def get_paragraph_text_from_document(
     try:
         with document_context(filename, mode="read") as doc:
             result = core_get_paragraph_text(doc, paragraph_index)
-        
+
         return {
             "status": "success",
             "paragraph": result
@@ -279,7 +275,7 @@ async def find_text_in_document(
     try:
         with document_context(filename, mode="read") as doc:
             result = core_find_text(doc, text_to_find, match_case, whole_word)
-        
+
         return {
             "status": "success",
             "search_results": result
