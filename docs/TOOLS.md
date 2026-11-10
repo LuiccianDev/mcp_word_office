@@ -1,10 +1,8 @@
-# MCP Word Office - Tools Reference
+# Word MCP - Tools Reference
 
-This document provides a comprehensive reference for all tools available in the MCP Word Office server. These tools allow you to create, modify, and manage Word documents programmatically.
+This document provides a comprehensive reference for all tools available in the Word MCP server. These tools allow you to create, modify, and manage Word documents programmatically.
 
-> **Note:** All tools support two naming conventions:
-> - **New naming** (recommended): Tools use the `word_` prefix (e.g., `word_create_document`)
-> - **Legacy naming**: Original names without prefix for backward compatibility (e.g., `create_document`)
+> **Note:** Tool names are descriptive and do not use a namespace prefix (for example, `create_document`).
 
 ## Table of Contents
 
@@ -14,9 +12,9 @@ This document provides a comprehensive reference for all tools available in the 
 - [Format Tools](#format-tools)
 - [Protection Tools](#protection-tools)
 - [Footnote Tools](#footnote-tools)
-- [Extended Document Tools](#extended-document-tools)
-- [Header & Footer Tools](#header--footer-tools)
-- [Link Tools](#link-tools)
+- [Extended Document Inspection](#extended-document-inspection)
+- [Header & Footer](#header--footer)
+- [Hyperlinks & Bookmarks](#hyperlinks--bookmarks)
 - [Property & Layout Tools](#property--layout-tools)
 
 ---
@@ -25,7 +23,11 @@ This document provides a comprehensive reference for all tools available in the 
 
 These high-performance tools generate or modify documents in **1 single MCP call**, saving over 90% of model tokens and conversational turns compared to legacy micro-calls.
 
-### `word_build_document` / `build_document`
+### `build_document`
+
+```python
+build_document(filename: str | None = None, file_path: str | None = None, title: str | None = None, author: str | None = None, preset: str | None = None, font_name: str | None = None, font_size: float | None = None, line_spacing: float | None = None, space_after: float | None = None, margins: dict[str, float] | None = None, orientation: str | None = None, header_text: str | None = None, footer_text: str | None = None, page_numbers: bool = False, elements: list[dict[str, typing.Any]] | None = None) -> dict[str, typing.Any]
+```
 
 Build a complete, professionally styled Word document in a single tool call with typography, margins, headers, footers, page numbers, headings, paragraphs, and tables.
 
@@ -56,7 +58,11 @@ Build a complete, professionally styled Word document in a single tool call with
 
 ---
 
-### `word_create_from_markdown` / `create_from_markdown`
+### `create_from_markdown`
+
+```python
+create_from_markdown(markdown_content: str, filename: str | None = None, file_path: str | None = None, title: str | None = None, author: str | None = None, preset: str | None = None, font_name: str | None = None, font_size: float | None = None, line_spacing: float | None = None, space_after: float | None = None, margins: dict[str, float] | None = None, header_text: str | None = None, footer_text: str | None = None, page_numbers: bool = False) -> dict[str, typing.Any]
+```
 
 Quickly draft and format a Word document from structured markdown text in a single pass.
 
@@ -76,14 +82,18 @@ Quickly draft and format a Word document from structured markdown text in a sing
 
 ---
 
-### `word_batch_add_content` / `batch_add_content`
+### `batch_add_content`
+
+```python
+batch_add_content(elements: list[dict[str, typing.Any]], filename: str | None = None, file_path: str | None = None) -> dict[str, typing.Any]
+```
 
 Append multiple structured elements (headings, paragraphs, tables, lists) to an existing Word document in 1 call without reloading between steps.
 
 **Parameters:**
 
 - `filename` (str): Target existing `.docx` file path.
-- `elements` (list of dict): List of elements to append (same format as `word_build_document`).
+- `elements` (list of dict): List of elements to append (same format as `build_document`).
 
 **Returns:**
 - `BuildDocumentResult`: Structured summary of appended elements.
@@ -92,7 +102,11 @@ Append multiple structured elements (headings, paragraphs, tables, lists) to an 
 
 ## Document Tools
 
-### `word_create_document` / `create_document`
+### `create_document`
+
+```python
+create_document(filename: str, title: str | None = None, author: str | None = None) -> dict[str, typing.Any]
+```
 
 Create a new Word document with optional metadata.
 
@@ -108,7 +122,11 @@ Create a new Word document with optional metadata.
 
 ---
 
-### `word_copy_document` / `copy_document`
+### `copy_document`
+
+```python
+copy_document(source_filename: str, destination_filename: str | None = None) -> dict[str, typing.Any]
+```
 
 Create a copy of an existing Word document.
 
@@ -123,7 +141,11 @@ Create a copy of an existing Word document.
 
 ---
 
-### `word_get_document_info` / `get_document_info`
+### `get_document_info`
+
+```python
+get_document_info(filename: str, response_format: str = 'markdown') -> dict[str, typing.Any]
+```
 
 Get metadata and properties of a Word document.
 
@@ -138,7 +160,11 @@ Get metadata and properties of a Word document.
 
 ---
 
-### `word_get_document_text` / `get_document_text`
+### `get_document_text`
+
+```python
+get_document_text(filename: str, response_format: str = 'markdown') -> dict[str, typing.Any]
+```
 
 Extract all text from a Word document.
 
@@ -153,7 +179,11 @@ Extract all text from a Word document.
 
 ---
 
-### `word_get_document_outline` / `get_document_outline`
+### `get_document_outline`
+
+```python
+get_document_outline(filename: str, response_format: str = 'markdown') -> dict[str, typing.Any]
+```
 
 Get the structure/outline of a Word document including headings and tables.
 
@@ -168,7 +198,11 @@ Get the structure/outline of a Word document including headings and tables.
 
 ---
 
-### `word_list_documents` / `list_available_documents`
+### `list_available_documents`
+
+```python
+list_available_documents(directory: str | None = None, page: int = 1, page_size: int = 20, response_format: str = 'markdown') -> dict[str, typing.Any]
+```
 
 List all .docx files in the specified or allowed directories with pagination support.
 
@@ -190,7 +224,11 @@ List all .docx files in the specified or allowed directories with pagination sup
 
 ---
 
-### `word_merge_documents` / `merge_documents`
+### `merge_documents`
+
+```python
+merge_documents(target_filename: str, source_filenames: list[str], add_page_breaks: bool = True, response_format: str = 'markdown') -> dict[str, typing.Any]
+```
 
 Merge multiple Word documents into a single document.
 
@@ -209,7 +247,11 @@ Merge multiple Word documents into a single document.
 
 ## Content Tools
 
-### `word_add_paragraph` / `add_paragraph`
+### `add_paragraph`
+
+```python
+add_paragraph(filename: str, text: str, style: str | None = None) -> dict[str, typing.Any]
+```
 
 Add a paragraph to a Word document.
 
@@ -225,7 +267,11 @@ Add a paragraph to a Word document.
 
 ---
 
-### `word_add_heading` / `add_heading`
+### `add_heading`
+
+```python
+add_heading(filename: str, text: str, level: int = 1) -> dict[str, typing.Any]
+```
 
 Add a heading to a Word document.
 
@@ -241,7 +287,11 @@ Add a heading to a Word document.
 
 ---
 
-### `word_add_page_break` / `add_page_break`
+### `add_page_break`
+
+```python
+add_page_break(filename: str) -> dict[str, typing.Any]
+```
 
 Add a page break to a Word document.
 
@@ -255,7 +305,11 @@ Add a page break to a Word document.
 
 ---
 
-### `word_add_picture` / `add_picture`
+### `add_picture`
+
+```python
+add_picture(filename: str, image_path: str, width: float | None = None) -> dict[str, typing.Any]
+```
 
 Add an image to a Word document.
 
@@ -271,7 +325,11 @@ Add an image to a Word document.
 
 ---
 
-### `word_add_table` / `add_table`
+### `add_table`
+
+```python
+add_table(filename: str, rows: int, cols: int, data: list[list[typing.Any]] | None = None) -> dict[str, typing.Any]
+```
 
 Add a table to a Word document.
 
@@ -288,7 +346,11 @@ Add a table to a Word document.
 
 ---
 
-### `word_add_table_of_contents` / `add_table_of_contents`
+### `add_table_of_contents`
+
+```python
+add_table_of_contents(filename: str, title: str = 'Table of Contents', max_level: int = 3) -> dict[str, typing.Any]
+```
 
 Add a table of contents to a Word document based on heading styles.
 
@@ -304,7 +366,11 @@ Add a table of contents to a Word document based on heading styles.
 
 ---
 
-### `word_delete_paragraph` / `delete_paragraph`
+### `delete_paragraph`
+
+```python
+delete_paragraph(filename: str, paragraph_index: int) -> dict[str, typing.Any]
+```
 
 Delete a paragraph from a Word document by index.
 
@@ -319,7 +385,11 @@ Delete a paragraph from a Word document by index.
 
 ---
 
-### `word_search_and_replace` / `search_and_replace`
+### `search_and_replace`
+
+```python
+search_and_replace(filename: str, find_text: str, replace_text: str) -> dict[str, typing.Any]
+```
 
 Search for text and replace all occurrences in a Word document.
 
@@ -337,7 +407,11 @@ Search for text and replace all occurrences in a Word document.
 
 ## Format Tools
 
-### `word_format_text` / `format_text`
+### `format_text`
+
+```python
+format_text(filename: str, paragraph_index: int, start_pos: int, end_pos: int, bold: bool | None = None, italic: bool | None = None, underline: bool | None = None, color: str | None = None, font_size: int | None = None, font_name: str | None = None) -> dict[str, typing.Any]
+```
 
 Format a specific range of text within a paragraph.
 
@@ -360,7 +434,11 @@ Format a specific range of text within a paragraph.
 
 ---
 
-### `word_create_custom_style` / `create_custom_style`
+### `create_custom_style`
+
+```python
+create_custom_style(filename: str, style_name: str, bold: bool | None = None, italic: bool | None = None, font_size: int | None = None, font_name: str | None = None, color: str | None = None, base_style: str | None = None) -> dict[str, typing.Any]
+```
 
 Create a custom style in a Word document.
 
@@ -381,7 +459,11 @@ Create a custom style in a Word document.
 
 ---
 
-### `word_format_table` / `format_table`
+### `format_table`
+
+```python
+format_table(filename: str, table_index: int, has_header_row: bool | None = None, border_style: str | None = None, shading: list[list[str]] | None = None) -> dict[str, typing.Any]
+```
 
 Format a table with borders, shading, and structure options.
 
@@ -401,7 +483,11 @@ Format a table with borders, shading, and structure options.
 
 ## Protection Tools
 
-### `word_protect_document` / `protect_document`
+### `protect_document`
+
+```python
+protect_document(filename: str, password: str) -> dict[str, typing.Any]
+```
 
 Add password protection to a Word document using encryption.
 
@@ -416,7 +502,11 @@ Add password protection to a Word document using encryption.
 
 ---
 
-### `word_unprotect_document` / `unprotect_document`
+### `unprotect_document`
+
+```python
+unprotect_document(filename: str, password: str) -> dict[str, typing.Any]
+```
 
 Remove password protection from a Word document.
 
@@ -431,7 +521,11 @@ Remove password protection from a Word document.
 
 ---
 
-### `word_add_restricted_editing` / `add_restricted_editing`
+### `add_restricted_editing`
+
+```python
+add_restricted_editing(filename: str, password: str, editable_sections: list[str]) -> dict[str, typing.Any]
+```
 
 Add restricted editing to allow editing only in specified sections.
 
@@ -447,7 +541,11 @@ Add restricted editing to allow editing only in specified sections.
 
 ---
 
-### `word_add_digital_signature` / `add_digital_signature`
+### `add_digital_signature`
+
+```python
+add_digital_signature(filename: str, signer_name: str, reason: str | None = None) -> dict[str, typing.Any]
+```
 
 Add a digital signature to a Word document.
 
@@ -463,7 +561,11 @@ Add a digital signature to a Word document.
 
 ---
 
-### `word_verify_document` / `verify_document`
+### `verify_document`
+
+```python
+verify_document(filename: str, password: str | None = None) -> dict[str, typing.Any]
+```
 
 Verify document protection and/or digital signature.
 
@@ -480,7 +582,11 @@ Verify document protection and/or digital signature.
 
 ## Footnote Tools
 
-### `word_add_footnote` / `add_footnote_to_document`
+### `add_footnote_to_document`
+
+```python
+add_footnote_to_document(filename: str, paragraph_index: int, footnote_text: str) -> dict[str, typing.Any]
+```
 
 Add a footnote to a specific paragraph in a Word document.
 
@@ -497,7 +603,11 @@ Add a footnote to a specific paragraph in a Word document.
 
 ---
 
-### `word_add_endnote` / `add_endnote_to_document`
+### `add_endnote_to_document`
+
+```python
+add_endnote_to_document(filename: str, paragraph_index: int, endnote_text: str) -> dict[str, typing.Any]
+```
 
 Add an endnote to a specific paragraph in a Word document.
 
@@ -513,7 +623,11 @@ Add an endnote to a specific paragraph in a Word document.
 
 ---
 
-### `word_convert_footnotes` / `convert_footnotes_to_endnotes_in_document`
+### `convert_footnotes_to_endnotes_in_document`
+
+```python
+convert_footnotes_to_endnotes_in_document(filename: str) -> dict[str, typing.Any]
+```
 
 Convert all footnotes to endnotes in a Word document.
 
@@ -527,7 +641,11 @@ Convert all footnotes to endnotes in a Word document.
 
 ---
 
-### `word_customize_footnote_style` / `customize_footnote_style`
+### `customize_footnote_style`
+
+```python
+customize_footnote_style(filename: str, numbering_format: str = '1, 2, 3', start_number: int = 1, font_name: str | None = None, font_size: int | None = None) -> dict[str, typing.Any]
+```
 
 Customize the appearance of footnotes in a Word document.
 
@@ -546,9 +664,13 @@ Customize the appearance of footnotes in a Word document.
 
 ---
 
-## Extended Document Tools
+## Extended Document Inspection
 
-### `word_get_paragraph_text` / `get_paragraph_text_from_document`
+### `get_paragraph_text_from_document`
+
+```python
+get_paragraph_text_from_document(filename: str, paragraph_index: int) -> dict[str, typing.Any]
+```
 
 Get text from a specific paragraph in a Word document.
 
@@ -563,7 +685,11 @@ Get text from a specific paragraph in a Word document.
 
 ---
 
-### `word_find_text` / `find_text_in_document`
+### `find_text_in_document`
+
+```python
+find_text_in_document(filename: str, text_to_find: str, match_case: bool = True, whole_word: bool = False) -> dict[str, typing.Any]
+```
 
 Search for text in a Word document and return matching locations.
 
@@ -580,7 +706,11 @@ Search for text in a Word document and return matching locations.
 
 ---
 
-### `word_convert_to_pdf` / `convert_to_pdf`
+### `convert_to_pdf`
+
+```python
+convert_to_pdf(filename: str, output_filename: str | None = None) -> dict[str, typing.Any]
+```
 
 Convert a Word document to PDF format.
 
@@ -595,9 +725,13 @@ Convert a Word document to PDF format.
 
 ---
 
-## Header & Footer Tools
+## Header & Footer
 
-### `word_add_header` / `add_header`
+### `add_header`
+
+```python
+add_header(filename: str = '', text: str = '', section_index: int = 0, file_path: str | None = None) -> dict[str, typing.Any]
+```
 
 Add or update the primary header of a specific section in the document.
 
@@ -613,7 +747,11 @@ Add or update the primary header of a specific section in the document.
 
 ---
 
-### `word_add_footer` / `add_footer`
+### `add_footer`
+
+```python
+add_footer(filename: str = '', text: str = '', section_index: int = 0, file_path: str | None = None) -> dict[str, typing.Any]
+```
 
 Add or update the primary footer of a specific section in the document.
 
@@ -629,9 +767,13 @@ Add or update the primary footer of a specific section in the document.
 
 ---
 
-## Link Tools
+## Hyperlinks & Bookmarks
 
-### `word_add_hyperlink` / `add_hyperlink`
+### `add_hyperlink`
+
+```python
+add_hyperlink(filename: str = '', paragraph_index: int = 0, text: str = '', url: str | None = None, bookmark: str | None = None, file_path: str | None = None) -> dict[str, typing.Any]
+```
 
 Add a hyperlink to a specific paragraph.
 
@@ -649,7 +791,11 @@ Add a hyperlink to a specific paragraph.
 
 ---
 
-### `word_add_bookmark` / `add_bookmark`
+### `add_bookmark`
+
+```python
+add_bookmark(filename: str = '', paragraph_index: int = 0, name: str = '', file_path: str | None = None) -> dict[str, typing.Any]
+```
 
 Add a bookmark to a specific paragraph to enable internal linking.
 
@@ -667,7 +813,11 @@ Add a bookmark to a specific paragraph to enable internal linking.
 
 ## Property & Layout Tools
 
-### `word_get_core_properties` / `get_core_properties`
+### `get_core_properties`
+
+```python
+get_core_properties(file_path: str = '', filename: str | None = None) -> dict[str, typing.Any]
+```
 
 Get the core metadata properties of the document (author, title, etc.).
 
@@ -681,7 +831,11 @@ Get the core metadata properties of the document (author, title, etc.).
 
 ---
 
-### `word_set_core_properties` / `set_core_properties`
+### `set_core_properties`
+
+```python
+set_core_properties(file_path: str = '', author: str | None = None, title: str | None = None, subject: str | None = None, keywords: str | None = None, comments: str | None = None, category: str | None = None, filename: str | None = None) -> dict[str, typing.Any]
+```
 
 Set the core metadata properties of the document.
 
@@ -701,7 +855,11 @@ Set the core metadata properties of the document.
 
 ---
 
-### `word_set_page_layout` / `set_page_layout`
+### `set_page_layout`
+
+```python
+set_page_layout(filename: str = '', section_index: int = 0, orientation: str = 'portrait', file_path: str | None = None) -> dict[str, typing.Any]
+```
 
 Set the page layout orientation (portrait or landscape) for a specific section.
 
@@ -754,7 +912,7 @@ All tools return a consistent error format:
 
 ## Pagination
 
-The `word_list_documents` tool supports pagination:
+The `list_available_documents` tool supports pagination:
 
 ```json
 {
