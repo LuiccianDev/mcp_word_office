@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.0.2] - 2026-11-10
+
 ### Added
 - Documentation contract tests for tool signatures, return shapes, skills, version parity, packaging, and repository hygiene.
 - `scripts/sync-tools-reference.py` to regenerate `docs/TOOLS.md` signature blocks from the registered tools.

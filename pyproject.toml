@@ -1,6 +1,6 @@
 [project]
 name = "luiccian-word-mcp"
-version = "2.0.1"
+version = "2.0.2"
 description = "High-performance Model Context Protocol (MCP) server for Word (.docx) document generation and manipulation"
 readme = "README.md"
 authors = [
