@@ -11,16 +11,16 @@ from word_mcp.utils.security import get_allowed_directories
 
 
 def create_server() -> FastMCP:
-    """Create and configure the Office MCP Server."""
+    """Create and configure the Word MCP Server."""
 
     allowed_dirs = get_allowed_directories()
     dirs_list = "\n".join([f"- `{d}`" for d in allowed_dirs])
 
     mcp = FastMCP(
         name="word_mcp",
-        instructions=f"""# Office MCP Server
+        instructions=f"""# Word MCP Server
 
-Office MCP Server provides comprehensive Word document (.docx) manipulation capabilities for AI assistants.
+Word MCP Server provides comprehensive Word document (.docx) manipulation capabilities for AI assistants.
 
 ## Capabilities
 
@@ -44,14 +44,14 @@ Office MCP Server provides comprehensive Word document (.docx) manipulation capa
 ### Footnotes & Endnotes
 - **Add footnotes**: Reference notes at page bottom
 - **Add endnotes**: Reference notes at document end
-- **Convert between**: Transform footnotes to endnotes and vice versa
+- **Convert footnotes to endnotes**: Transform existing footnotes into endnotes (one-way)
 - **Customize styling**: Configure footnote/endnote appearance
 
 ### Document Protection
 - **Password protection**: Encrypt documents with passwords
 - **Restricted editing**: Limit editing to specific sections
-- **Digital signatures**: Sign documents digitally
-- **Verification**: Check document protection and signature status
+- **Signature markers**: Add a visible signature block and a SHA-256 content hash
+- **Verification**: Check protection metadata and signature-marker status
 
 ## Usage Patterns
 
@@ -74,12 +74,12 @@ Office MCP Server provides comprehensive Word document (.docx) manipulation capa
 {dirs_list}
 
   If the user asks to create or manipulate a document without specifying an absolute path, you MUST default to one of the above allowed directories.
-- Document protection uses strong encryption
-- Digital signatures verify document integrity
+- Document protection encrypts the OOXML container with `msoffcrypto`
+- Signature markers detect text changes; they are not cryptographic signatures
 
 ## Tool Naming
 
-All tools use the `word_` prefix for clarity and to avoid conflicts with other MCP servers. Legacy names without the prefix are also available for backward compatibility.""",
+Tools use descriptive, unprefixed names (for example, `create_document`). Each tool is registered exactly once.""",
         on_duplicate="error",
     )
 

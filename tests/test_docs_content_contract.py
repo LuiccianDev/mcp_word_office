@@ -138,3 +138,21 @@ def test_readme_links_tools_reference() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     assert "docs/TOOLS.md" in readme
 
+
+def test_security_policy_documents_actual_crypto() -> None:
+    policy = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
+    assert "msoffcrypto" in policy
+    assert "SHA-256" in policy
+    assert "SHA-512" not in policy
+    assert "100,000" not in policy
+    assert "not a cryptographic signature" in policy
+    assert "verify_document" in policy
+    assert "verify_protection" not in policy
+
+
+def test_server_instructions_do_not_claim_bidirectional_note_conversion() -> None:
+    server = (ROOT / "src" / "word_mcp" / "server.py").read_text(encoding="utf-8")
+    assert "and vice versa" not in server
+    assert "Endnotes to footnotes" not in server
+
+

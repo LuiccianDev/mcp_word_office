@@ -12,7 +12,8 @@ Only the latest major version branch receives active security updates and vulner
 
 | Version | Supported | Notes |
 | :--- | :--- | :--- |
-| **2.x.x** | :white_check_mark: Yes | Current production release branch (`word-mcp`) |
+| **3.x.x** | :white_check_mark: Yes | Current major branch after the 3.0.0 release |
+| **2.x.x** | :x: No | Superseded by 3.0.0; prefixed tool aliases were removed |
 | **1.x.x** | :x: No | Deprecated legacy `mcp_word` release |
 
 ---
@@ -24,13 +25,21 @@ By default or via configuration, Word MCP limits document reading, writing, and 
 - The server canonicalizes all filesystem paths via `os.path.realpath` and `pathlib.Path.resolve()`.
 - Directory traversal attacks using relative dot-segments (`../`, `..\\`) are detected and blocked with `SecurityError` before any file handle is opened.
 
-### 2. Password Hashing & OOXML Encryption
-- Document protection operations (`protect_document`, `verify_protection`) implement standard OOXML hash algorithms (SHA-512 with 100,000 iterations) according to ECMA-376 specifications.
-- Passwords are never logged in plain text or exposed in response models.
+### 2. Password Protection and Protection Metadata
+- `protect_document` encrypts the OOXML container with `msoffcrypto-tool`. The password is not stored in the document or in this repository.
+- `unprotect_document` decrypts the container and returns `Incorrect password` when the key is invalid.
+- `add_restricted_editing` and `add_digital_signature` write a sidecar JSON file named `<document>.protection` next to the `.docx`. The sidecar stores a SHA-256 hash of the password for restricted-editing verification. This is an unsalted hash, not a password-based key derivation function, and MUST NOT be treated as high-security credential storage.
+- `add_digital_signature` writes a visible signature block and stores a SHA-256 hash of the paragraph text. It detects text changes after signing. It is **not a cryptographic signature** and does not verify signer identity.
+- `verify_document` reads the sidecar metadata only. It does not validate OOXML package signatures.
 
 ### 3. Safe Subprocess Execution
 - Subprocess invocations (such as LibreOffice headless PDF conversion) use argument lists directly rather than `shell=True` to eliminate shell injection vulnerabilities.
 - Command existence and execution timeouts are enforced to prevent denial of service (DoS).
+
+### 4. Known Limitations
+- The `.protection` sidecar is advisory metadata. Microsoft Word does not enforce the `editable_sections` list.
+- Page count is not computed by `get_document_info`; rendering is required for an authoritative value.
+- PDF conversion depends on LibreOffice on Linux and `docx2pdf` on Windows/macOS. Failure is reported as a structured error.
 
 ---
 
