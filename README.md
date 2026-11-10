@@ -126,7 +126,7 @@ uv run mypy src
 
 The repository includes automated GitHub Actions workflows powered by Astral `uv`:
 
-- **CI (`.github/workflows/ci.yml`)**: Runs tests, lint, and type checks across Python 3.11, 3.12, 3.13, and 3.14 on Ubuntu. Uses `paths-ignore` and concurrency cancellation to preserve GitHub Actions minutes.
+- **CI (`.github/workflows/ci.yml`)**: Runs tests, lint, and type checks across Python 3.11, 3.12, and 3.13 on Ubuntu. Uses `paths-ignore` and concurrency cancellation to preserve GitHub Actions minutes.
 - **CodeQL Security (`.github/workflows/codeql.yml`)**: Continuous automated security analysis and vulnerability scanning for Python code with GitHub Advanced Security.
 - **Automated Version Bump & PyPI Release (`.github/workflows/bump-and-release.yml`)**: 1-click semantic version bump (`patch`, `minor`, `major`). Updates `pyproject.toml`, `manifest.json`, `CHANGELOG.md`, `docs/TOOLS.md`, and `uv.lock`, validates the quality gate, commits, and pushes the `v*` tag. The tag then triggers `release.yml` and, through the published GitHub Release, `publish-pypi.yml`.
 - **Releases (`.github/workflows/release.yml`)**: Triggered on `v*` tags or manually via workflow dispatch. Builds wheel & sdist with `uv build`, auto-extracts release notes from `CHANGELOG.md`, and creates a GitHub Release.
