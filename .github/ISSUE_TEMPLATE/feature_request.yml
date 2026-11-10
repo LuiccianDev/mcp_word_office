@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an idea or new feature for Word MCP
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for suggesting a feature to improve Word MCP!
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem or limitation?
+      placeholder: A clear and concise description of the challenge you are encountering.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe what solution or capability you would like to see added.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered.
+  - type: input
+    id: affected-tools
+    attributes:
+      label: Affected Tool Names
+      description: Which MCP tools are relevant or affected (e.g. build_document, create_document)?

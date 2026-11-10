@@ -9,7 +9,6 @@ on:
       - 'skills/**'
       - 'examples/**'
       - '.gitignore'
-      - '.gitattributes'
       - 'LICENSE'
   pull_request:
     branches: [ master, main ]
@@ -19,7 +18,6 @@ on:
       - 'skills/**'
       - 'examples/**'
       - '.gitignore'
-      - '.gitattributes'
       - 'LICENSE'
   schedule:
     - cron: '0 6 * * 1'
