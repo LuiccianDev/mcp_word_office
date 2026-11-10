@@ -5,16 +5,15 @@ repos:
       - id: ruff
         args: ["--fix"]  # Uses config from pyproject.toml
         language_version: python3.13
-        files: ^src/.*\.py$
+        files: ^(src|tests|scripts)/.*\.py$
       - id: ruff-format
         language_version: python3.13
-        files: ^src/.*\.py$
+        files: ^(src|tests|scripts)/.*\.py$
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.17.1
     hooks:
       - id: mypy
-        additional_dependencies: ["types-requests"]
         language_version: python3.13
         files: ^src/.*\.py$
 
@@ -24,4 +23,4 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-json
-      - id: trailing-whitespace # Puedes ajustar esto
+      - id: trailing-whitespace

@@ -36,3 +36,37 @@ def test_agents_referenced_metadata_file_exists() -> None:
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert ".gitattributes" in agents
     assert (ROOT / ".gitattributes").is_file()
+
+
+def test_pre_commit_covers_source_tests_and_scripts() -> None:
+    body = (ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8")
+    assert "^(src|tests|scripts)/.*\\.py$" in body
+
+
+def test_workspace_does_not_hide_source_folders() -> None:
+    workspace = json.loads(
+        (ROOT / "word_mcp.code-workspace").read_text(encoding="utf-8")
+    )
+    for key in ("files.exclude", "search.exclude"):
+        exclude = workspace["settings"][key]
+        for folder in ("src", "tests", "skills"):
+            assert exclude.get(folder) is not True, (key, folder)
+
+
+def test_workspace_quality_gate_includes_scripts() -> None:
+    workspace = json.loads(
+        (ROOT / "word_mcp.code-workspace").read_text(encoding="utf-8")
+    )
+    tasks = {task["label"]: task for task in workspace["tasks"]["tasks"]}
+    assert "scripts/" in tasks["Quality Gate"]["command"]
+    assert "scripts/" in tasks["Ruff Check"]["args"]
+    assert "scripts/" in tasks["Ruff Format"]["args"]
+
+
+def test_ci_ignores_gitattributes_only_changes() -> None:
+    for workflow in ("ci.yml", "codeql.yml"):
+        body = (ROOT / ".github" / "workflows" / workflow).read_text(
+            encoding="utf-8"
+        )
+        assert ".gitattributes" in body
+

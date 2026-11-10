@@ -31,26 +31,14 @@
             "**/.pytest_cache": true,
             "**/.mypy_cache": true,
             "**/*.egg-info": true,
-            ".venv": true,
-            "src": true,
-            "tests": true,
-            "docs": false,
-            "skills": true,
-            "dist": true,
-            "build": true
+            ".venv": true
         },
         "search.exclude": {
             "**/__pycache__": true,
             "**/.pytest_cache": true,
             "**/.mypy_cache": true,
             "**/*.egg-info": true,
-            "**/.venv": true,
-            "src": true,
-            "tests": true,
-            "docs": false,
-            "skills": true,
-            "**/dist": true,
-            "**/build": true
+            "**/.venv": true
         }
     },
     "tasks": {
@@ -62,7 +50,7 @@
                 "command": "uv",
                 "args": [
                     "run",
-                    "office_mcp"
+                    "luiccian-word-mcp"
                 ],
                 "group": "build"
             },
@@ -86,7 +74,8 @@
                     "ruff",
                     "check",
                     "src/",
-                    "tests/"
+                    "tests/",
+                    "scripts/"
                 ],
                 "group": "test"
             },
@@ -99,7 +88,8 @@
                     "ruff",
                     "format",
                     "src/",
-                    "tests/"
+                    "tests/",
+                    "scripts/"
                 ],
                 "group": "test"
             },
@@ -117,7 +107,7 @@
             {
                 "label": "Quality Gate",
                 "type": "shell",
-                "command": "uv run ruff check src/ tests/ && uv run mypy src/ && uv run pytest -v",
+                "command": "uv run ruff check src/ tests/ scripts/ && uv run mypy src/ && uv run pytest -v",
                 "group": "test"
             }
         ]
@@ -129,7 +119,7 @@
                 "name": "Debug MCP Server",
                 "type": "debugpy",
                 "request": "launch",
-                "module": "office_mcp",
+                "module": "word_mcp",
                 "cwd": "${workspaceFolder:Root}"
             },
             {
