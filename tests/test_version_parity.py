@@ -63,3 +63,10 @@ def test_bump_version_updates_every_version_surface(tmp_path: Path) -> None:
     assert 'version = "9.9.9"' in (tmp_path / "pyproject.toml").read_text(
         encoding="utf-8"
     )
+
+
+def test_bump_and_release_workflow_stages_tools_doc() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "bump-and-release.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "docs/TOOLS.md" in workflow

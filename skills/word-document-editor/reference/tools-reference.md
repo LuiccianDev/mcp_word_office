@@ -6,8 +6,8 @@ This reference describes the primary modification and inspection tools available
 
 | Tool | Tokens | Purpose |
 | :--- | :--- | :--- |
-| `get_document_outline` | Ultra-Low (~100 tokens) | Extracts headings tree, level hierarchy, total paragraphs, and tables count. |
-| `get_document_info` | Very Low (~150 tokens) | Metadata (author, title, modified date, word count estimate, sections). |
+| `get_document_outline` | Ultra-Low (~100 tokens) | Extracts paragraph previews, styles, and table dimensions without loading full body text. |
+| `get_document_info` | Very Low (~150 tokens) | Metadata (author, title, modified date, size_kb) and core document properties. |
 | `find_text_in_document` | Low (~200 tokens) | Searches a query substring and returns matching paragraph indexes and context snippets. |
 | `get_document_text` | High (proportional to doc) | Dumps complete text. Use only when full semantic text analysis is strictly needed. |
 

@@ -60,3 +60,10 @@ def test_presets_reference_uses_runtime_margin_keys() -> None:
     for key in ('"top"', '"bottom"', '"left"', '"right"'):
         assert key in body
     assert "top_cm" not in body
+
+
+def test_editor_tools_reference_matches_runtime() -> None:
+    body = text("word-document-editor/reference/tools-reference.md")
+    assert "headings tree" not in body.lower()
+    assert "word count estimate" not in body.lower()
+    assert "paragraph previews" in body
