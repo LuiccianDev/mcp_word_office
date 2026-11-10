@@ -52,6 +52,8 @@ from word_mcp.core.protection import (
     core_unprotect_document,
     core_verify_document_protection,
     core_verify_signature,
+    hash_password,
+    verify_password,
 )
 from word_mcp.core.styles import create_style, ensure_heading_style, ensure_table_style
 from word_mcp.core.tables import (
@@ -108,6 +110,8 @@ __all__ = [
     "core_verify_signature",
     "core_protect_document",
     "core_unprotect_document",
+    "hash_password",
+    "verify_password",
     # styles
     "create_style",
     "ensure_heading_style",

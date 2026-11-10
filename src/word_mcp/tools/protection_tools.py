@@ -5,7 +5,6 @@ password protection, restricted editing, and digital signatures.
 """
 
 import datetime
-import hashlib
 from typing import Any
 
 from word_mcp.core import (
@@ -14,6 +13,7 @@ from word_mcp.core import (
     core_protect_document,
     core_unprotect_document,
     core_verify_document_protection,
+    hash_password,
 )
 from word_mcp.core.document_context import document_context
 from word_mcp.exception import (
@@ -84,7 +84,7 @@ async def add_restricted_editing(
                 "message": "No editable sections specified.",
             }
 
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        password_hash = hash_password(password)
         success = core_add_protection_info(
             filename,
             protection_type="restricted",

@@ -28,7 +28,7 @@ By default or via configuration, Word MCP limits document reading, writing, and 
 ### 2. Password Protection and Protection Metadata
 - `protect_document` encrypts the OOXML container with `msoffcrypto-tool`. The password is not stored in the document or in this repository.
 - `unprotect_document` decrypts the container and returns `Incorrect password` when the key is invalid.
-- `add_restricted_editing` and `add_digital_signature` write a sidecar JSON file named `<document>.protection` next to the `.docx`. The sidecar stores a SHA-256 hash of the password for restricted-editing verification. This is an unsalted hash, not a password-based key derivation function, and MUST NOT be treated as high-security credential storage.
+- `add_restricted_editing` and `add_digital_signature` write a sidecar JSON file named `<document>.protection` next to the `.docx`. The sidecar stores a salted PBKDF2-HMAC-SHA-256 hash of the password for restricted-editing verification using a unique cryptographic salt per document and constant-time comparison. The `.protection` file is advisory metadata for MCP clients and does not replace native OOXML encryption (`protect_document`).
 - `add_digital_signature` writes a visible signature block and stores a SHA-256 hash of the paragraph text. It detects text changes after signing. It is **not a cryptographic signature** and does not verify signer identity.
 - `verify_document` reads the sidecar metadata only. It does not validate OOXML package signatures.
 
