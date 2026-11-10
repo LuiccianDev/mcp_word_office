@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restored the VS Code tasks and debug configuration to the `word_mcp` module.
 - Aligned `manifest.json` and the `__version__` fallback with the published 2.0.1 release.
 
+### Security
+- Resolved CodeQL `py/weak-sensitive-data-hashing` alerts by replacing plain SHA-256 password hashing with PBKDF2-HMAC-SHA256 (100,000 iterations), unique cryptographic salts, and constant-time comparison in protection and unprotect modules.
+
 ---
 
 ## [2.0.1] - 2026-11-09

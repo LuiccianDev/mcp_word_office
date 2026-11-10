@@ -4,15 +4,76 @@ Document protection functionality for Word Document Server.
 
 import datetime
 import hashlib
+import hmac
 import json
 import logging
 import os
+import secrets
 from typing import Any
 
 from docx.document import Document
 
 
 logger = logging.getLogger(__name__)
+
+PBKDF2_ALGORITHM = "sha256"
+PBKDF2_ITERATIONS = 100_000
+
+
+def hash_password(password: str, salt: str | None = None) -> str:
+    """
+    Hash a password securely using PBKDF2-HMAC-SHA256 with a cryptographic salt.
+
+    Args:
+        password: The plain text password to hash
+        salt: Optional hexadecimal salt string (generated randomly if omitted)
+
+    Returns:
+        Formatted string: pbkdf2_sha256$<iterations>$<salt_hex>$<hash_hex>
+    """
+    if not salt:
+        salt = secrets.token_hex(16)
+
+    dk = hashlib.pbkdf2_hmac(
+        PBKDF2_ALGORITHM,
+        password.encode("utf-8"),
+        salt.encode("utf-8"),
+        PBKDF2_ITERATIONS,
+    )
+    return f"pbkdf2_sha256${PBKDF2_ITERATIONS}${salt}${dk.hex()}"
+
+
+def verify_password(password: str, stored_hash: str) -> bool:
+    """
+    Verify a password against a stored PBKDF2 hash using constant-time comparison.
+
+    Args:
+        password: Plain text password to verify
+        stored_hash: Stored hash formatted as pbkdf2_sha256$<iterations>$<salt>$<hash>
+
+    Returns:
+        True if password matches, False otherwise
+    """
+    if not stored_hash or not password:
+        return False
+
+    if stored_hash.startswith("pbkdf2_sha256$"):
+        parts = stored_hash.split("$")
+        if len(parts) == 4:
+            _, iter_str, salt, expected_hash = parts
+            try:
+                iterations = int(iter_str)
+                dk = hashlib.pbkdf2_hmac(
+                    PBKDF2_ALGORITHM,
+                    password.encode("utf-8"),
+                    salt.encode("utf-8"),
+                    iterations,
+                )
+                return hmac.compare_digest(dk.hex(), expected_hash)
+            except (ValueError, TypeError):
+                return False
+
+    return False
 
 
 def core_add_protection_info(
@@ -189,8 +250,8 @@ def core_verify_document_protection(
 
         # If password is provided, verify it
         if password:
-            password_hash = hashlib.sha256(password.encode()).hexdigest()
-            if password_hash != protection_data.get("password_hash"):
+            stored_hash = protection_data.get("password_hash", "")
+            if not verify_password(password, stored_hash):
                 return False, "Incorrect password"
 
         # Return protection type

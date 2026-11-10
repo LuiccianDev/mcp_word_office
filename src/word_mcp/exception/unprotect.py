@@ -4,11 +4,12 @@ Unprotect document functionality for the Word Document Server.
 This module handles removing document protection.
 """
 
-import hashlib
 import json
 import os
 import shutil
 import tempfile
+
+from word_mcp.core.protection import verify_password
 
 
 def remove_protection_info(
@@ -38,8 +39,7 @@ def remove_protection_info(
 
         # Verify password if provided and required
         if password and protection_data.get("password_hash"):
-            password_hash = hashlib.sha256(password.encode()).hexdigest()
-            if password_hash != protection_data.get("password_hash"):
+            if not verify_password(password, protection_data.get("password_hash", "")):
                 return False, "Incorrect password"
 
         # Handle true encryption if it was applied
