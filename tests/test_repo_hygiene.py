@@ -39,11 +39,6 @@ def test_agents_referenced_metadata_file_exists() -> None:
     assert (ROOT / ".gitattributes").is_file()
 
 
-def test_pre_commit_covers_source_tests_and_scripts() -> None:
-    body = (ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8")
-    assert "^(src|tests|scripts)/.*\\.py$" in body
-
-
 def test_workspace_does_not_hide_source_folders() -> None:
     workspace = json.loads(
         (ROOT / "word_mcp.code-workspace").read_text(encoding="utf-8")

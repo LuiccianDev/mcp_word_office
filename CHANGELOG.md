@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Aligned `docs/TOOLS.md`, `README.md`, `SECURITY.md`, `docs/MCPB.md`, and the three skills with the implemented runtime behavior.
 - `scripts/bump-version.py` now updates the `docs/TOOLS.md` version footer.
-- Pre-commit, CI, and the VS Code workspace now share the same `src`, `tests`, and `scripts` scope.
+- CI and the VS Code workspace now share the same `src`, `tests`, and `scripts` scope.
 - **BREAKING**: MCP tools are now registered with a single, unprefixed name (for example, `build_document` and `create_document`). The duplicated `word_*` aliases have been removed, reducing the registered tool count from 80 to 40.
 - Docker image installs runtime dependencies from `uv.lock`, launches the `luiccian-word-mcp` entry point, and bundles LibreOffice Writer for headless PDF conversion.
 - CI quality gates for Ruff and mypy are now blocking, and the `tests/` and `scripts/` directories are linted.

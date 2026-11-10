@@ -37,7 +37,6 @@ Changelog = "https://github.com/LuiccianDev/word-mcp/blob/master/CHANGELOG.md"
 dev = [
     "mypy>=1.17.0",
     "pillow>=11.3.0",
-    "pre-commit>=4.2.0",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.1.0",
     "ruff>=0.12.5",
