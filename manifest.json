@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "word_mcp",
   "display_name": "Word MCP",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Word MCP server for Microsoft Word (.docx) document automation and generation.",
   "long_description": "Word MCP provides high-performance tools to create, edit, format, secure, inspect, and export Word documents. Features single-pass document construction (saving >90% tokens), markdown-to-docx compilation, visual presets, outline inspection, and PDF export.",
   "author": {
@@ -18,14 +18,14 @@
   "support": "https://github.com/LuiccianDev/word-mcp/issues",
   "server": {
     "type": "uv",
-    "entry_point": "src/word_mcp/server.py",
+    "entry_point": "src/word_mcp/__main__.py",
     "mcp_config": {
       "command": "uv",
       "args": [
         "--directory",
         "${__dirname}",
         "run",
-        "src/word_mcp/server.py"
+        "luiccian-word-mcp"
       ],
       "env": {
         "MCP_ALLOWED_DIRECTORIES": "${user_config:directory}"
@@ -63,7 +63,7 @@
     },
     {
       "name": "get_document_outline",
-      "description": "Get outline information such as headings and tables."
+      "description": "Get paragraph previews and table dimensions from a document."
     },
     {
       "name": "list_available_documents",

@@ -1,50 +1,78 @@
 # Deployment with MCPB for Claude Desktop
 
-Deployment using **MCPB** packages (`.mcpb`) is the recommended and easiest method to use, specially optimized for **Claude Desktop**. MCPB simplifies the packaging process, eliminating the need to configure complex dependencies and enabling one-click integration.
-
-[Official MCPB repository and documentation](https://github.com/modelcontextprotocol/mcpb)
+This guide explains how to bundle and install **Word MCP Server** as an MCPB package (`.mcpb`) for Claude Desktop.
 
 ---
 
-## Benefits of using MCPB with Claude Desktop
+## 1. Overview
 
-- **"Plug-and-Play" Installation**: No need to manually edit the `claude_desktop_config.json` file.
-- **Visual Configuration**: Claude Desktop will read the variables exposed by the package and integrate a visual form where you simply type your values.
-- **Total Portability**: The packaging contains everything you need and the pre-configured `manifest.json` at the root of the project ensures a stable integration.
+MCPB bundles the server manifest (`manifest.json`) and repository resources into a portable package file for Claude Desktop. It enables visual configuration in Claude Desktop's settings UI while executing the server with `uv`.
 
 ---
 
-## Installation and Usage Steps
+## 2. Prerequisites
 
-### 1. Prepare the environment
-Make sure you have the **MCPB** CLI installed. You can refer to the official GitHub repository for different installation methods on your system.
+Before creating or installing an MCPB package, verify that your environment has:
 
-### 2. Generate the Pack (Package)
-Open a terminal at the root of this project (`mcp_word_office`) and run the packaging command:
+- **Astral `uv`**: Installed and accessible on your system `PATH` (e.g. `uv --version`).
+- **Python 3.11+**: Supported runtime for Word MCP.
+- **Claude Desktop**: Installed on macOS or Windows.
+- **MCPB CLI**: Installed according to the official MCPB documentation.
+
+---
+
+## 3. Build
+
+From the root of the repository, build the package using the MCPB CLI:
 
 ```bash
 mcpb pack
 ```
 
-This will build your server based on the `manifest.json` file and generate a compatible package (a `.mcpb` file).
-
-### 3. Install in Claude Desktop
-Once the package is generated, install it in your client:
-
-1. Open the **Claude Desktop** application.
-2. During the installation process of this package (by dragging or importing it), the Claude graphical interface will guide you.
-3. **Configure Permissions**: Claude Desktop will detect the variable defined in the manifest and will prompt you to enter its value on screen. You must configure:
-   - `MCP_ALLOWED_DIRECTORIES`: Type the absolute path to your files or the Documents folder that you want Claude to read and edit (e.g., `C:\Users\yourUser\Documents`).
-
-### 4. Restart and Start (Optional)
-Depending on your version of Claude Desktop, you might be prompted to restart the application. Once it's loaded, interact with it directly in the chat asking to manipulate a *Word* file!
+This reads `manifest.json` from the current directory and creates a `.mcpb` bundle containing the package metadata, configuration options, and tool definitions.
 
 ---
 
-## Included `manifest.json` file
+## 4. Install
 
-This project already comes with a `manifest.json` file configured at the root to facilitate out-of-the-box support with MCPB. It has been defined so that:
-- It starts using the best execution path in your environment.
-- It explicitly and securely requires the definition of the `MCP_ALLOWED_DIRECTORIES` variable.
+1. Open **Claude Desktop**.
+2. Drag and drop the generated `.mcpb` file into Claude Desktop, or use **Settings > Extensions > Install Extension**.
+3. Claude Desktop installs the bundle and prompts for required configuration parameters.
 
-If any issues arise or you want more advanced execution parameters for packaging, check the [Official MCPB GitHub](https://github.com/modelcontextprotocol/mcpb).
+---
+
+## 5. Configuration
+
+The extension exposes a directory configuration field mapped from the manifest:
+
+- **Directory (`MCP_ALLOWED_DIRECTORIES`)**: Enter the absolute path to the directory containing your Word documents (e.g., `/Users/username/Documents` or `C:\Users\username\Documents`).
+- All document read, write, and batch operations will be restricted strictly to this designated path and its subdirectories.
+
+---
+
+## 6. Verification
+
+Once installed:
+
+1. Open a new conversation in Claude Desktop.
+2. Confirm the extension indicator shows **word_mcp** as connected.
+3. Verify that `build_document` and other tools appear in the available tool list.
+4. Issue a test prompt:
+   ```text
+   Create a document named test.docx with a heading "Test Document" and a short paragraph.
+   ```
+
+---
+
+## 7. Troubleshooting
+
+- **`uv: command not found`**: Ensure Astral `uv` is installed and that its directory is in your user `PATH`. Restart Claude Desktop after updating `PATH`.
+- **Invalid Directory / Permission Denied**: Check that the path provided in the directory configuration exists, is absolute, and grants read/write permissions to your user account.
+- **Python Version Mismatch**: Word MCP requires Python 3.11 or newer. Run `uv python install 3.11` to allow `uv` to provision a compatible runtime automatically.
+
+---
+
+## 8. Reference
+
+- [Official MCPB Repository](https://github.com/modelcontextprotocol/mcpb)
+- [Word MCP Tools Reference](TOOLS.md)
