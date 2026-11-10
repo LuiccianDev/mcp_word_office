@@ -1,4 +1,4 @@
-# Elements Cheatsheet for `word_build_document` & `word_batch_add_content`
+# Elements Cheatsheet for `build_document` & `batch_add_content`
 
 Each element in the `elements` array is a dictionary with a `"type"` property and type-specific attributes.
 
@@ -10,7 +10,7 @@ Each element in the `elements` array is a dictionary with a `"type"` property an
   "level": 1
 }
 ```
-* `level`: Integer between 1 and 4 (default: 1).
+* `level`: Integer between 1 and 9 (default: 1).
 
 ## 2. Paragraph (`"type": "paragraph"`)
 ```json
@@ -21,7 +21,7 @@ Each element in the `elements` array is a dictionary with a `"type"` property an
   "space_after": 6
 }
 ```
-* `alignment`: `"left"`, `"center"`, `"right"`, or `"justify"` (default: `"justify"`).
+* `alignment`: `"left"`, `"center"`, `"right"`, or `"justify"` (Default: `left`).
 * `space_after`: Space after paragraph in points (default: 6).
 * Markdown inline formatting: Supports `**bold**`, `*italic*`, and `***bold italic***` seamlessly.
 
@@ -38,9 +38,9 @@ Each element in the `elements` array is a dictionary with a `"type"` property an
   "alignment": "center"
 }
 ```
-* `headers`: Array of strings for table headers. Automatically bolded and formatted with light background shading.
+* `headers`: Array of strings for table headers. Headers are bold only; no background shading is applied.
 * `rows`: 2D array of string cells.
-* `style`: Word table style name (default: `"Table Grid"`).
+* `style`: Word table style name (default: `"Table Grid"`). Table alignment is always centered and the `alignment` element key is ignored.
 
 ## 4. Bullet List (`"type": "bullet_list"`)
 ```json
@@ -81,4 +81,4 @@ Each element in the `elements` array is a dictionary with a `"type"` property an
   "title": "ATENCIÓN"
 }
 ```
-* Creates a single-cell bordered table with distinct background shading and bold title to emphasize critical information.
+* The renderer does not render `title`; it renders an indented italic paragraph.

@@ -2,7 +2,7 @@
 
 ## Available Presets
 
-When calling `word_build_document` or formatting tools, choose the preset that matches the document objective:
+When calling `build_document` or formatting tools, choose the preset that matches the document objective:
 
 ### 1. `modern` (Default)
 - **Body Font**: Calibri, 11 pt, Color `#262626`
@@ -38,12 +38,12 @@ When calling `word_build_document` or formatting tools, choose the preset that m
 
 ## Custom Margins
 
-You can override preset margins in `word_build_document` using the `margins` object:
+You can override preset margins in `build_document` using the `margins` object:
 ```json
 "margins": {
-  "top_cm": 2.5,
-  "bottom_cm": 2.5,
-  "left_cm": 3.0,
-  "right_cm": 2.5
+  "top": 2.5,
+  "bottom": 2.5,
+  "left": 3.0,
+  "right": 2.5
 }
 ```

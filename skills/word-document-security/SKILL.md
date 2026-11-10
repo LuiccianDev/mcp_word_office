@@ -13,49 +13,48 @@ Use this skill to protect Microsoft Word documents, enforce editing permissions,
 ## Core Rules
 
 1. **Document Integrity Verification:**
-   - Run `word_verify_document` before applying cryptographic locks to ensure the XML structure is valid and uncorrupted.
-2. **Password Protection Modes:**
-   - **`read_only`**: Prevents any changes without providing the password.
-   - **`comments`**: Allows reviewers to insert comments only; body text cannot be altered.
-   - **`tracked_changes`**: Forces all revisions to be tracked with author metadata.
+   - Run verify_document to inspect sidecar protection metadata before distribution.
+2. **Protection Modes:**
+   - **Container encryption**: `protect_document` encrypts the `.docx` with a password.
+   - **Restricted editing metadata**: `add_restricted_editing` records an advisory list of editable sections in the `.protection` sidecar. Microsoft Word does not enforce this list.
+   - **Signature marker**: `add_digital_signature` writes a visible signature block and a SHA-256 content hash. It is not a cryptographic signature.
 3. **Distribution & PDF Conversion:**
-   - For finalized documents intended for signing or non-editable distribution, export via `word_convert_to_pdf`.
+   - For finalized documents intended for signing or non-editable distribution, export via `convert_to_pdf`.
 
 ## Usage Patterns
 
 ### Pattern A: Lock Document with Password
 ```python
 # Protect document against unauthorized alterations
-word_protect_document(
+protect_document(
     filename="/path/to/contrato_final.docx",
-    password="SecurePassword2026!",
-    protection_type="read_only"
+    password="SecurePassword2026!"
 )
 ```
 
 ### Pattern B: Unlock Protected Document
 ```python
 # Remove editing lock using the correct password
-word_unprotect_document(
+unprotect_document(
     filename="/path/to/contrato_final.docx",
     password="SecurePassword2026!"
 )
 ```
 
-### Pattern C: Restrict Editing to Comments Only
+### Pattern C: Restrict Editing Sections
 ```python
-# Enable review mode where users can only leave comments
-word_add_restricted_editing(
+add_restricted_editing(
     filename="/path/to/borrador_revisores.docx",
-    editing_mode="comments"
+    password="SecurePassword2026!",
+    editable_sections=["Introduccion", "Conclusiones"]
 )
 ```
 
 ### Pattern D: Export to PDF for Distribution
 ```python
 # Convert completed .docx to PDF
-word_convert_to_pdf(
+convert_to_pdf(
     filename="/path/to/informe_anual.docx",
-    output_pdf_path="/path/to/informe_anual.pdf"
+    output_filename="/path/to/informe_anual.pdf"
 )
 ```

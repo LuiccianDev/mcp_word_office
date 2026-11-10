@@ -13,30 +13,30 @@ Use this skill to inspect and update **existing** Microsoft Word documents with 
 ## Core Rules
 
 1. **Inspect Before Reading Full Text:**
-   - Use `word_get_document_outline` first to see headings, levels, paragraph counts, and tables.
-   - Do NOT call `word_get_document_text` unless you strictly need to read the full body content.
+   - Use get_document_outline first to see paragraph previews, paragraph styles, and table dimensions.
+   - Do NOT call `get_document_text` unless you strictly need to read the full body content.
 2. **Batch Appending Over Single Injections:**
-   - When adding new sections, appendices, or summary tables, use `word_batch_add_content`.
+   - When adding new sections, appendices, or summary tables, use `batch_add_content`.
    - Never chain single `add_heading` + multiple `add_paragraph` + `add_table` calls.
 3. **Surgical Search and Replace:**
-   - Use `word_search_and_replace` for template variables (e.g. `{{CLIENT_NAME}}`, `[FECHA]`) or updating outdated terms across the entire document.
+   - Use `search_and_replace` for template variables (e.g. `{{CLIENT_NAME}}`, `[FECHA]`) or updating outdated terms across the entire document.
 4. **Document Merging:**
-   - When assembling multiple chapters or reports, use `word_merge_documents` rather than manually copying text between files.
+   - When assembling multiple chapters or reports, use `merge_documents` rather than manually copying text between files.
 
 ## Workflow Patterns
 
 ### Pattern A: Inspect Structure
 ```python
 # Call outline to get a compact summary (saves 95% tokens compared to get_document_text)
-word_get_document_outline(filename="/path/to/documento.docx")
+get_document_outline(filename="/path/to/documento.docx")
 ```
 
 ### Pattern B: Search & Replace
 ```python
 # Replace placeholders or update terms
-word_search_and_replace(
+search_and_replace(
     filename="/path/to/contrato.docx",
-    search_text="ACME Corp",
+    text_to_find="ACME Corp",
     replace_text="Global Logistics Inc."
 )
 ```
@@ -44,7 +44,7 @@ word_search_and_replace(
 ### Pattern C: Append a Full New Section in 1 Call
 ```python
 # Use batch_add_content to add a heading, paragraph, and table simultaneously
-word_batch_add_content(
+batch_add_content(
     filename="/path/to/informe.docx",
     elements=[
         {
@@ -63,6 +63,9 @@ word_batch_add_content(
                 ["Eficiencia", "84%", "92%"],
                 ["Disponibilidad", "99.1%", "99.9%"]
             ]
+        },
+        {
+            "type": "page_break"
         }
     ]
 )
@@ -71,9 +74,9 @@ word_batch_add_content(
 ### Pattern D: Merge Documents
 ```python
 # Merge appendices or chapters into the main document
-word_merge_documents(
-    primary_filename="/path/to/informe_final.docx",
-    secondary_filenames=["/path/to/anexo1.docx", "/path/to/anexo2.docx"],
-    add_page_break=True
+merge_documents(
+    target_filename="/path/to/informe_final.docx",
+    source_filenames=["/path/to/anexo1.docx", "/path/to/anexo2.docx"],
+    add_page_breaks=True
 )
 ```

@@ -13,8 +13,8 @@ Use this skill to create complete, visually styled Microsoft Word documents in *
 ## Core Rules
 
 1. **Always use Single-Pass Construction for new documents:**
-   - **`word_build_document`**: Primary tool. Use when creating structured reports, proposals, letters, minutes, or academic papers that include headers, tables, bullet lists, or specific margins.
-   - **`word_create_from_markdown`**: Fast-path tool. Use when the user requests direct drafting of structured markdown text (headers `#`, lists `-`, tables `|`, bold `**`).
+   - **`build_document`**: Primary tool. Use when creating structured reports, proposals, letters, minutes, or academic papers that include headers, tables, bullet lists, or specific margins.
+   - **`create_from_markdown`**: Fast-path tool. Use when the user requests direct drafting of structured markdown text (headers `#`, lists `-`, tables `|`, bold `**`).
 2. **Never make micro-calls for new documents:**
    - Do NOT chain `create_document` -> `add_heading` -> `add_paragraph` -> `add_table`.
    - Send the entire document structure inside the `elements` array or `markdown_content` in **one call**.
@@ -29,7 +29,7 @@ Use this skill to create complete, visually styled Microsoft Word documents in *
 | `academic` | Times New Roman | 12.0 pt | 2.00 (Double) | 2.54 cm (1 inch) | University reports, theses, research papers |
 | `compact` | Arial | 10.0 pt | 1.00 (Single) | 2.0 cm | Invoices, datasheets, quick memos |
 
-## Canonical Usage Pattern: `word_build_document`
+## Canonical Usage Pattern: `build_document`
 
 ```json
 {
@@ -88,6 +88,6 @@ Use this skill to create complete, visually styled Microsoft Word documents in *
 
 ## Quick Verification (QA)
 
-After generating the document with `word_build_document`:
-- Run `word_get_document_outline(filename)` to confirm the structure without reloading the full text.
+After generating the document with `build_document`:
+- Run `get_document_outline(filename)` to confirm the structure without reloading the full text.
 - Present a concise, helpful confirmation to the user.
