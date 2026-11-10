@@ -10,6 +10,7 @@ from word_mcp.utils.document_utils import (
     get_document_structure,
 )
 
+
 __all__ = [
     "create_document_copy",
     "ensure_docx_extension",

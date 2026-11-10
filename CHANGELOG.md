@@ -9,9 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Documentation contract tests for tool signatures, return shapes, skills, version parity, packaging, and repository hygiene.
+- `scripts/sync-tools-reference.py` to regenerate `docs/TOOLS.md` signature blocks from the registered tools.
+- `src/word_mcp/py.typed` and the `Typing :: Typed` classifier.
+- `CONTRIBUTING.md`, GitHub issue and pull request templates, and `.gitattributes`.
+
+### Changed
+- Aligned `docs/TOOLS.md`, `README.md`, `SECURITY.md`, `docs/MCPB.md`, and the three skills with the implemented runtime behavior.
+- `scripts/bump-version.py` now updates the `docs/TOOLS.md` version footer.
+- Pre-commit, CI, and the VS Code workspace now share the same `src`, `tests`, and `scripts` scope.
+- **BREAKING**: MCP tools are now registered with a single, unprefixed name (for example, `build_document` and `create_document`). The duplicated `word_*` aliases have been removed, reducing the registered tool count from 80 to 40.
+- Docker image installs runtime dependencies from `uv.lock`, launches the `luiccian-word-mcp` entry point, and bundles LibreOffice Writer for headless PDF conversion.
+- CI quality gates for Ruff and mypy are now blocking, and the `tests/` and `scripts/` directories are linted.
+- `scripts/bump-version.py` synchronizes `manifest.json` and validates custom version arguments.
+- Package metadata migrated to the SPDX license expression (PEP 639) and Python 3.14 added to the support matrix.
+
+### Removed
+- Deleted the unused `word_mcp.utils.extended_document_utils` module and the unused `get_document_properties`, `find_paragraph_by_text`, and `find_and_replace_text` helpers.
+- **BREAKING**: Deleted the `extended_document_tools`, `header_footer_tools`, and `link_tools` compatibility shims. Their functions now live in `document_tools`, `format_tools`, and `content_tools` respectively.
+- Removed the Pydantic v1 fallback helper `_dump` from `batch_tools`; response models now call `model_dump()` directly.
+
+### Fixed
+- `manifest.json` now launches the `luiccian-word-mcp` console entry point instead of `src/word_mcp/server.py`.
+- Corrected stale module docstrings in the validators package and the `ensure_docx_extension` comment.
+- Corrected the tool names documented in `docs/TOOLS.md` and the document editor skill reference.
+- Replaced legacy "Office MCP" branding and `mcp_word_office` links with the `word-mcp` identity.
+- Restored the VS Code tasks and debug configuration to the `word_mcp` module.
+- Aligned `manifest.json` and the `__version__` fallback with the published 2.0.1 release.
+
 ---
 
 ## [2.0.1] - 2026-11-09
+
+### Fixed
+- Published the canonical `luiccian-word-mcp` console entry point so `uvx luiccian-word-mcp` resolves correctly.
+- Aligned the distribution metadata with the renamed `word_mcp` package.
 
 ---
 
@@ -23,9 +56,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Batch Content Ingestion**: `word_batch_add_content` to append multi-element sections into existing documents without conversational round-trips.
 - **Visual Design Presets**: Native layout presets (`modern`, `formal`, `academic`, `compact`) standardizing font families, sizes, line spacing (1.15, 1.5, 2.0), paragraph spacing, and margins.
 - **Modular Skills Ecosystem**: 3 focused skills in `skills/`:
-  - `office-document-creator`: Single-pass creation patterns and block element cheatsheets.
-  - `office-document-editor`: Lightweight outline inspection, batch mutations, search & replace, and document merging.
-  - `office-document-security`: Document protection, passwords, editing restrictions, and PDF conversion.
+  - `word-document-creator`: Single-pass creation patterns and block element cheatsheets.
+  - `word-document-editor`: Lightweight outline inspection, batch mutations, search & replace, and document merging.
+  - `word-document-security`: Document protection, passwords, editing restrictions, and PDF conversion.
 - **Astral `uv` Automated Workflows**:
   - `ci.yml`: Fast multi-version testing and linting with cache and `paths-ignore` (skipping documentation edits to save runner minutes).
   - `release.yml`: Automated GitHub release generation with binary artifacts (.whl, .tar.gz) and automatic changelog note extraction.
@@ -153,7 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Links
 
-- [GitHub Repository](https://github.com/LuiccianDev/mcp_word_office)
-- [GitHub Issues](https://github.com/LuiccianDev/mcp_word_office/issues)
+- [GitHub Repository](https://github.com/LuiccianDev/word-mcp)
+- [GitHub Issues](https://github.com/LuiccianDev/word-mcp/issues)
 - [MCP Protocol](https://modelcontextprotocol.io)
 - [Python-docx Documentation](https://python-docx.readthedocs.io)

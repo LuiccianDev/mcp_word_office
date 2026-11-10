@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -65,8 +66,5 @@ def test_workspace_quality_gate_includes_scripts() -> None:
 
 def test_ci_ignores_gitattributes_only_changes() -> None:
     for workflow in ("ci.yml", "codeql.yml"):
-        body = (ROOT / ".github" / "workflows" / workflow).read_text(
-            encoding="utf-8"
-        )
+        body = (ROOT / ".github" / "workflows" / workflow).read_text(encoding="utf-8")
         assert ".gitattributes" in body
-

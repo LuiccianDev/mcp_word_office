@@ -11,6 +11,7 @@ from types import ModuleType
 
 from word_mcp import __version__
 
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -40,9 +41,7 @@ def test_bump_version_updates_every_version_surface(tmp_path: Path) -> None:
     (tmp_path / "pyproject.toml").write_text(
         '[project]\nname = "x"\nversion = "1.0.0"\n', encoding="utf-8"
     )
-    (tmp_path / "manifest.json").write_text(
-        '{"version": "1.0.0"}\n', encoding="utf-8"
-    )
+    (tmp_path / "manifest.json").write_text('{"version": "1.0.0"}\n', encoding="utf-8")
     (tmp_path / "CHANGELOG.md").write_text(
         "# Changelog\n\n## [Unreleased]\n", encoding="utf-8"
     )

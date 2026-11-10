@@ -5,15 +5,14 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / "docs" / "TOOLS.md"
 
 
 def section(tool_name: str) -> str:
     text = DOC.read_text(encoding="utf-8")
-    match = re.search(
-        rf"### `{tool_name}`\n(.*?)(?=\n### `|\n## )", text, re.DOTALL
-    )
+    match = re.search(rf"### `{tool_name}`\n(.*?)(?=\n### `|\n## )", text, re.DOTALL)
     assert match, f"missing section for {tool_name}"
     return match.group(1)
 
@@ -154,5 +153,3 @@ def test_server_instructions_do_not_claim_bidirectional_note_conversion() -> Non
     server = (ROOT / "src" / "word_mcp" / "server.py").read_text(encoding="utf-8")
     assert "and vice versa" not in server
     assert "Endnotes to footnotes" not in server
-
-
