@@ -1,6 +1,7 @@
 """Models package for structured output in MCP Word Server."""
 
 from .response_models import (
+    BuildDocumentResult,
     DocumentInfo,
     DocumentOutline,
     DocumentSummary,
@@ -21,7 +22,6 @@ from .response_models import (
     TableOfContentsResult,
     TableResult,
     TextFormatResult,
-    BuildDocumentResult,
 )
 
 

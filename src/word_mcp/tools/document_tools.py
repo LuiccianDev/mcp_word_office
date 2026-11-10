@@ -89,11 +89,12 @@ async def get_document_info(
         return {
             "status": "success",
             "properties": properties,
-            "response_format": response_format
+            "response_format": response_format,
         }
     except (OSError, ValueError, DocumentProcessingError) as e:
         return ExceptionTool.handle_error(
-            e if isinstance(e, DocumentProcessingError)
+            e
+            if isinstance(e, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to get document info: {str(e)}"),
             filename=filename,
             operation="get document info",
@@ -155,7 +156,12 @@ async def list_available_documents(
                 "status": "error",
                 "message": "No accessible directories found in MCP configuration.",
                 "documents": [],
-                "pagination": {"page": page, "page_size": page_size, "total": 0, "has_more": False}
+                "pagination": {
+                    "page": page,
+                    "page_size": page_size,
+                    "total": 0,
+                    "has_more": False,
+                },
             }
 
         all_documents = []
@@ -163,16 +169,22 @@ async def list_available_documents(
             if not os.path.exists(search_dir):
                 continue
 
-            docx_files = [f for f in os.listdir(search_dir) if f.lower().endswith(".docx") and not f.startswith("~$")]
+            docx_files = [
+                f
+                for f in os.listdir(search_dir)
+                if f.lower().endswith(".docx") and not f.startswith("~$")
+            ]
             for file in sorted(docx_files):
                 file_path = os.path.join(search_dir, file)
                 size_kb = os.path.getsize(file_path) / 1024
-                all_documents.append({
-                    "name": file,
-                    "path": os.path.abspath(file_path),
-                    "size_kb": round(size_kb, 2),
-                    "source_directory": search_dir,
-                })
+                all_documents.append(
+                    {
+                        "name": file,
+                        "path": os.path.abspath(file_path),
+                        "size_kb": round(size_kb, 2),
+                        "source_directory": search_dir,
+                    }
+                )
 
         total_documents = len(all_documents)
         offset = (page - 1) * page_size
@@ -204,17 +216,20 @@ async def copy_document(
 ) -> dict[str, Any]:
     """Create a copy of a Word document."""
     try:
-        success, message, dest_path = core_copy_document(source_filename, destination_filename)
+        success, message, dest_path = core_copy_document(
+            source_filename, destination_filename
+        )
         if success:
             return {
                 "status": "success",
                 "message": message,
-                "destination_path": dest_path
+                "destination_path": dest_path,
             }
         raise FileOperationError(message)
     except (OSError, FileOperationError) as e:
         return ExceptionTool.handle_error(
-            e if isinstance(e, FileOperationError)
+            e
+            if isinstance(e, FileOperationError)
             else FileOperationError(f"Failed to copy document: {str(e)}"),
             filename=source_filename,
             operation="copy document",
@@ -234,11 +249,12 @@ async def merge_documents(
         return {
             "status": "success",
             "message": f"Successfully merged {len(source_filenames)} documents into {path}",
-            "file_path": path
+            "file_path": path,
         }
     except (OSError, DocumentProcessingError) as e:
         return ExceptionTool.handle_error(
-            e if isinstance(e, DocumentProcessingError)
+            e
+            if isinstance(e, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to merge documents: {str(e)}"),
             filename=target_filename,
             operation="merge documents",
@@ -254,13 +270,11 @@ async def get_paragraph_text_from_document(
         with document_context(filename, mode="read") as doc:
             result = core_get_paragraph_text(doc, paragraph_index)
 
-        return {
-            "status": "success",
-            "paragraph": result
-        }
+        return {"status": "success", "paragraph": result}
     except (IndexError, DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to get paragraph text: {str(error)}"),
             filename=filename,
             operation="get paragraph text",
@@ -276,13 +290,11 @@ async def find_text_in_document(
         with document_context(filename, mode="read") as doc:
             result = core_find_text(doc, text_to_find, match_case, whole_word)
 
-        return {
-            "status": "success",
-            "search_results": result
-        }
+        return {"status": "success", "search_results": result}
     except (ValueError, DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to search for text: {str(error)}"),
             filename=filename,
             operation="find text",
@@ -307,4 +319,3 @@ async def convert_to_pdf(
             filename=filename,
             operation="convert to PDF",
         )
-

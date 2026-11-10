@@ -42,10 +42,10 @@ When assisting users or configuring clients (Claude Desktop, Cursor, Cline, Copi
 
 - **Prohibition of Chatty Micro-Iterations:** AI assistants using `word-mcp` must avoid making consecutive micro-calls (e.g., calling `create_document`, then 15 separate calls to `add_heading`, `add_paragraph`, `add_table`, `set_page_numbering`, and `save_document`). This legacy anti-pattern consumes tens of thousands of tokens and multiple conversational turns.
 - **Mandatory Single-Pass Usage:** Always prefer:
-  1. `word_build_document`: Construct complete, publication-ready documents with headers, footers, page numbers (`PAGE`), margins, typography presets (`modern`, `formal`, `academic`, `compact`), headings, markdown styling, tables, and lists in **one single MCP tool call** (>90% token savings).
-  2. `word_create_from_markdown`: Convert structured markdown text directly into a Word document in one call.
-  3. `word_batch_add_content`: Batch-append sections, tables, and lists to existing documents in a single atomic pass.
-- **Lightweight Outline Inspection:** When reading or modifying large documents, use `word_get_document_outline` first to inspect structure and headings without dumping full body text into the context window.
+  1. `build_document`: Construct complete, publication-ready documents with headers, footers, page numbers (`PAGE`), margins, typography presets (`modern`, `formal`, `academic`, `compact`), headings, markdown styling, tables, and lists in **one single MCP tool call** (>90% token savings).
+  2. `create_from_markdown`: Convert structured markdown text directly into a Word document in one call.
+  3. `batch_add_content`: Batch-append sections, tables, and lists to existing documents in a single atomic pass.
+- **Lightweight Outline Inspection:** When reading or modifying large documents, use `get_document_outline` first to inspect structure and headings without dumping full body text into the context window.
 
 ---
 

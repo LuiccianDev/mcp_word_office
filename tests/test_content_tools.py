@@ -65,20 +65,20 @@ async def test_add_picture_with_patch(temp_docx_file: str, tmp_path: Path) -> No
             mock_core.return_value = {
                 "image_name": "test_image.png",
                 "image_path": str(image_path),
-                "width_inches": None
+                "width_inches": None,
             }
-            
+
             result = await content_tools.add_picture(temp_docx_file, str(image_path))
-            
+
             # Debug print to see what we actually got
             print(f"DEBUG mock_core.call_args: {mock_core.call_args}")
-            
+
             mock_core.assert_called_once()
             args, kwargs = mock_core.call_args
             assert args[0] == mock_doc
             assert Path(args[1]).resolve() == Path(image_path).resolve()
             # Handle both positional and keyword width
-            actual_width = args[2] if len(args) > 2 else kwargs.get('width')
+            actual_width = args[2] if len(args) > 2 else kwargs.get("width")
             assert actual_width is None
             assert result["status"] == "success"
 

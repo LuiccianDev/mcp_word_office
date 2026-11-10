@@ -5,8 +5,6 @@ This module provides functionality for reading/writing core document properties
 (author, title, etc.) and modifying section page layouts (orientation, size).
 """
 
-from typing import Any
-
 from docx.document import Document
 from docx.enum.section import WD_ORIENTATION
 from docx.shared import Inches
@@ -44,9 +42,20 @@ def core_set_core_properties(doc: Document, **kwargs: str) -> None:
     """
     props = doc.core_properties
     # Valid core_properties text attributes in python-docx
-    valid_attrs = ["author", "category", "comments", "content_status", "identifier",
-                   "keywords", "language", "last_modified_by", "subject", "title", "version"]
-    
+    valid_attrs = [
+        "author",
+        "category",
+        "comments",
+        "content_status",
+        "identifier",
+        "keywords",
+        "language",
+        "last_modified_by",
+        "subject",
+        "title",
+        "version",
+    ]
+
     for key, value in kwargs.items():
         if key in valid_attrs and value is not None:
             setattr(props, key, value)
@@ -71,10 +80,12 @@ def core_set_page_layout(
     """
     sections = doc.sections
     if section_idx < 0 or section_idx >= len(sections):
-        raise IndexError(f"Section index {section_idx} is out of bounds. Document has {len(sections)} sections.")
+        raise IndexError(
+            f"Section index {section_idx} is out of bounds. Document has {len(sections)} sections."
+        )
 
     section = sections[section_idx]
-    
+
     orientation = orientation.lower()
     if orientation == "landscape":
         section.orientation = WD_ORIENTATION.LANDSCAPE

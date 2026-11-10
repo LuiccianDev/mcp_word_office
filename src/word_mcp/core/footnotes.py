@@ -6,7 +6,6 @@ import string
 from typing import Any
 
 from docx.document import Document
-from docx.text.paragraph import Paragraph
 
 
 def core_add_footnote(doc: Document, paragraph_index: int, text: str) -> dict[str, Any]:
@@ -24,7 +23,7 @@ def core_add_footnote(doc: Document, paragraph_index: int, text: str) -> dict[st
         raise IndexError(f"Paragraph index {paragraph_index} out of range.")
 
     paragraph = doc.paragraphs[paragraph_index]
-    
+
     # Superscript reference
     run = paragraph.add_run()
     run.text = "¹"
@@ -43,9 +42,9 @@ def core_add_footnote(doc: Document, paragraph_index: int, text: str) -> dict[st
     doc.add_paragraph(f"¹ {text}")
 
     return {
-        "footnote_id": 1, # Placeholder as docx doesn't support real IDs easily
+        "footnote_id": 1,  # Placeholder as docx doesn't support real IDs easily
         "footnote_text": text,
-        "paragraph_index": paragraph_index
+        "paragraph_index": paragraph_index,
     }
 
 
@@ -64,7 +63,7 @@ def core_add_endnote(doc: Document, paragraph_index: int, text: str) -> dict[str
         raise IndexError(f"Paragraph index {paragraph_index} out of range.")
 
     paragraph = doc.paragraphs[paragraph_index]
-    
+
     run = paragraph.add_run()
     run.text = "*"
     run.font.superscript = True
@@ -82,11 +81,7 @@ def core_add_endnote(doc: Document, paragraph_index: int, text: str) -> dict[str
 
     doc.add_paragraph(f"* {text}")
 
-    return {
-        "endnote_id": 1,
-        "endnote_text": text,
-        "paragraph_index": paragraph_index
-    }
+    return {"endnote_id": 1, "endnote_text": text, "paragraph_index": paragraph_index}
 
 
 def core_convert_footnotes_to_endnotes(doc: Document) -> int:

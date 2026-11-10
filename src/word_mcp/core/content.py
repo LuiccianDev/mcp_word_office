@@ -8,10 +8,10 @@ import os
 from typing import Any
 
 from docx.document import Document as DocumentType
-from docx.shared import Inches, Pt
-from docx.oxml.ns import qn
-from docx.oxml import OxmlElement
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Inches, Pt
 
 from word_mcp.core.styles import ensure_heading_style
 
@@ -42,7 +42,9 @@ def core_add_heading(doc: DocumentType, text: str, level: int = 1) -> dict[str, 
         return {"heading_text": text, "heading_level": level, "fallback_applied": True}
 
 
-def core_add_paragraph(doc: DocumentType, text: str, style: str | None = None) -> dict[str, Any]:
+def core_add_paragraph(
+    doc: DocumentType, text: str, style: str | None = None
+) -> dict[str, Any]:
     """Add a paragraph to a Word document.
 
     Args:
@@ -62,12 +64,18 @@ def core_add_paragraph(doc: DocumentType, text: str, style: str | None = None) -
             style_applied = style
         except KeyError:
             paragraph.style = doc.styles["Normal"]
-            return {"paragraph_text": text, "style_applied": "Normal", "style_requested_missing": style}
+            return {
+                "paragraph_text": text,
+                "style_applied": "Normal",
+                "style_requested_missing": style,
+            }
 
     return {"paragraph_text": text, "style_applied": style_applied}
 
 
-def core_add_picture(doc: DocumentType, image_path: str, width: float | None = None) -> dict[str, Any]:
+def core_add_picture(
+    doc: DocumentType, image_path: str, width: float | None = None
+) -> dict[str, Any]:
     """Add an image to a Word document.
 
     Args:
@@ -82,11 +90,11 @@ def core_add_picture(doc: DocumentType, image_path: str, width: float | None = N
         doc.add_picture(image_path, width=Inches(width))
     else:
         doc.add_picture(image_path)
-        
+
     return {
         "image_name": os.path.basename(image_path),
         "image_path": image_path,
-        "width_inches": width
+        "width_inches": width,
     }
 
 
@@ -99,7 +107,9 @@ def core_delete_paragraph(doc: DocumentType, paragraph_index: int) -> None:
     """Delete a paragraph from a document."""
     total_paragraphs = len(doc.paragraphs)
     if paragraph_index < 0 or paragraph_index >= total_paragraphs:
-        raise IndexError(f"Paragraph index {paragraph_index} is out of range (0-{total_paragraphs - 1})")
+        raise IndexError(
+            f"Paragraph index {paragraph_index} is out of range (0-{total_paragraphs - 1})"
+        )
 
     paragraph = doc.paragraphs[paragraph_index]
     paragraph_element = paragraph._p

@@ -8,16 +8,16 @@ import os
 from typing import Any
 
 from word_mcp.core import (
+    core_add_bookmark,
     core_add_heading,
+    core_add_hyperlink,
+    core_add_page_break,
     core_add_paragraph,
     core_add_picture,
-    core_add_page_break,
-    core_delete_paragraph,
-    core_add_table_of_contents,
     core_add_table,
+    core_add_table_of_contents,
+    core_delete_paragraph,
     core_find_and_replace_text,
-    core_add_hyperlink,
-    core_add_bookmark,
 )
 from word_mcp.core.document_context import document_context
 from word_mcp.exception import (
@@ -26,11 +26,11 @@ from word_mcp.exception import (
 )
 from word_mcp.models.response_models import (
     HeadingResult,
+    OperationResult,
     ParagraphResult,
     PictureResult,
-    OperationResult,
-    TableResult,
     TableOfContentsResult,
+    TableResult,
 )
 from word_mcp.validation.document_validators import validate_docx_write
 
@@ -41,19 +41,20 @@ async def add_heading(filename: str, text: str, level: int = 1) -> dict[str, Any
     try:
         heading_level: int = _validate_heading_level(level)
         with document_context(filename, mode="write") as doc:
-            result = core_add_heading(doc, text, level=heading_level)
-            
+            core_add_heading(doc, text, level=heading_level)
+
         return HeadingResult(
             status="success",
             filename=filename,
             heading_text=text,
             heading_level=heading_level,
-            message=f"Heading '{text}' (level {heading_level}) added to {filename}"
+            message=f"Heading '{text}' (level {heading_level}) added to {filename}",
         ).model_dump()
-        
+
     except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError) 
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add heading: {str(error)}"),
             filename=filename,
             operation="add heading",
@@ -68,18 +69,19 @@ async def add_paragraph(
     try:
         with document_context(filename, mode="write") as doc:
             result = core_add_paragraph(doc, text, style=style)
-            
+
         return ParagraphResult(
             status="success",
             filename=filename,
             paragraph_text=text,
             style_applied=result["style_applied"],
-            message=f"Paragraph added to {filename}"
+            message=f"Paragraph added to {filename}",
         ).model_dump()
 
     except (OSError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add paragraph: {str(error)}"),
             filename=filename,
             operation="add paragraph",
@@ -110,7 +112,8 @@ async def add_picture(
 
     except (OSError, FileNotFoundError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add picture: {error}"),
             filename=filename,
             operation="add picture",
@@ -137,7 +140,8 @@ async def add_table(
 
     except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add table: {str(error)}"),
             filename=filename,
             operation="add table",
@@ -164,7 +168,8 @@ async def add_table_of_contents(
 
     except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add TOC: {str(error)}"),
             filename=filename,
             operation="add TOC",
@@ -177,15 +182,17 @@ async def add_page_break(filename: str) -> dict[str, Any]:
     try:
         with document_context(filename, mode="write") as doc:
             core_add_page_break(doc)
-            
+
         return OperationResult(
             status="success",
-            message=f"Page break added to {filename}"
+            message=f"Page break added to {filename}",
+            details=None,
         ).model_dump()
-        
+
     except (OSError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add page break: {str(error)}"),
             filename=filename,
             operation="add page break",
@@ -201,12 +208,14 @@ async def delete_paragraph(filename: str, paragraph_index: int) -> dict[str, Any
 
         return OperationResult(
             status="success",
-            message=f"Paragraph at index {paragraph_index} deleted successfully."
+            message=f"Paragraph at index {paragraph_index} deleted successfully.",
+            details=None,
         ).model_dump()
 
     except (OSError, IndexError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to delete paragraph: {str(error)}"),
             filename=filename,
             operation="delete paragraph",
@@ -224,23 +233,27 @@ async def search_and_replace(
 
         with document_context(filename, mode="write") as doc:
             replacement_count = core_find_and_replace_text(doc, find_text, replace_text)
-            
+
         if replacement_count > 0:
             return OperationResult(
                 status="success",
                 message=f"Replaced {replacement_count} occurrence(s) of '{find_text}' with '{replace_text}' in {filename}",
-                details={"replacements_made": replacement_count}
+                details={"replacements_made": replacement_count},
             ).model_dump()
 
         return OperationResult(
             status="error",
-            message=f"No occurrences of '{find_text}' found in {filename}"
+            message=f"No occurrences of '{find_text}' found in {filename}",
+            details=None,
         ).model_dump()
 
     except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
-            else DocumentProcessingError(f"Failed to perform search and replace: {str(error)}"),
+            error
+            if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(
+                f"Failed to perform search and replace: {str(error)}"
+            ),
             filename=filename,
             operation="search and replace",
         )
@@ -281,7 +294,7 @@ async def add_hyperlink(
     try:
         with document_context(target_path, mode="write") as doc:
             core_add_hyperlink(doc, paragraph_index, text, url=url, bookmark=bookmark)
-        
+
         target = url if url else f"bookmark: {bookmark}"
         return {
             "status": "success",
@@ -290,7 +303,8 @@ async def add_hyperlink(
         }
     except (ValueError, IndexError, DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add hyperlink: {str(error)}"),
             filename=target_path,
             operation="add hyperlink",
@@ -309,7 +323,7 @@ async def add_bookmark(
     try:
         with document_context(target_path, mode="write") as doc:
             core_add_bookmark(doc, paragraph_index, name)
-        
+
         return {
             "status": "success",
             "message": f"Bookmark '{name}' added to paragraph {paragraph_index} in {target_path}",
@@ -317,9 +331,9 @@ async def add_bookmark(
         }
     except (IndexError, DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add bookmark: {str(error)}"),
             filename=target_path,
             operation="add bookmark",
         )
-

@@ -1,9 +1,9 @@
-# Entornos virtuales
+# Virtual environments
 .venv/
 env/
 venv/
 
-# Cachés de Python
+# Python caches
 __pycache__/
 *.pyc
 *.pyo
@@ -11,44 +11,44 @@ __pycache__/
 .pytest_cache/
 .coverage
 
-# Archivos de dependencias y metadatos
+# Dependency and metadata artifacts
 *.egg-info/
 *.dist-info/
 
-# Carpetas de editor y configuración local
+# Editor and local configuration folders
 .vscode/
 .idea/
 *.swp
 *.bak
 
-# Builds y distribuciones locales
+# Local builds and distributions
 build/
 dist/
 *.whl
 
-# Archivos generados por DXT
+# DXT artifacts
 *.dxt
 *.dxt-pack
 
-# Documentos y datos personales (ajusta según tus carpetas locales)
+# Personal documents and data
 Documents/
 documentos/
 *.docx
 *.xlsx
 *.pptx
 
-# Archivos de log y temporales
+# Logs and temporary files
 *.log
 *.tmp
 
-# Otros archivos que no quieras en la imagen
+# Miscellaneous host files
 .DS_Store
 Thumbs.db
 
-# Test data (si no quieres incluirlo en la imagen)
+# Test data
 tests/
 
-# Archivos y carpetas desconocidos o genéricos
+# Generic backup and temporary folders
 *.unknown
 *.backup
 *.old

@@ -314,4 +314,3 @@ class BuildDocumentResult(BaseModel):
     )
     summary: str = Field(description="Concise description of the created structure")
     message: str = Field(description="Status message")
-

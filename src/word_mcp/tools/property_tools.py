@@ -12,7 +12,10 @@ from word_mcp.exception import (
     ExceptionTool,
 )
 from word_mcp.tools.format_tools import set_page_layout
-from word_mcp.validation.document_validators import validate_docx_read, validate_docx_write
+from word_mcp.validation.document_validators import (
+    validate_docx_read,
+    validate_docx_write,
+)
 
 
 @validate_docx_read("filename")
@@ -25,7 +28,7 @@ async def get_core_properties(
     try:
         with document_context(target, mode="read") as doc:
             props = core_get_core_properties(doc)
-        
+
         return {
             "status": "success",
             "properties": props,
@@ -33,7 +36,8 @@ async def get_core_properties(
         }
     except (DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to get properties: {str(error)}"),
             filename=target,
             operation="get core properties",
@@ -55,19 +59,25 @@ async def set_core_properties(
     target = filename or file_path or ""
     try:
         kwargs = {}
-        if author is not None: kwargs["author"] = author
-        if title is not None: kwargs["title"] = title
-        if subject is not None: kwargs["subject"] = subject
-        if keywords is not None: kwargs["keywords"] = keywords
-        if comments is not None: kwargs["comments"] = comments
-        if category is not None: kwargs["category"] = category
-        
+        if author is not None:
+            kwargs["author"] = author
+        if title is not None:
+            kwargs["title"] = title
+        if subject is not None:
+            kwargs["subject"] = subject
+        if keywords is not None:
+            kwargs["keywords"] = keywords
+        if comments is not None:
+            kwargs["comments"] = comments
+        if category is not None:
+            kwargs["category"] = category
+
         if not kwargs:
             return {"status": "error", "message": "No properties provided to update."}
-            
+
         with document_context(target, mode="write") as doc:
             core_set_core_properties(doc, **kwargs)
-        
+
         return {
             "status": "success",
             "message": f"Successfully updated properties: {list(kwargs.keys())}",
@@ -75,7 +85,8 @@ async def set_core_properties(
         }
     except (DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to set properties: {str(error)}"),
             filename=target,
             operation="set core properties",

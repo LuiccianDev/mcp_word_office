@@ -39,7 +39,9 @@ def is_path_in_allowed_directories(file_path: str | Path) -> tuple[bool, str | N
     for allowed_dir in allowed_dirs:
         allowed_path = Path(allowed_dir).resolve()
         try:
-            if resolved_path == allowed_path or resolved_path.is_relative_to(allowed_path):
+            if resolved_path == allowed_path or resolved_path.is_relative_to(
+                allowed_path
+            ):
                 return True, None
         except (ValueError, TypeError):
             continue

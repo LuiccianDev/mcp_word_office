@@ -1,4 +1,4 @@
-"""Batch and composite document building operations for Office MCP.
+"""Batch and composite document building operations for Word MCP.
 
 This module provides high-efficiency in-memory document building, allowing
 full documents with typography, margins, line spacing, headers, footers,
@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from typing import Any
+
 from docx.document import Document as DocumentType
 from docx.enum.section import WD_ORIENT
 from docx.enum.table import WD_TABLE_ALIGNMENT
@@ -19,6 +20,7 @@ from docx.shared import Cm, Pt, RGBColor
 
 from word_mcp.core.styles import ensure_heading_style
 
+
 ALIGNMENT_MAP = {
     "left": WD_ALIGN_PARAGRAPH.LEFT,
     "center": WD_ALIGN_PARAGRAPH.CENTER,
@@ -26,7 +28,7 @@ ALIGNMENT_MAP = {
     "justify": WD_ALIGN_PARAGRAPH.JUSTIFY,
 }
 
-PRESETS = {
+PRESETS: dict[str, dict[str, Any]] = {
     "modern": {
         "font_name": "Calibri",
         "font_size": 11.0,
@@ -211,7 +213,9 @@ def render_element(doc: DocumentType, elem: dict[str, Any]) -> str:
         style = elem.get("style", "Table Grid")
 
         total_rows = len(rows_data) + (1 if headers else 0)
-        total_cols = len(headers) if headers else (len(rows_data[0]) if rows_data else 1)
+        total_cols = (
+            len(headers) if headers else (len(rows_data[0]) if rows_data else 1)
+        )
 
         table = doc.add_table(rows=total_rows, cols=total_cols)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -330,7 +334,9 @@ def core_build_document(
 
     total_created = sum(counts.values())
     summary_parts = [f"{v} {k}s" for k, v in counts.items()]
-    summary = ", ".join(summary_parts) if summary_parts else "Document layout configured"
+    summary = (
+        ", ".join(summary_parts) if summary_parts else "Document layout configured"
+    )
 
     return {
         "status": "success",
@@ -352,12 +358,14 @@ def parse_markdown_to_elements(markdown_text: str) -> list[dict[str, Any]]:
     def flush_table() -> None:
         nonlocal in_table, table_headers, table_rows
         if in_table and table_headers:
-            elements.append({
-                "type": "table",
-                "headers": table_headers,
-                "rows": table_rows,
-                "style": "Table Grid",
-            })
+            elements.append(
+                {
+                    "type": "table",
+                    "headers": table_headers,
+                    "rows": table_rows,
+                    "style": "Table Grid",
+                }
+            )
         in_table = False
         table_headers = []
         table_rows = []
@@ -394,7 +402,9 @@ def parse_markdown_to_elements(markdown_text: str) -> list[dict[str, Any]]:
             if match:
                 level = len(match.group(1))
                 heading_text = match.group(2).strip()
-                elements.append({"type": "heading", "level": level, "text": heading_text})
+                elements.append(
+                    {"type": "heading", "level": level, "text": heading_text}
+                )
                 continue
 
         # Bullet list
@@ -405,7 +415,9 @@ def parse_markdown_to_elements(markdown_text: str) -> list[dict[str, Any]]:
         # Numbered list
         num_match = re.match(r"^\d+\.\s+(.*)$", line)
         if num_match:
-            elements.append({"type": "numbered_list", "items": [num_match.group(1).strip()]})
+            elements.append(
+                {"type": "numbered_list", "items": [num_match.group(1).strip()]}
+            )
             continue
 
         # Blockquote / callout

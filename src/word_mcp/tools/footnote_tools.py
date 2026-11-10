@@ -7,12 +7,12 @@ including adding, customizing, and converting between them.
 from typing import Any
 
 from word_mcp.core import (
-    core_add_footnote,
     core_add_endnote,
+    core_add_footnote,
     core_convert_footnotes_to_endnotes,
+    core_customize_footnote_formatting,
     find_footnote_references,
     get_format_symbols,
-    core_customize_footnote_formatting,
 )
 from word_mcp.core.document_context import document_context
 from word_mcp.exception import (
@@ -20,8 +20,8 @@ from word_mcp.exception import (
     ExceptionTool,
 )
 from word_mcp.models.response_models import (
-    FootnoteResult,
     EndnoteResult,
+    FootnoteResult,
     OperationResult,
 )
 from word_mcp.validation.document_validators import validate_docx_write
@@ -46,9 +46,16 @@ async def add_footnote_to_document(
             message=f"Footnote added to paragraph {p_index} in {filename}",
         ).model_dump()
 
-    except (ValueError, TypeError, IndexError, DocumentProcessingError, OSError) as error:
+    except (
+        ValueError,
+        TypeError,
+        IndexError,
+        DocumentProcessingError,
+        OSError,
+    ) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add footnote: {str(error)}"),
             filename=filename,
             operation="add footnote",
@@ -74,9 +81,16 @@ async def add_endnote_to_document(
             message=f"Endnote added to paragraph {p_index} in {filename}",
         ).model_dump()
 
-    except (ValueError, TypeError, IndexError, DocumentProcessingError, OSError) as error:
+    except (
+        ValueError,
+        TypeError,
+        IndexError,
+        DocumentProcessingError,
+        OSError,
+    ) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add endnote: {str(error)}"),
             filename=filename,
             operation="add endnote",
@@ -93,12 +107,13 @@ async def convert_footnotes_to_endnotes_in_document(filename: str) -> dict[str, 
         return OperationResult(
             status="success",
             message=f"Converted {count} footnotes to endnotes in {filename}",
-            details={"count": count}
+            details={"count": count},
         ).model_dump()
 
     except (DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to convert footnotes: {str(error)}"),
             filename=filename,
             operation="convert footnotes to endnotes",
@@ -132,13 +147,16 @@ async def customize_footnote_style(
         return OperationResult(
             status="success",
             message=f"Footnote style and numbering customized in {filename}",
-            details={"count": count}
+            details={"count": count},
         ).model_dump()
 
     except (DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
-            else DocumentProcessingError(f"Failed to customize footnote style: {str(error)}"),
+            error
+            if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(
+                f"Failed to customize footnote style: {str(error)}"
+            ),
             filename=filename,
             operation="customize footnote style",
         )

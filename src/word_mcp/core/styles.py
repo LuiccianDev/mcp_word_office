@@ -41,7 +41,7 @@ class StyleSettings:
         self.default_color = default_color
 
         # Default heading sizes mapping level -> size
-        self.heading_sizes = {
+        self.heading_sizes: Dict[int, Length] = {
             1: Pt(16),
             2: Pt(14),
             3: Pt(12),
@@ -131,7 +131,9 @@ class ParagraphProperties:
         self.space_after = space_after
 
 
-def ensure_heading_style(doc: Document, settings: StyleSettings = DEFAULT_SETTINGS) -> None:
+def ensure_heading_style(
+    doc: Document, settings: StyleSettings = DEFAULT_SETTINGS
+) -> None:
     """
     Ensure default heading styles exist in the document and match settings.
 

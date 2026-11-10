@@ -1,4 +1,4 @@
-"""Batch and composite document building tools for Office MCP Server.
+"""Batch and composite document building tools for Word MCP Server.
 
 This module provides high-efficiency tools to build full documents or insert
 multiple content blocks (headings, paragraphs, tables, lists, breaks) in a single pass.
@@ -7,7 +7,6 @@ multiple content blocks (headings, paragraphs, tables, lists, breaks) in a singl
 from __future__ import annotations
 
 import os
-from pathlib import Path
 from typing import Any
 
 from word_mcp.core.batch import (
@@ -25,14 +24,9 @@ from word_mcp.models.response_models import BuildDocumentResult
 from word_mcp.utils.security import is_path_in_allowed_directories
 
 
-def _dump(model: Any) -> dict[str, Any]:
-    """Dump pydantic model supporting both v1 and v2."""
-    if hasattr(model, "model_dump"):
-        return model.model_dump()
-    return model.dict()
-
-
-def _resolve_and_check_path(filename: str | None, file_path: str | None) -> tuple[str | None, dict[str, Any] | None]:
+def _resolve_and_check_path(
+    filename: str | None, file_path: str | None
+) -> tuple[str | None, dict[str, Any] | None]:
     """Resolve target path and check security access."""
     target = filename or file_path
     if not target:
@@ -124,18 +118,19 @@ async def build_document(
                 elements=elements,
             )
 
-        return _dump(BuildDocumentResult(
+        return BuildDocumentResult(
             status="success",
             filename=target,
             total_elements=res["total_elements"],
             element_counts=res["element_counts"],
             summary=res["summary"],
             message=f"Document '{target}' successfully built in a single pass ({res['summary']}).",
-        ))
+        ).model_dump()
 
     except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to build document: {error}"),
             filename=target,
             operation="build document",
@@ -185,19 +180,22 @@ async def create_from_markdown(
                 page_numbers=page_numbers,
             )
 
-        return _dump(BuildDocumentResult(
+        return BuildDocumentResult(
             status="success",
             filename=target,
             total_elements=res["total_elements"],
             element_counts=res["element_counts"],
             summary=res["summary"],
             message=f"Document '{target}' created from Markdown in a single pass ({res['summary']}).",
-        ))
+        ).model_dump()
 
     except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
-            else DocumentProcessingError(f"Failed to create document from markdown: {error}"),
+            error
+            if isinstance(error, DocumentProcessingError)
+            else DocumentProcessingError(
+                f"Failed to create document from markdown: {error}"
+            ),
             filename=target,
             operation="create from markdown",
         )
@@ -231,18 +229,19 @@ async def batch_add_content(
         summary_parts = [f"{v} {k}s" for k, v in counts.items()]
         summary = ", ".join(summary_parts) if summary_parts else "No elements added"
 
-        return _dump(BuildDocumentResult(
+        return BuildDocumentResult(
             status="success",
             filename=target,
             total_elements=total,
             element_counts=counts,
             summary=summary,
             message=f"Appended {total} elements to '{target}' in a single pass.",
-        ))
+        ).model_dump()
 
     except (OSError, ValueError, DocumentProcessingError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to batch add content: {error}"),
             filename=target,
             operation="batch add content",

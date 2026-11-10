@@ -49,4 +49,7 @@ async def test_convert_footnotes_to_endnotes_in_document(temp_docx_file: str) ->
         temp_docx_file
     )
     # This is a simplified check; a real test would inspect the document more deeply
-    assert "Converted" in result["message"] or "No footnote references found" in result["message"]
+    assert (
+        "Converted" in result["message"]
+        or "No footnote references found" in result["message"]
+    )

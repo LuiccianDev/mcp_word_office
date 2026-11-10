@@ -7,9 +7,9 @@ including creation, copying, merging, and conversion.
 
 import os
 import platform
+import re
 import shutil
 import subprocess
-import re
 from re import Pattern
 from typing import Any
 
@@ -70,7 +70,7 @@ def core_create_document(
 
 def core_copy_document(
     source_filename: str, destination_filename: str | None = None
-) -> tuple[bool, str, str]:
+) -> tuple[bool, str, str | None]:
     """Create a copy of a Word document.
 
     Args:
@@ -114,7 +114,7 @@ def core_merge_documents(
         # Copy paragraphs
         for paragraph in source_doc.paragraphs:
             new_paragraph = target_doc.add_paragraph(paragraph.text)
-            
+
             # Simple style matching
             try:
                 if paragraph.style and paragraph.style.name in target_doc.styles:
@@ -167,42 +167,62 @@ def core_convert_to_pdf(filename: str, output_filename: str | None = None) -> st
     if system == "Windows":
         try:
             from docx2pdf import convert
+
             convert(filename, output_filename)
             return output_filename
         except ImportError:
-            raise RuntimeError("docx2pdf is required for PDF conversion on Windows. Please install it.")
+            raise RuntimeError(
+                "docx2pdf is required for PDF conversion on Windows. Please install it."
+            )
         except Exception as e:
             raise RuntimeError(f"PDF conversion failed: {str(e)}")
-            
+
     elif system in ["Linux", "Darwin"]:
-        lo_commands = ["libreoffice", "soffice"] if system == "Linux" else ["soffice", "/Applications/LibreOffice.app/Contents/MacOS/soffice"]
-        
+        lo_commands = (
+            ["libreoffice", "soffice"]
+            if system == "Linux"
+            else ["soffice", "/Applications/LibreOffice.app/Contents/MacOS/soffice"]
+        )
+
         last_error = None
         for cmd_name in lo_commands:
             try:
-                cmd = [cmd_name, "--headless", "--convert-to", "pdf", "--outdir", output_dir, filename]
-                subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=True)
-                
+                cmd = [
+                    cmd_name,
+                    "--headless",
+                    "--convert-to",
+                    "pdf",
+                    "--outdir",
+                    output_dir,
+                    filename,
+                ]
+                subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=60, check=True
+                )
+
                 # Handle LibreOffice naming
                 base_name = os.path.basename(filename)
                 pdf_base_name = os.path.splitext(base_name)[0] + ".pdf"
                 created_pdf = os.path.join(output_dir, pdf_base_name)
-                
+
                 if created_pdf != output_filename and os.path.exists(created_pdf):
                     shutil.move(created_pdf, output_filename)
                 return output_filename
             except (subprocess.SubprocessError, FileNotFoundError) as e:
                 last_error = e
                 continue
-        
+
         # Fallback to docx2pdf if available and LibreOffice failed
         try:
             from docx2pdf import convert
+
             convert(filename, output_filename)
             return output_filename
         except (ImportError, Exception):
-            raise RuntimeError(f"PDF conversion failed. LibreOffice errors: {str(last_error)}. docx2pdf fallback also failed.")
-    
+            raise RuntimeError(
+                f"PDF conversion failed. LibreOffice errors: {str(last_error)}. docx2pdf fallback also failed."
+            )
+
     else:
         raise RuntimeError(f"Unsupported platform for PDF conversion: {system}")
 
@@ -233,7 +253,10 @@ def core_get_paragraph_text(doc: DocumentType, paragraph_index: int) -> dict[str
 
 
 def core_find_text(
-    doc: DocumentType, text_to_find: str, match_case: bool = True, whole_word: bool = False
+    doc: DocumentType,
+    text_to_find: str,
+    match_case: bool = True,
+    whole_word: bool = False,
 ) -> dict[str, Any]:
     """Find all occurrences of specific text in a Word document.
 

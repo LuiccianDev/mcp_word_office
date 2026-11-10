@@ -1,4 +1,4 @@
-"""Tests for the extended_document_tools module."""
+"""Tests for the extended document tools in document_tools."""
 
 from collections.abc import Generator
 from pathlib import Path
@@ -7,8 +7,7 @@ from unittest.mock import Mock, patch
 import pytest
 from docx import Document
 
-# Assuming extended_document_tools.py is in src/word_mcp/tools
-from word_mcp.tools import extended_document_tools
+from word_mcp.tools import document_tools
 
 
 @pytest.fixture  # type: ignore[misc]
@@ -25,9 +24,7 @@ def temp_docx_file(tmp_path: Path) -> Generator[str, None, None]:
 @pytest.mark.asyncio  # type: ignore[misc]
 async def test_get_paragraph_text_from_document(temp_docx_file: str) -> None:
     """Test getting text from a specific paragraph."""
-    result = await extended_document_tools.get_paragraph_text_from_document(
-        temp_docx_file, 1
-    )
+    result = await document_tools.get_paragraph_text_from_document(temp_docx_file, 1)
     assert result["status"] == "success"
     assert "second paragraph" in result["paragraph"]["text"]
 
@@ -35,7 +32,7 @@ async def test_get_paragraph_text_from_document(temp_docx_file: str) -> None:
 @pytest.mark.asyncio  # type: ignore[misc]
 async def test_find_text_in_document(temp_docx_file: str) -> None:
     """Test finding text in a document."""
-    result = await extended_document_tools.find_text_in_document(temp_docx_file, "Test")
+    result = await document_tools.find_text_in_document(temp_docx_file, "Test")
     assert result["status"] == "success"
 
 
@@ -47,9 +44,7 @@ async def test_convert_to_pdf_windows(
 ) -> None:
     """Test converting a document to PDF on Windows."""
     output_file = tmp_path / "output.pdf"
-    result = await extended_document_tools.convert_to_pdf(
-        temp_docx_file, str(output_file)
-    )
+    result = await document_tools.convert_to_pdf(temp_docx_file, str(output_file))
     mock_convert.assert_called_once_with(temp_docx_file, str(output_file))
     assert result["status"] == "success"
     assert "successfully converted" in result["message"]

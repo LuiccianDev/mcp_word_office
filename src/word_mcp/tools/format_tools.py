@@ -5,15 +5,16 @@ including text formatting, table formatting, and custom styles.
 """
 
 from typing import Any
+
 from docx.enum.style import WD_STYLE_TYPE
 
 from word_mcp.core import (
-    core_format_text,
-    create_style,
     apply_table_style,
-    core_set_section_header,
-    core_set_section_footer,
+    core_format_text,
     core_set_page_layout,
+    core_set_section_footer,
+    core_set_section_header,
+    create_style,
 )
 from word_mcp.core.document_context import document_context
 from word_mcp.exception import (
@@ -22,9 +23,9 @@ from word_mcp.exception import (
     StyleError,
 )
 from word_mcp.models.response_models import (
-    TextFormatResult,
     StyleResult,
     TableFormatResult,
+    TextFormatResult,
 )
 from word_mcp.validation.document_validators import validate_docx_write
 
@@ -73,9 +74,16 @@ async def format_text(
             message=f"Text formatted successfully in paragraph {p_index}.",
         ).model_dump()
 
-    except (ValueError, TypeError, IndexError, DocumentProcessingError, OSError) as error:
+    except (
+        ValueError,
+        TypeError,
+        IndexError,
+        DocumentProcessingError,
+        OSError,
+    ) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to format text: {str(error)}"),
             filename=filename,
             operation="format text",
@@ -128,7 +136,8 @@ async def create_custom_style(
 
     except (OSError, ValueError, KeyError, StyleError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, StyleError)
+            error
+            if isinstance(error, StyleError)
             else StyleError(f"Failed to create style: {str(error)}"),
             filename=filename,
             operation="create custom style",
@@ -146,13 +155,15 @@ async def format_table(
     """Format a table with borders, shading, and structure."""
     try:
         t_index = int(table_index)
-        
+
         with document_context(filename, mode="write") as doc:
             if t_index < 0 or t_index >= len(doc.tables):
-                raise IndexError(f"Invalid table index {t_index}. Document has {len(doc.tables)} tables.")
-            
+                raise IndexError(
+                    f"Invalid table index {t_index}. Document has {len(doc.tables)} tables."
+                )
+
             table = doc.tables[t_index]
-            
+
             # Apply formatting
             table_shading: list[list[str | None]] | None = None
             if shading is not None:
@@ -163,7 +174,9 @@ async def format_table(
             )
 
             if not success:
-                raise DocumentProcessingError(f"Failed to apply table style to table at index {t_index}")
+                raise DocumentProcessingError(
+                    f"Failed to apply table style to table at index {t_index}"
+                )
 
         return TableFormatResult(
             status="success",
@@ -175,9 +188,16 @@ async def format_table(
             message=f"Table at index {t_index} formatted successfully.",
         ).model_dump()
 
-    except (OSError, ValueError, KeyError, IndexError, DocumentProcessingError) as error:
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        IndexError,
+        DocumentProcessingError,
+    ) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to format table: {str(error)}"),
             filename=filename,
             operation="format table",
@@ -196,7 +216,7 @@ async def add_header(
     try:
         with document_context(target_path, mode="write") as doc:
             core_set_section_header(doc, text, section_idx=section_index)
-        
+
         return {
             "status": "success",
             "message": f"Header successfully updated in section {section_index} of {target_path}",
@@ -204,7 +224,8 @@ async def add_header(
         }
     except (IndexError, DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add header: {str(error)}"),
             filename=target_path,
             operation="add header",
@@ -231,7 +252,8 @@ async def add_footer(
         }
     except (IndexError, DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to add footer: {str(error)}"),
             filename=target_path,
             operation="add footer",
@@ -249,8 +271,10 @@ async def set_page_layout(
     target_path = filename or file_path or ""
     try:
         with document_context(target_path, mode="write") as doc:
-            core_set_page_layout(doc, section_idx=section_index, orientation=orientation)
-        
+            core_set_page_layout(
+                doc, section_idx=section_index, orientation=orientation
+            )
+
         return {
             "status": "success",
             "message": f"Successfully set section {section_index} layout to {orientation}",
@@ -258,9 +282,9 @@ async def set_page_layout(
         }
     except (ValueError, IndexError, DocumentProcessingError, OSError) as error:
         return ExceptionTool.handle_error(
-            error if isinstance(error, DocumentProcessingError)
+            error
+            if isinstance(error, DocumentProcessingError)
             else DocumentProcessingError(f"Failed to set page layout: {str(error)}"),
             filename=target_path,
             operation="set page layout",
         )
-

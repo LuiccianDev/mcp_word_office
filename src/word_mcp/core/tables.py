@@ -12,7 +12,6 @@ from docx.document import Document
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 from docx.table import Table, _Cell, _Row
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
 # Type aliases for better code readability
@@ -161,7 +160,7 @@ def core_add_table(
     if rows <= 0 or cols <= 0:
         raise ValueError("Rows and columns must be positive integers")
 
-    table = doc.add_table(rows=rows, cols=cols)
+    table: Table = doc.add_table(rows=rows, cols=cols)
     table.style = "Table Grid"
 
     if data:

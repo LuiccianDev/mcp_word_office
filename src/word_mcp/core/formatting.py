@@ -5,9 +5,10 @@ elements within Word documents.
 """
 
 from typing import Any
+
 from docx.document import Document as DocumentType
 from docx.shared import Pt, RGBColor
-from docx.text.paragraph import Paragraph
+
 
 def core_format_text(
     doc: DocumentType,
@@ -45,7 +46,9 @@ def core_format_text(
     text = paragraph.text
 
     if start_pos < 0 or end_pos > len(text) or start_pos >= end_pos:
-        raise ValueError(f"Invalid text positions: {start_pos}-{end_pos} for text of length {len(text)}")
+        raise ValueError(
+            f"Invalid text positions: {start_pos}-{end_pos} for text of length {len(text)}"
+        )
 
     target_text = text[start_pos:end_pos]
 
@@ -59,9 +62,9 @@ def core_format_text(
 
     # Add target text with formatting
     run_target = paragraph.add_run(target_text)
-    
-    formatting_applied = {}
-    
+
+    formatting_applied: dict[str, Any] = {}
+
     if bold is not None:
         run_target.bold = bold
         formatting_applied["bold"] = bold
@@ -71,7 +74,7 @@ def core_format_text(
     if underline is not None:
         run_target.underline = underline
         formatting_applied["underline"] = underline
-        
+
     if color:
         color_map = {
             "red": RGBColor(255, 0, 0),
@@ -95,7 +98,7 @@ def core_format_text(
         except (ValueError, AttributeError):
             run_target.font.color.rgb = RGBColor(0, 0, 0)
             formatting_applied["color"] = "default (black)"
-            
+
     if font_size:
         run_target.font.size = Pt(font_size)
         formatting_applied["font_size"] = font_size
@@ -110,5 +113,5 @@ def core_format_text(
     return {
         "paragraph_index": paragraph_index,
         "text_formatted": target_text,
-        "formatting_applied": formatting_applied
+        "formatting_applied": formatting_applied,
     }

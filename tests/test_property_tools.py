@@ -2,6 +2,7 @@
 
 from collections.abc import Generator
 from pathlib import Path
+
 import pytest
 from docx import Document
 
@@ -22,9 +23,7 @@ def temp_docx_file(tmp_path: Path) -> Generator[str, None, None]:
 async def test_set_and_get_core_properties(temp_docx_file: str) -> None:
     """Test setting and getting core document properties."""
     set_result = await property_tools.set_core_properties(
-        temp_docx_file,
-        author="Test Author",
-        title="Test Title"
+        temp_docx_file, author="Test Author", title="Test Title"
     )
     assert set_result["status"] == "success"
 

@@ -1,7 +1,7 @@
 """
 Entry point for running word_mcp as a module.
 
-This module provides the command-line interface for the Office MCP server,
+This module provides the command-line interface for the Word MCP server,
 supporting both stdio and SSE transport modes.
 """
 
@@ -20,7 +20,8 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
         description="Word MCP Server - High-performance Word document manipulation via MCP",
     )
     parser.add_argument(
-        "-v", "--version",
+        "-v",
+        "--version",
         action="version",
         version=f"%(prog)s {__version__}",
     )

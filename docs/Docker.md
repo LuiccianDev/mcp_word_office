@@ -1,92 +1,83 @@
+# Docker Deployment
 
-# MCP Word Office
+This guide builds the Word MCP server as a Docker image and connects it to an MCP client over `stdio`.
 
-This repository implements an MCP (Model Context Protocol) component designed to read, create, and modify Microsoft Word files automatically.
-Below you will find the steps to build the Docker image and connect it with Claude Desktop as an MCP tool via `stdio`.
-
----
-
-## 1. **Build the Docker Image**
-
-1. Open a terminal in the project root.
-
-2. Run the following command to build the Docker image:
-
-   ```bash
-   docker build -t mcp-word-server .
-   ```
-
-   This creates the image named `mcp-word-server` with all requirements installed.
+The image bundles LibreOffice Writer, which the server uses for headless PDF conversion on Linux.
 
 ---
 
-## 2. **Run the MCP Word Office Server with Docker**
+## 1. Build the Docker image
 
-To launch the container and allow communication via standard input/output (`stdio`):
+Open a terminal at the repository root and run:
+
+```bash
+docker build -t word-mcp .
+```
+
+---
+
+## 2. Run the server
 
 ```bash
 docker run --rm -i \
   -v /path/to/your/documents:/documents \
-  -e MCP_ALLOWED_DIRECTORIES="/documents" \
-  mcp-word-server
+  -e MCP_ALLOWED_DIRECTORIES=/documents \
+  word-mcp
 ```
 
-- `-i`: Allows the container to accept communication via stdio.
-- `-v`: Mounts the folder with Word documents. **Change `/path/to/your/documents` to the path where your files are located**.
-- `-e MCP_ALLOWED_DIRECTORIES`: Restricts access to the mounted folder for greater security.
+- `-i` keeps standard input open for the `stdio` transport.
+- `-v` mounts the directory that contains the Word documents. Replace `/path/to/your/documents` with the absolute path on your host.
+- `-e MCP_ALLOWED_DIRECTORIES` restricts file access to the mounted directory.
 
 ---
 
-## 3. **Integration with Claude Desktop**
+## 3. Connect an MCP client
 
-For Claude Desktop (or any MCP-compatible client via stdio) to automatically launch the MCP Word Office server and communicate via standard input/output, add the following configuration to the MCP tools file in Claude Desktop:
+### Claude Desktop
+
+Add the following entry to `claude_desktop_config.json`:
 
 ```json
 {
-  "mcp-word": {
-    "command": "docker",
-    "args": [
-      "run", "--rm", "-i",
-      "-v", "/path/to/your/documents:/documents",
-      "--name", "mcp-word",
-      "-e", "MCP_ALLOWED_DIRECTORIES=/documents",
-      "mcp-word-server"
-    ],
-    "type": "stdio"
+  "mcpServers": {
+    "word-mcp": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-v", "/path/to/your/documents:/documents",
+        "--name", "word-mcp",
+        "-e", "MCP_ALLOWED_DIRECTORIES=/documents",
+        "word-mcp"
+      ]
+    }
   }
 }
 ```
 
-- **Adjust the path `/path/to/your/documents` according to your system.**
-- The type `"stdio"` indicates that communication will be via standard input/output, not over the network.
+Adjust the mounted path to match your system.
 
 ---
 
-## 4. **Usage Flow**
+## 4. Usage flow
 
-1. Start Claude Desktop.
-2. Claude runs the above Docker command to launch the MCP Word Office server.
-3. All communication occurs via stdio (no need to open or configure ports).
-4. You can manipulate Word (.docx) files directly from Claude Desktop using natural commands.
-
----
-
-## 5. **Recommendations and Security**
-
-- Use the environment variable `MCP_ALLOWED_DIRECTORIES` to restrict access only to the necessary folder.
-- Share only the required volumes.
-- Check the permissions of shared files.
-- There is no need to open firewall ports or configure networks.
+1. Start the MCP client.
+2. The client launches the container with the configuration above.
+3. All communication uses `stdio`; no ports need to be exposed.
+4. Ask the client to create, edit, or convert Word documents inside the mounted directory.
 
 ---
 
-## 6. **Resources**
+## 5. Security recommendations
 
-- [MCP Protocol](https://modelcontextprotocol.io)
+- Always set `MCP_ALLOWED_DIRECTORIES` to restrict access to the required folder only.
+- Mount only the volumes that are strictly necessary.
+- Review the permissions of the shared files.
+- Do not open firewall ports for the container.
+
+---
+
+## 6. Resources
+
+- [Model Context Protocol](https://modelcontextprotocol.io)
 - [Claude Desktop](https://www.anthropic.com/)
-- [MCP Word Office repository on GitHub](https://github.com/LuiccianDev/mcp_word_office)
-
----
-
-Do you have questions or need practical examples of Word manipulation?
-Leave them in the Issues section of the repository.
+- [Word MCP repository](https://github.com/LuiccianDev/word-mcp)

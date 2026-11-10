@@ -49,13 +49,15 @@ def extract_notes(changelog_path: Path, target_version: str | None) -> str:
     if not result:
         # Fallback: return a clean default body
         fallback_ver = ver or "Latest"
-        return f"# Release {fallback_ver}\n\nAutomated release for Office MCP."
+        return f"# Release {fallback_ver}\n\nAutomated release for Word MCP."
 
     return result
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Extract release notes from CHANGELOG.md")
+    parser = argparse.ArgumentParser(
+        description="Extract release notes from CHANGELOG.md"
+    )
     parser.add_argument("--version", help="Version to extract (e.g. 2.0.0)")
     parser.add_argument("--tag", help="Tag to extract (e.g. v2.0.0)")
     parser.add_argument(

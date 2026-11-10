@@ -1,6 +1,5 @@
 """Tests for batch and composite document building tools."""
 
-import asyncio
 import os
 import unittest
 from pathlib import Path
@@ -8,7 +7,7 @@ from tempfile import TemporaryDirectory
 
 from docx import Document
 
-from word_mcp.tools import batch_tools, header_footer_tools, link_tools
+from word_mcp.tools import batch_tools, content_tools, format_tools
 
 
 class TestBatchTools(unittest.IsolatedAsyncioTestCase):
@@ -25,7 +24,12 @@ class TestBatchTools(unittest.IsolatedAsyncioTestCase):
     async def test_build_document_complete(self) -> None:
         """Test building a complete document with typography, margins, header, footer, and elements in 1 pass."""
         elements = [
-            {"type": "heading", "text": "1. Resumen Ejecutivo", "level": 1, "alignment": "center"},
+            {
+                "type": "heading",
+                "text": "1. Resumen Ejecutivo",
+                "level": 1,
+                "alignment": "center",
+            },
             {
                 "type": "paragraph",
                 "text": "Este es el primer párrafo con texto en **negrita** y *cursiva*.",
@@ -154,21 +158,21 @@ Texto después del salto de página.
         doc.save(self.doc_path)
 
         # Call add_header using filename instead of file_path
-        res_header = await header_footer_tools.add_header(
+        res_header = await format_tools.add_header(
             filename=self.doc_path,
             text="Header con alias filename",
         )
         self.assertEqual(res_header["status"], "success")
 
         # Call add_footer using filename instead of file_path
-        res_footer = await header_footer_tools.add_footer(
+        res_footer = await format_tools.add_footer(
             filename=self.doc_path,
             text="Footer con alias filename",
         )
         self.assertEqual(res_footer["status"], "success")
 
         # Call add_bookmark using filename instead of file_path
-        res_bm = await link_tools.add_bookmark(
+        res_bm = await content_tools.add_bookmark(
             filename=self.doc_path,
             paragraph_index=0,
             name="bm_test",

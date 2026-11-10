@@ -63,6 +63,7 @@ def core_add_protection_info(
         if protection_type == "password" and raw_password:
             import shutil
             import tempfile
+
             import msoffcrypto
 
             # Create a temporary file for the encrypted output
@@ -103,12 +104,13 @@ def core_add_protection_info(
 def core_protect_document(filename: str, password: str) -> dict[str, Any]:
     """Add password protection to a Word document using msoffcrypto."""
     import io
+
     import msoffcrypto
-    
+
     try:
         with open(filename, "rb") as f:
             office_file = msoffcrypto.OfficeFile(f)
-        
+
         # Check if already encrypted
         if office_file.is_encrypted:
             return {"status": "error", "message": "Document is already encrypted."}
@@ -116,17 +118,17 @@ def core_protect_document(filename: str, password: str) -> dict[str, Any]:
         # Encrypt into memory
         encrypted_io = io.BytesIO()
         office_file.encrypt(password=password, outfile=encrypted_io)
-        
+
         # Write back
         with open(filename, "wb") as f:
             f.write(encrypted_io.getvalue())
-            
+
         # Clear metadata if exists
         base_path, _ = os.path.splitext(filename)
         metadata_path = f"{base_path}.protection"
         if os.path.exists(metadata_path):
             os.remove(metadata_path)
-            
+
         return {"status": "success", "message": "Document encrypted successfully."}
     except Exception as e:
         raise RuntimeError(f"Failed to encrypt document: {str(e)}")
@@ -135,23 +137,24 @@ def core_protect_document(filename: str, password: str) -> dict[str, Any]:
 def core_unprotect_document(filename: str, password: str) -> dict[str, Any]:
     """Remove password protection from a Word document."""
     import io
+
     import msoffcrypto
-    
+
     try:
         with open(filename, "rb") as f:
             office_file = msoffcrypto.OfficeFile(f)
-            
+
         if not office_file.is_encrypted:
             return {"status": "error", "message": "Document is not encrypted."}
-            
+
         office_file.load_key(password=password)
-        
+
         decrypted_io = io.BytesIO()
         office_file.decrypt(outfile=decrypted_io)
-        
+
         with open(filename, "wb") as f:
             f.write(decrypted_io.getvalue())
-            
+
         return {"status": "success", "message": "Document decrypted successfully."}
     except msoffcrypto.exceptions.InvalidKeyError:
         return {"status": "error", "message": "Incorrect password."}
