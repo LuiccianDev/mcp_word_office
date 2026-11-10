@@ -6,16 +6,18 @@ readme = "README.md"
 authors = [
     {name = "LuiccianDev"}
 ]
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE"]
 keywords = ["mcp", "model-context-protocol", "office", "word", "docx", "llm", "automation"]
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
 ]
 dependencies = [
     "docx2pdf>=0.1.8",
@@ -88,15 +90,12 @@ select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # pyflakes
+    "I",   # isort
 ]
 ignore = [
     "W291",  # trailing whitespace
-    "E501",  # line too long, handled by black/formatter
-    "B008",  # do not perform function calls in argument defaults
+    "E501",  # line too long, handled by the formatter
 ]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["E", "W", "F"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["word_mcp"]
