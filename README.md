@@ -23,12 +23,13 @@ Designed from the ground up for maximum token efficiency, it replaces chatty mic
 
 ## Key Architectural Highlights
 
-- **Single-Pass Document Builder**: Create complete, publication-ready documents (headers, footers, page numbers, margins, headings, paragraphs with markdown styling, tables, lists) in **one single MCP call** (`word_build_document`).
-- **Markdown Direct Generation**: Instantly turn structured markdown text into professionally styled Word documents (`word_create_from_markdown`).
+- **Single-Pass Document Builder**: Create complete, publication-ready documents (headers, footers, page numbers, margins, headings, paragraphs with markdown styling, tables, lists) in **one single MCP call** (`build_document`).
+- **Markdown Direct Generation**: Instantly turn structured markdown text into professionally styled Word documents (`create_from_markdown`).
 - **Visual Design Presets**: Built-in typography and spacing standards (`modern`, `formal`, `academic`, `compact`).
-- **Lightweight Outline Inspection**: Extract heading hierarchies and document stats without dumping full body text (`word_get_document_outline`), saving context tokens.
-- **Batch Content Ingestion**: Append multiple sections, tables, and lists to existing documents in a single atomic operation (`word_batch_add_content`).
+- **Lightweight Outline Inspection**: Extract paragraph previews and table counts without dumping full body text (`get_document_outline`), saving context tokens.
+- **Batch Content Ingestion**: Append multiple sections, tables, and lists to existing documents in a single atomic operation (`batch_add_content`).
 - **Protection & Security**: Password protection, editing restrictions, file integrity checks, and headless PDF conversion.
+- **Complete Tool Reference**: See [`docs/TOOLS.md`](docs/TOOLS.md) for every tool signature, return shape, and limitation.
 - **Zero-Install Execution**: Instant launch with `uvx luiccian-word-mcp`.
 
 ---
@@ -73,7 +74,7 @@ Add this configuration to your `claude_desktop_config.json`:
 >   "mcpServers": {
 >     "word-mcp": {
 >       "command": "uv",
->     "args": ["run", "--directory", "/path/to/word-mcp", "luiccian-word-mcp"],
+>       "args": ["run", "--directory", "/path/to/word-mcp", "luiccian-word-mcp"],
 >       "env": {
 >         "MCP_ALLOWED_DIRECTORIES": "/path/to/your/documents"
 >       }
@@ -113,9 +114,10 @@ uv sync --all-groups
 # 3. Run server
 uv run luiccian-word-mcp
 
-# 4. Run tests and linter
+# 4. Run tests, linter, and type checker
 uv run pytest
-uv run ruff check .
+uv run ruff check src tests scripts
+uv run mypy src
 ```
 
 ---
@@ -124,9 +126,9 @@ uv run ruff check .
 
 The repository includes automated GitHub Actions workflows powered by Astral `uv`:
 
-- **CI (`.github/workflows/ci.yml`)**: Runs tests & lint across Python 3.11, 3.12, and 3.13 on Ubuntu. Uses `paths-ignore` and concurrency cancellation to preserve GitHub Actions minutes.
+- **CI (`.github/workflows/ci.yml`)**: Runs tests, lint, and type checks across Python 3.11, 3.12, 3.13, and 3.14 on Ubuntu. Uses `paths-ignore` and concurrency cancellation to preserve GitHub Actions minutes.
 - **CodeQL Security (`.github/workflows/codeql.yml`)**: Continuous automated security analysis and vulnerability scanning for Python code with GitHub Advanced Security.
-- **Automated Version Bump & PyPI Release (`.github/workflows/bump-and-release.yml`)**: 1-click semantic version bump (`patch`, `minor`, `major`). Automatically updates `pyproject.toml`, promotes `CHANGELOG.md`, creates git commit & tag `v*`, builds with `uv build`, attests cryptographic provenance (PEP 740), generates GitHub Release, and publishes to PyPI.
+- **Automated Version Bump & PyPI Release (`.github/workflows/bump-and-release.yml`)**: 1-click semantic version bump (`patch`, `minor`, `major`). Updates `pyproject.toml`, `manifest.json`, `CHANGELOG.md`, `docs/TOOLS.md`, and `uv.lock`, validates the quality gate, commits, and pushes the `v*` tag. The tag then triggers `release.yml` and, through the published GitHub Release, `publish-pypi.yml`.
 - **Releases (`.github/workflows/release.yml`)**: Triggered on `v*` tags or manually via workflow dispatch. Builds wheel & sdist with `uv build`, auto-extracts release notes from `CHANGELOG.md`, and creates a GitHub Release.
 - **PyPI Publishing (`.github/workflows/publish-pypi.yml`)**: Automated PyPI deployment using **Trusted Publishing (OIDC)** and PEP 740 cryptographic build provenance attestation (`actions/attest-build-provenance@v2`).
 
@@ -148,10 +150,10 @@ To set up or verify Trusted Publishing on [PyPI.org](https://pypi.org/manage/acc
 
 | Metric | Legacy Micro-Calls | Word MCP Single-Pass |
 | :--- | :--- | :--- |
-| **Tool Calls** | 15 – 35 calls per document | **1 single call** (`word_build_document`) |
+| **Tool Calls** | 15 – 35 calls per document | **1 single call** (`build_document`) |
 | **Token Usage** | ~15,000 – 30,000 tokens | **~800 – 1,500 tokens** (90%+ savings) |
 | **Disk Operations** | Multiple file writes | Single in-memory assembly & write |
-| **Generation Time** | 30 – 60 seconds | **< 0.25 seconds** |
+| **Generation Time** | 30 – 60 seconds | Single in-memory assembly |
 
 ---
 
@@ -181,22 +183,33 @@ The repository provides 3 modular, specialized skills in `skills/` for LLMs:
 ```text
 src/
 └── word_mcp/
-    ├── core/               # Word document manipulation engines
-    │   ├── batch.py        # High-performance single-pass builder & markdown parser
-    │   ├── document.py     # Document lifecycle & outline extraction
-    │   ├── content.py      # Paragraphs, headings, and lists
-    │   ├── tables.py       # Table styling & cell manipulation
-    │   └── protection.py   # Password hashing & editing locks
-    ├── tools/              # Exposed MCP tools (consolidated)
-    │   ├── batch_tools.py  # word_build_document, word_create_from_markdown
-    │   ├── document_tools.py # Lifecycle, text, outline, info, PDF
-    │   ├── content_tools.py  # Paragraphs, headings, links, bookmarks
-    │   ├── format_tools.py   # Styles, headers, footers, page layout
-    │   └── protection_tools.py # Protect, unprotect, verify
-    ├── models/             # Pydantic response models
-    ├── validation/         # Input validators & parameter alias tolerance
-    ├── server.py           # FastMCP server registration
-    └── __main__.py         # Server entry point
+    ├── core/
+    │   ├── batch.py            # Single-pass builder and markdown parser
+    │   ├── content.py          # Headings, paragraphs, tables, pictures
+    │   ├── document.py         # Lifecycle, text search, PDF conversion
+    │   ├── document_context.py # Read/write document context manager
+    │   ├── footnotes.py        # Footnotes and endnotes
+    │   ├── formatting.py       # Text and table formatting
+    │   ├── headers_footers.py  # Headers, footers, page layout
+    │   ├── links.py            # Hyperlinks and bookmarks
+    │   ├── properties.py       # Core properties and section layout
+    │   ├── protection.py       # Encryption and protection metadata
+    │   ├── styles.py           # Style presets and helpers
+    │   └── tables.py           # Table helpers
+    ├── exception/              # Typed errors and error responses
+    ├── models/                 # Pydantic response models
+    ├── tools/                  # Registered MCP tools
+    │   ├── batch_tools.py
+    │   ├── content_tools.py
+    │   ├── document_tools.py
+    │   ├── footnote_tools.py
+    │   ├── format_tools.py
+    │   ├── property_tools.py
+    │   └── protection_tools.py
+    ├── utils/                  # Document and security utilities
+    ├── validation/             # Path and file validators
+    ├── server.py               # FastMCP server registration
+    └── __main__.py             # Console entry point
 ```
 
 ---
@@ -215,7 +228,7 @@ The distribution boundary between the PyPI package and the repository is strictl
 
 ## Security & Guidelines
 
-- **Security Policy**: See [`SECURITY.md`](SECURITY.md) for vulnerability disclosure, OOXML hash verification, and threat modeling.
+- **Security Policy**: See [`SECURITY.md`](SECURITY.md) for vulnerability disclosure, protection metadata and threat model, and threat modeling.
 - **Rules for AI Assistants**: See [`AGENTS.md`](AGENTS.md) for official development directives, coding standards, and token optimization rules.
 - **Directory Isolation**: Set `MCP_ALLOWED_DIRECTORIES` to restrict document operations strictly to designated folders. Path canonicalization prevents directory traversal.
 

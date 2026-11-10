@@ -100,3 +100,41 @@ def test_response_format_scope_is_documented() -> None:
     assert "does not change the output shape" in body
     assert "get_document_info" in body
     assert "list_available_documents" in body
+
+
+def test_readme_project_structure_lists_actual_modules() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for module in (
+        "footnotes.py",
+        "links.py",
+        "headers_footers.py",
+        "properties.py",
+        "footnote_tools.py",
+        "property_tools.py",
+        "utils/",
+        "exception/",
+    ):
+        assert module in readme
+
+
+def test_readme_does_not_claim_heading_hierarchy_outline() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "heading hierarchies" not in readme
+    assert "paragraph previews and table counts" in readme
+
+
+def test_readme_does_not_promise_unverified_performance() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "0.25 seconds" not in readme
+
+
+def test_readme_describes_release_chain_correctly() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "generates GitHub Release, and publishes to PyPI" not in readme
+    assert "OOXML hash verification" not in readme
+
+
+def test_readme_links_tools_reference() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "docs/TOOLS.md" in readme
+
