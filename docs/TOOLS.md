@@ -37,20 +37,22 @@ Build a complete, professionally styled Word document in a single tool call with
 - `title` (str, optional): Document title metadata and core properties.
 - `author` (str, optional): Document author metadata.
 - `preset` (str, optional): Visual style preset (`"modern"`, `"formal"`, `"academic"`, `"compact"`). Default: `"modern"`.
-- `margins` (dict, optional): Custom margins `{"top_cm": float, "bottom_cm": float, "left_cm": float, "right_cm": float}`.
+- `margins` (dict, optional): Custom margins `{"top": float, "bottom": float, "left": float, "right": float}` in centimeters.
+- `orientation` (str, optional): Page orientation (`"portrait"` or `"landscape"`). Default: `"portrait"`.
 - `font_name` (str, optional): Base body font family (e.g. `"Calibri"`, `"Times New Roman"`, `"Arial"`).
 - `font_size` (float, optional): Base body font size in points (e.g. 11.0, 12.0).
 - `line_spacing` (float, optional): Line spacing multiplier (e.g. 1.15, 1.5, 2.0).
+- `space_after` (float, optional): Spacing after paragraphs in points (e.g. 6.0).
 - `header_text` (str, optional): Running header text for document pages.
 - `footer_text` (str, optional): Running footer text for document pages.
-- `page_numbers` (bool, optional): If `True`, injects automatic Word dynamic page numbering (`PAGE`) in the footer. Default: `True`.
+- `page_numbers` (bool, optional): If `True`, injects automatic Word dynamic page numbering (`PAGE`) in the footer. Default: `False`.
 - `elements` (list of dict): Ordered list of document elements to render:
-  - `{"type": "heading", "text": "...", "level": 1-4}`
-  - `{"type": "paragraph", "text": "...", "alignment": "left|center|right|justify", "space_after": 6}` (supports `**bold**`, `*italic*`)
+  - `{"type": "heading", "text": "...", "level": 1-9}`
+  - `{"type": "paragraph", "text": "...", "alignment": "left|center|right|justify", "space_after": 6}` (alignment Default: `left`, supports `**bold**`, `*italic*`)
   - `{"type": "table", "headers": ["Col1", "Col2"], "rows": [["A", "B"]], "style": "Table Grid"}`
   - `{"type": "bullet_list", "items": ["Item 1", "Item 2"]}`
   - `{"type": "numbered_list", "items": ["Step 1", "Step 2"]}`
-  - `{"type": "callout", "text": "...", "title": "NOTE"}`
+  - `{"type": "callout", "text": "...", "title": "NOTE"}` (callout `title` is accepted but not rendered)
   - `{"type": "page_break"}`
 
 **Returns:**
@@ -68,14 +70,21 @@ Quickly draft and format a Word document from structured markdown text in a sing
 
 **Parameters:**
 
-- `filename` (str): Output document file path.
 - `markdown_content` (str): Markdown text containing headings (`#`, `##`), bullet lists (`-`), numbered lists (`1.`), tables (`| Col1 | Col2 |`), callouts (`>`), and inline formatting (`**bold**`, `*italic*`).
+- `filename` (str, optional): Output document file path (accepts `filename` or `file_path`).
+- `file_path` (str, optional): Alias for `filename`.
+- `title` (str, optional): Document title metadata.
+- `author` (str, optional): Document author metadata.
 - `preset` (str, optional): Visual style preset (`"modern"`, `"formal"`, `"academic"`, `"compact"`).
-- `title` (str, optional): Document title.
-- `author` (str, optional): Document author.
+- `font_name` (str, optional): Base body font family.
+- `font_size` (float, optional): Base body font size in points.
+- `line_spacing` (float, optional): Line spacing multiplier.
+- `space_after` (float, optional): Space after paragraphs in points.
+- `margins` (dict, optional): Custom margins `{"top": float, "bottom": float, "left": float, "right": float}` in centimeters.
 - `header_text` (str, optional): Running header text.
 - `footer_text` (str, optional): Running footer text.
-- `page_numbers` (bool, optional): If `True`, injects dynamic page numbers.
+- `page_numbers` (bool, optional): If `True`, injects dynamic page numbers. Default: `False`.
+*(Note: It has no `orientation` parameter).*
 
 **Returns:**
 - `BuildDocumentResult`: Structured generation summary.
@@ -92,11 +101,12 @@ Append multiple structured elements (headings, paragraphs, tables, lists) to an 
 
 **Parameters:**
 
-- `filename` (str): Target existing `.docx` file path.
+- `filename` (str, optional): Target existing `.docx` file path (accepts `filename` or `file_path`).
+- `file_path` (str, optional): Alias for `filename`.
 - `elements` (list of dict): List of elements to append (same format as `build_document`).
 
 **Returns:**
-- `BuildDocumentResult`: Structured summary of appended elements.
+- `BuildDocumentResult`: Structured summary including `status`, `filename`, `total_elements`, `element_counts`, `summary`, and `message`.
 
 ---
 
@@ -156,7 +166,7 @@ Get metadata and properties of a Word document.
 
 **Returns:**
 
-- dict: Document properties including title, author, word_count, page_count, created/modified dates, etc.
+- dict: Returns `{"status", "properties", "response_format"}`. `properties` contains `author`, `title`, `subject`, `keywords`, `comments`, `category`, `last_modified_by`, `created`, `modified`, `filename`, `path`, `size_kb`. Page count is not computed; the OpenXML package does not expose a reliable page total without rendering.
 
 ---
 
@@ -175,7 +185,7 @@ Extract all text from a Word document.
 
 **Returns:**
 
-- dict: Contains `full_text`, `paragraph_count`, and `paragraphs` list
+- dict: Contains `status` and `text` (returns `{"status", "text"}`).
 
 ---
 
@@ -185,7 +195,7 @@ Extract all text from a Word document.
 get_document_outline(filename: str, response_format: str = 'markdown') -> dict[str, typing.Any]
 ```
 
-Get the structure/outline of a Word document including headings and tables.
+Get the structure/outline of a Word document including paragraphs and tables.
 
 **Parameters:**
 
@@ -194,7 +204,7 @@ Get the structure/outline of a Word document including headings and tables.
 
 **Returns:**
 
-- dict: Contains `headings` (list with level, text, position) and `tables` (list with index, row_count, column_count)
+- dict: Returns `paragraphs` and `tables` (`{"paragraphs": [{"index", "text", "style"}], "tables": [{"index", "rows", "columns", "preview"}]}`). Paragraph text is truncated to 100 characters plus `...`. Tables include a 3x3 cell preview. There is no heading tree and no `status` key on success.
 
 ---
 
@@ -204,7 +214,7 @@ Get the structure/outline of a Word document including headings and tables.
 list_available_documents(directory: str | None = None, page: int = 1, page_size: int = 20, response_format: str = 'markdown') -> dict[str, typing.Any]
 ```
 
-List all .docx files in the specified or allowed directories with pagination support.
+List all .docx files in the specified or allowed directories with pagination support. Only top-level `.docx` files in allowed directories are scanned.
 
 **Parameters:**
 
@@ -219,8 +229,7 @@ List all .docx files in the specified or allowed directories with pagination sup
   - `status`: Operation status
   - `message`: Human-readable message
   - `documents`: List of documents with name, path, size_kb, source_directory
-  - `pagination`: Object with page, page_size, total, has_more, next_offset
-  - `directories_searched`: List of directories that were searched
+  - `pagination`: Object with `page`, `page_size`, `total`, `has_more`
 
 ---
 
@@ -241,7 +250,7 @@ Merge multiple Word documents into a single document.
 
 **Returns:**
 
-- dict: Contains `status`, `message`, and details about merged documents
+- dict: Contains `status`, `message`, and `file_path`.
 
 ---
 
@@ -533,11 +542,11 @@ Add restricted editing to allow editing only in specified sections.
 
 - `filename` (str): Path to the Word document
 - `password` (str): Password to protect the document with
-- `editable_sections` (list[str]): List of section names that can be edited
+- `editable_sections` (list[str]): List of section names that can be edited (stored in the sidecar `.protection` file and is advisory)
 
 **Returns:**
 
-- dict: Contains `status`, `message`, and editable sections
+- dict: Contains `status`, `message`, and `editable_sections` list.
 
 ---
 
@@ -547,7 +556,7 @@ Add restricted editing to allow editing only in specified sections.
 add_digital_signature(filename: str, signer_name: str, reason: str | None = None) -> dict[str, typing.Any]
 ```
 
-Add a digital signature to a Word document.
+Add a digital signature to a Word document. Writes a visible signature block and stores a SHA-256 content hash in the sidecar; it is not a cryptographic signature and does not verify signer identity.
 
 **Parameters:**
 
@@ -567,7 +576,7 @@ Add a digital signature to a Word document.
 verify_document(filename: str, password: str | None = None) -> dict[str, typing.Any]
 ```
 
-Verify document protection and/or digital signature.
+Verify document protection and/or digital signature. It reads the sidecar file only.
 
 **Parameters:**
 
@@ -576,7 +585,7 @@ Verify document protection and/or digital signature.
 
 **Returns:**
 
-- dict: Contains `status`, `message`, and verification details
+- `ProtectionResult`: Structured result with `status`, `filename`, `protection_type`, `success`, and `message`.
 
 ---
 
@@ -595,7 +604,6 @@ Add a footnote to a specific paragraph in a Word document.
 - `filename` (str): Path to the Word document
 - `paragraph_index` (int): Index of the paragraph (0-based)
 - `footnote_text` (str): Text content of the footnote
-- `reference_mark` (str, optional): Custom reference mark
 
 **Returns:**
 
@@ -652,9 +660,8 @@ Customize the appearance of footnotes in a Word document.
 **Parameters:**
 
 - `filename` (str): Path to the Word document
-- `number_format` (str, optional): Number format ("decimal", "lowerRoman", "upperRoman", "lowerLetter", "upperLetter")
-- `start_at` (int, optional): Starting number for footnotes
-- `restart_each_page` (bool, optional): Restart numbering on each page
+- `numbering_format` (str, optional): Number format (default: `"1, 2, 3"`)
+- `start_number` (int, optional): Starting number for footnotes (default: `1`)
 - `font_size` (int, optional): Font size in points
 - `font_name` (str, optional): Font name
 
@@ -681,7 +688,7 @@ Get text from a specific paragraph in a Word document.
 
 **Returns:**
 
-- dict: Contains `status`, `message`, `text`, and `character_count`
+- dict: Contains `status` and `paragraph` object with `index`, `text`, `style`, and `is_heading` (returns `{"status", "paragraph": {"index", "text", "style", "is_heading"}}`).
 
 ---
 
@@ -696,13 +703,13 @@ Search for text in a Word document and return matching locations.
 **Parameters:**
 
 - `filename` (str): Path to the Word document
-- `search_text` (str): Text to search for
+- `text_to_find` (str): Text to search for
 - `match_case` (bool, optional): Case-sensitive search (default: True)
 - `whole_word` (bool, optional): Match whole words only (default: False)
 
 **Returns:**
 
-- dict: Contains `status`, `message`, `match_count`, and `matches` list
+- dict: Returns `{"status", "search_results": {"query", "match_case", "whole_word", "occurrences", "total_count"}}` with `search_results`. Each occurrence has `location`, `position`, `match`, and `context`.
 
 ---
 
@@ -721,7 +728,7 @@ Convert a Word document to PDF format.
 
 **Returns:**
 
-- dict: Contains `status`, `success`, `pdf_path`, and `message`
+- dict: Contains `status`, `pdf_path`, and `message`.
 
 ---
 
@@ -737,7 +744,8 @@ Add or update the primary header of a specific section in the document.
 
 **Parameters:**
 
-- `file_path` (str): Path to the Word document
+- `filename` (str): Output document or target file path (primary parameter, accepts `filename` or `file_path`).
+- `file_path` (str, optional): Alias for `filename`.
 - `text` (str): Text content for the header
 - `section_index` (int, optional): Index of the section (0-based, default: 0)
 
@@ -757,7 +765,8 @@ Add or update the primary footer of a specific section in the document.
 
 **Parameters:**
 
-- `file_path` (str): Path to the Word document
+- `filename` (str): Output document or target file path (primary parameter, accepts `filename` or `file_path`).
+- `file_path` (str, optional): Alias for `filename`.
 - `text` (str): Text content for the footer
 - `section_index` (int, optional): Index of the section (0-based, default: 0)
 
@@ -779,7 +788,8 @@ Add a hyperlink to a specific paragraph.
 
 **Parameters:**
 
-- `file_path` (str): Path to the Word document
+- `filename` (str): Target document file path (primary parameter, accepts `filename` or `file_path`).
+- `file_path` (str, optional): Alias for `filename`.
 - `paragraph_index` (int): Index of the paragraph (0-based)
 - `text` (str): Display text for the hyperlink
 - `url` (str, optional): Target URL (required if bookmark is not provided)
@@ -801,7 +811,8 @@ Add a bookmark to a specific paragraph to enable internal linking.
 
 **Parameters:**
 
-- `file_path` (str): Path to the Word document
+- `filename` (str): Target document file path (primary parameter, accepts `filename` or `file_path`).
+- `file_path` (str, optional): Alias for `filename`.
 - `paragraph_index` (int): Index of the paragraph (0-based)
 - `name` (str): Name of the bookmark
 
@@ -823,6 +834,7 @@ Get the core metadata properties of the document (author, title, etc.).
 
 **Parameters:**
 
+- `filename` (str, optional): Target document file path (accepts `filename` or `file_path`).
 - `file_path` (str): Path to the Word document
 
 **Returns:**
@@ -841,6 +853,7 @@ Set the core metadata properties of the document.
 
 **Parameters:**
 
+- `filename` (str, optional): Target document file path (accepts `filename` or `file_path`).
 - `file_path` (str): Path to the Word document
 - `author` (str, optional): Document author
 - `title` (str, optional): Document title
@@ -865,7 +878,8 @@ Set the page layout orientation (portrait or landscape) for a specific section.
 
 **Parameters:**
 
-- `file_path` (str): Path to the Word document
+- `filename` (str): Target document file path (primary parameter, accepts `filename` or `file_path`).
+- `file_path` (str, optional): Alias for `filename`.
 - `section_index` (int, optional): Index of the section (0-based, default: 0)
 - `orientation` (str, optional): Page orientation ("portrait" or "landscape", default: "portrait")
 
@@ -877,10 +891,10 @@ Set the page layout orientation (portrait or landscape) for a specific section.
 
 ## Response Format
 
-All tools that return data support a `response_format` parameter:
+The `response_format` parameter (`"markdown"` or `"json"`) is declared by `get_document_info`, `get_document_text`, `get_document_outline`, `list_available_documents`, and `merge_documents`. Only `get_document_info` and `list_available_documents` echo the value in the response, and it does not change the output shape.
 
-- `"markdown"` (default): Human-readable formatted text with headers and lists
-- `"json"`: Machine-readable structured data for programmatic processing
+- `"markdown"` (default): Human-readable formatted text
+- `"json"`: Machine-readable structured data
 
 Example:
 
@@ -922,8 +936,7 @@ The `list_available_documents` tool supports pagination:
     "page": 1,
     "page_size": 20,
     "total": 45,
-    "has_more": true,
-    "next_offset": 2
+    "has_more": true
   }
 }
 ```
@@ -932,5 +945,5 @@ To get the next page, call the tool again with `page = 2`.
 
 ---
 
-*Last updated: February 2026*
-*Version: 1.0.1*
+*Last updated: November 2026*
+*Version: 2.0.1*
