@@ -3,13 +3,13 @@
 Automated Semantic Version Bumper for Word MCP.
 
 Supports automatic semantic bumping (patch, minor, major) or explicit version string.
-Synchronizes version across pyproject.toml and CHANGELOG.md.
+Synchronizes version across pyproject.toml, manifest.json, CHANGELOG.md, and docs/TOOLS.md.
 
 Usage:
     python3 scripts/bump-version.py --type patch
     python3 scripts/bump-version.py --type minor
     python3 scripts/bump-version.py --type major
-    python3 scripts/bump-version.py --custom 2.1.0
+    python3 scripts/bump-version.py --type custom --custom 2.1.0
     python3 scripts/bump-version.py 2.0.1
 """
 
@@ -18,7 +18,6 @@ from __future__ import annotations
 import argparse
 import os
 import re
-import sys
 from datetime import date
 from pathlib import Path
 
@@ -27,7 +26,7 @@ def get_current_version(pyproject_path: Path) -> str:
     if not pyproject_path.is_file():
         raise FileNotFoundError(f"pyproject.toml not found at {pyproject_path}")
     content = pyproject_path.read_text(encoding="utf-8")
-    match = re.search(r'version\s*=\s*"([^"]+)"', content)
+    match = re.search(r'(?m)^version = "([^"]+)"', content)
     if not match:
         raise ValueError("Could not find 'version = \"...\"' in pyproject.toml")
     return match.group(1).strip()
@@ -78,7 +77,7 @@ def bump_files(new_version: str, repo_root: Path, dry_run: bool = False) -> None
     if pyproject_path.is_file():
         content = pyproject_path.read_text(encoding="utf-8")
         updated = re.sub(
-            r'version\s*=\s*"[^"]+"',
+            r'(?m)^version = "[^"]+"',
             f'version = "{new_version}"',
             content,
             count=1,
@@ -87,7 +86,24 @@ def bump_files(new_version: str, repo_root: Path, dry_run: bool = False) -> None
             pyproject_path.write_text(updated, encoding="utf-8")
         print(f"  [OK] {pyproject_path.name} -> {new_version}")
 
-    # 2. Update CHANGELOG.md if [Unreleased] is present
+    # 2. Update manifest.json (MCPB metadata)
+    manifest_path = repo_root / "manifest.json"
+    if manifest_path.is_file():
+        content = manifest_path.read_text(encoding="utf-8")
+        updated, replacements = re.subn(
+            r'("version"\s*:\s*")[^"]+(")',
+            rf"\g<1>{new_version}\g<2>",
+            content,
+            count=1,
+        )
+        if replacements:
+            if not dry_run:
+                manifest_path.write_text(updated, encoding="utf-8")
+            print(f"  [OK] {manifest_path.name} -> {new_version}")
+        else:
+            print(f"  [WARN] {manifest_path.name} has no version field to update")
+
+    # 3. Update CHANGELOG.md if [Unreleased] is present
     today_str = date.today().isoformat()
     if changelog_path.is_file():
         content = changelog_path.read_text(encoding="utf-8")
@@ -104,7 +120,27 @@ def bump_files(new_version: str, repo_root: Path, dry_run: bool = False) -> None
                 changelog_path.write_text(updated, encoding="utf-8")
             print(f"  [OK] {changelog_path.name} promoted [Unreleased] -> {new_version}")
 
-    # 3. Export to GITHUB_OUTPUT if running in GitHub Actions
+    # 4. Update docs/TOOLS.md footer
+    tools_doc = repo_root / "docs" / "TOOLS.md"
+    if tools_doc.is_file():
+        content = tools_doc.read_text(encoding="utf-8")
+        updated = re.sub(
+            r"(?m)^\*Last updated: .*\*$",
+            f"*Last updated: {date.today().strftime('%B %Y')}*",
+            content,
+            count=1,
+        )
+        updated = re.sub(
+            r"(?m)^\*Version: [^*]+\*$",
+            f"*Version: {new_version}*",
+            updated,
+            count=1,
+        )
+        if not dry_run:
+            tools_doc.write_text(updated, encoding="utf-8")
+        print(f"  [OK] docs/TOOLS.md -> {new_version}")
+
+    # 5. Export to GITHUB_OUTPUT if running in GitHub Actions
     github_output = os.environ.get("GITHUB_OUTPUT")
     if github_output and Path(github_output).is_file():
         with open(github_output, "a", encoding="utf-8") as f:
@@ -126,6 +162,10 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Calculate without modifying files")
 
     args = parser.parse_args()
+
+    if args.type == "custom" and not args.custom and not args.version:
+        parser.error("--custom is required when --type custom is used")
+
     repo_root = Path(__file__).resolve().parent.parent
     pyproject_path = repo_root / "pyproject.toml"
 
@@ -134,6 +174,8 @@ def main() -> None:
 
     if args.version:
         new_version = args.version.lstrip("v").strip()
+    elif args.type == "custom" or (args.type is None and args.custom):
+        new_version = calculate_next_version(current_ver, "custom", args.custom)
     elif args.type:
         new_version = calculate_next_version(current_ver, args.type, args.custom)
     else:
